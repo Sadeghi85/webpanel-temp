@@ -6,7 +6,8 @@
 	"require": {
 		"laravel/framework": "4.2.*",
 		"cartalyst/sentry": "2.1.*",
-		"barryvdh/laravel-debugbar": "1.*"
+		"barryvdh/laravel-debugbar": "1.*",
+		"way/generators": "2.*"
 	},
 	"autoload": {
 		"classmap": [

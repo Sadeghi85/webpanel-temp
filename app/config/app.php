@@ -13,8 +13,8 @@ return array(
 	|
 	*/
 
-	//'debug' => true,
-	'debug' => false,
+	'debug' => true,
+	//'debug' => false,
 
 	/*
 	|--------------------------------------------------------------------------
@@ -125,6 +125,7 @@ return array(
 		
 		'Cartalyst\Sentry\SentryServiceProvider',
 		'Barryvdh\Debugbar\ServiceProvider',
+		'Way\Generators\GeneratorsServiceProvider',
 
 	),
 
