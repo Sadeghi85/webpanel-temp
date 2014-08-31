@@ -14,18 +14,12 @@
     @show
   </title>
 
-    <link href="{{ asset('/assets/css/ext/resources/css/ext-all.css') }}" rel="stylesheet" media="screen">
-    <link href="{{ asset('/assets/css/app.css') }}" rel="stylesheet" media="screen">
+    <link href="{{ asset('/assets/extjs/resources/css/ext-all.css') }}" rel="stylesheet" media="screen">
+    <link href="{{ asset('/assets/app.css') }}" rel="stylesheet" media="screen">
 
-  <script type="text/javascript">
-//<![CDATA[
-var BASE_URL = '';
-//]]>
-</script>
-
-    <script src="{{ asset('/assets/js/ext/ext-dev.js') }}"></script>
-    <script src="{{ asset('/assets/js/ext/locale/ext-lang-en.js') }}"></script>
-	<script src="{{ asset('/assets/js/app.js') }}"></script>
+    <script src="{{ asset('/assets/extjs/ext-all-dev.js') }}"></script>
+    <script src="{{ asset('/assets/extjs/locale/ext-lang-en.js') }}"></script>
+	<script src="{{ asset('/assets/app.js') }}"></script>
 
 @section('style') 
    <style type="text/css">
