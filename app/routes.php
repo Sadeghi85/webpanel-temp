@@ -13,5 +13,47 @@
 
 Route::get('/', function()
 {
-	return View::make('test');
+	//return Redirect::route('overview.index');
+	return Redirect::to(Session::get('loginRedirect', route('overview.index')));
+});
+
+Route::group(array('before' => 'auth.sentry'), function()
+{
+    // Overview
+	Route::resource('overview', 'OverviewController', array('only' => array('index')));
+	
+	// Account
+	// Route::bind('accounts', function($id, $route) {
+		// if (Sentry::getUser()->isSuperUser())
+		// {
+			// return Account::findOrFail($id);
+		// }
+		// else
+		// {
+			// return Sentry::getUser()->accounts()->findOrFail($id);
+		// }
+	// });
+	// Route::resource('accounts', 'AccountsController');
+
+	// Log
+	//Route::resource('logs', 'PanelLogsController', array('only' => array('index', 'show', 'destroy')));
+
+	// Profile
+	//Route::resource('profile', 'ProfileController', array('only' => array('index')));
+	
+});
+
+/*
+|--------------------------------------------------------------------------
+| Authentication and Authorization Routes
+|--------------------------------------------------------------------------
+*/
+Route::group(array('prefix' => 'auth'), function()
+{
+	// Login
+	Route::get('login', array('as' => 'auth.login', 'uses' => 'AuthController@getLogin'));
+	Route::post('login', array('uses' => 'AuthController@postLogin'));
+	
+	// Logout
+	Route::get('logout', array('as' => 'auth.logout', 'uses' => 'AuthController@getLogout'));
 });

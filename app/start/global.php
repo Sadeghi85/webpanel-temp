@@ -18,6 +18,8 @@ ClassLoader::addDirectories(array(
 	app_path().'/models',
 	app_path().'/database/seeds',
 
+	app_path().'/helpers',
+	app_path().'/libraries',
 ));
 
 /*
@@ -46,9 +48,75 @@ Log::useFiles(storage_path().'/logs/laravel.log');
 |
 */
 
+App::fatal(function($exception)
+{
+	Log::error($exception);
+	
+	if ( ! Config::get('app.debug'))
+	{
+		$message = Helpers::getExceptionErrorMessage();
+		//return Response::make(View::make('error/500'), 500);
+		return (Request::ajax() ? Response::make('', 500) : Response::view('error.error', compact('message'), 500));
+	}
+});
+
 App::error(function(Exception $exception, $code)
 {
 	Log::error($exception);
+	
+	if ( ! Config::get('app.debug'))
+	{
+		$message = Helpers::getExceptionErrorMessage();
+		
+		switch ($code)
+		{
+			case 403:
+				//return Response::view('error.error', compact('message'), 403);
+				return (Request::ajax() ? Response::make('', 403) : Response::view('error.error', compact('message'), 403));
+				
+			case 405:
+				//return Response::view('error.error', compact('message'), 405);
+				return (Request::ajax() ? Response::make('', 405) : Response::view('error.error', compact('message'), 405));
+
+			case 500:
+				//return Response::view('error.error', compact('message'), 500);
+				return (Request::ajax() ? Response::make('', 500) : Response::view('error.error', compact('message'), 500));
+				
+			case 503:
+				//return Response::view('error.error', compact('message'), 503);
+				return (Request::ajax() ? Response::make('', 503) : Response::view('error.error', compact('message'), 503));
+
+			default:
+				//return Response::view('error.error', compact('message'), 404);
+				return (Request::ajax() ? Response::make('', 404) : Response::view('error.error', compact('message'), 404));
+		}
+	}
+});
+
+// App::error(function(Exception $exception, $code)
+// {
+	// Log::error($exception);
+// });
+
+App::error(function(Illuminate\Session\TokenMismatchException $exception, $code)
+{
+	$message = Helpers::getExceptionErrorMessage();
+    //return Response::make(View::make('error/token_mismatch'), 403);
+	return (Request::ajax() ? Response::make('', 403) : Response::view('error.error', compact('message'), 403));
+});
+
+App::error(function(Illuminate\Database\Eloquent\ModelNotFoundException $exception, $code)
+{
+	$message = Helpers::getExceptionErrorMessage();
+    //return Response::view('error.error', compact('message'), 404);
+	return (Request::ajax() ? Response::make('', 404) : Response::view('error.error', compact('message'), 404));
+});
+
+App::missing(function($exception)
+{
+    $message = Helpers::getExceptionErrorMessage();
+    //return Response::view('error.error', compact('message'), 404);
+	return (Request::ajax() ? Response::make('', 404) : Response::view('error.error', compact('message'), 404));
 });
 
 /*
@@ -79,3 +147,125 @@ App::down(function()
 */
 
 require app_path().'/filters.php';
+
+// Paginator page must be positive
+Input::merge(array(Paginator::getPageName() => abs(Input::get(Paginator::getPageName(), 1))));
+
+/*
+|--------------------------------------------------------------------------
+| Validator Extends
+|--------------------------------------------------------------------------
+|
+*/
+
+Validator::extend('custom.domain', function($attribute, $value, $parameters)
+{
+	$inputs = explode("\r\n", trim($value));
+
+	foreach ($inputs as $input)
+	{
+		if (preg_match('#^\d+(?:\.\d+)*$#', $input))
+		{
+			return false;
+		}
+
+		if ( ! preg_match('#^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?)*$#', $input))
+		{
+			return false;
+		}
+	}
+
+	return true;
+});
+
+Validator::extend('custom.domain', function($attribute, $value, $parameters)
+{
+	$inputs = explode("\r\n", trim($value));
+	
+	foreach ($inputs as $input)
+	{
+		if (preg_match('#^\d+(?:\.\d+)*$#', $input))
+		{
+			return false;
+		}
+		
+		if ( ! preg_match('#^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?)*$#', $input))
+		{
+			return false;
+		}
+	}
+	
+	return true;
+});
+
+Validator::extend('custom.exists_array', function($attribute, $value, $parameters)
+{
+	if (count($parameters) != 2) { return false; }
+	
+	if ( ! is_array($value))
+	{
+		$inputs = array($value);
+	}
+	else
+	{
+		$inputs = $value;
+	}
+	
+	foreach ($inputs as $input)
+	{
+		$validator = Validator::make(array($attribute => $input), array($attribute => sprintf('exists:%s,%s', $parameters[0], $parameters[1])));
+
+		if ($validator->fails()) { return false; }
+	}
+	
+	return true;
+});
+
+/*
+|--------------------------------------------------------------------------
+| Blade Extends
+|--------------------------------------------------------------------------
+|
+*/
+
+Blade::extend(function($value)
+{
+	return preg_replace('/@php((.|\s)*?)@endphp/', '<?php $1 ?>', $value);
+});
+
+Blade::extend(function($value)
+{
+	return preg_replace_callback('/@comment((.|\s)*?)@endcomment/',
+              function ($matches) {
+                    return '<?php /* ' . preg_replace('/@|\{/', '\\\\$0\\\\', $matches[1]) . ' */ ?>';
+              },
+              $value
+			);
+});
+
+/*
+|--------------------------
+| Events
+|--------------------------
+*/
+
+
+/*
+|--------------------------
+| View Composers
+|--------------------------
+*/
+
+View::composer(Paginator::getViewName(), function($view)
+{
+	$queryString = array_except(Input::query(), array(Paginator::getPageName()));
+	$view->paginator->appends($queryString);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Global Constant
+|--------------------------------------------------------------------------
+|
+*/
+

@@ -24,11 +24,17 @@ $app = new Illuminate\Foundation\Application;
 |
 */
 
-$env = $app->detectEnvironment(array(
+$env = $app->detectEnvironment(function()
+{
+	$serverName = isset($_SERVER['SERVER_NAME']) ? explode('.', $_SERVER['SERVER_NAME']) : array('home');
+    return array_pop($serverName);
+});
 
-	'local' => array('homestead'),
+// $env = $app->detectEnvironment(array(
 
-));
+	// 'local' => array('homestead'),
+
+// ));
 
 /*
 |--------------------------------------------------------------------------

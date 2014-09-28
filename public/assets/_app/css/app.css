@@ -1,0 +1,17 @@
+
+body, html {
+	height: 100%;
+	padding: 0px;
+	margin: 0px;
+	width: 100%;
+	border: none;
+	overflow: hidden;
+}
+
+.jqx-tree-item-arrow-collapse, .jqx-tree-item-arrow-expand {
+	visibility: hidden;
+}
+
+
+
+

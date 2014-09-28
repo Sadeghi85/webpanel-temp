@@ -56,6 +56,72 @@ Route::filter('auth.basic', function()
 
 /*
 |--------------------------------------------------------------------------
+| Authentication filter.
+|--------------------------------------------------------------------------
+|
+|
+*/
+
+Route::filter('auth.sentry', function()
+{
+	if ( ! Sentry::check())
+	{
+		if (Request::ajax())
+		{
+			Session::forget('loginRedirect');
+			return Response::make('Unauthorized', 401);
+		}
+		else
+		{
+			// Store the current uri in the session
+			Session::put('loginRedirect', Request::url());
+			
+			// Redirect to the login page
+			return Redirect::route('auth.login');
+		}
+	}
+});
+
+/*
+|--------------------------------------------------------------------------
+| Root authentication filter.
+|--------------------------------------------------------------------------
+|
+| This filter does the same as the 'auth.sentry' filter but it checks if the user
+| has 'root' privileges.
+|
+*/
+
+Route::filter('auth.sentry.root', function()
+{
+	
+	if ( ! Sentry::check())
+	{
+		if (Request::ajax())
+		{
+			Session::forget('loginRedirect');
+			return Response::make('Unauthorized', 401);
+		}
+		else
+		{
+			// Store the current uri in the session
+			Session::put('loginRedirect', Request::url());
+			
+			// Redirect to the login page
+			return Redirect::route('auth.login');
+		}
+	}
+
+	// Check if the user is root
+	if ( ! Sentry::getUser()->isSuperUser())
+	{
+		// Show the insufficient permissions page
+		App::abort(403);
+	}
+});
+
+/*
+|--------------------------------------------------------------------------
 | Guest Filter
 |--------------------------------------------------------------------------
 |
