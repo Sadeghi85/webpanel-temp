@@ -6,6 +6,7 @@
 
 @section('style')
 <style type="text/css">
+
 body {
   background: #fff !important;
 }
@@ -95,17 +96,40 @@ margin-top: 10px;
 <div class="row">
 <div class="col-sm-6 col-md-4 col-md-offset-4">
 <div class="account-wall">
-<img class="profile-img" src="/assets/_app/img/login.png"
-alt="">
-<form class="form-signin">
-<input type="text" class="form-control" placeholder="Username" required autofocus>
-<input type="password" class="form-control" placeholder="Password" required>
+<img class="profile-img" src="/assets/_app/img/login.png" alt="">
+<form method="POST" action="{{ URL::route('auth.login') }}" accept-charset="UTF-8" class="form-signin" autocomplete="off">
+<input type="text" name="username" value="{{ Input::old('username') }}" class="form-control" placeholder="{{ Lang::get('auth/messages.login.username') }}" required autofocus>
+<input type="password" name="password" class="form-control" placeholder="{{ Lang::get('auth/messages.login.password') }}" required>
 <label class="checkbox">
-<input type="checkbox" value="remember-me" id="rememberMe" name="rememberMe"> Remember me
+<input name="remember-me" type="checkbox" value="remember-me"> {{ Lang::get('auth/messages.login.remember-me') }}
 </label>
-<button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+<input class="btn btn-lg btn-primary btn-block" type="submit" value="{{ Lang::get('auth/messages.login.login') }}">
 </form>
 </div>
 </div>
 </div>
+
+<div id='errors' style="display: none;">
+	<div>We encountered the following errors</div>
+	<div>
+		<ul style="padding-top: 20px">
+		@foreach($errors->all() as $message)
+			<li class="help-block">{{ $message }}</li>
+		@endforeach
+		</ul>
+	</div>
+</div>
+@stop
+
+@section('javascript')
+	$("#errors").jqxWindow({ height:300, width: 600, autoOpen: false, isModal: true });
+	
+	@if($errors->has())
+	
+		$('#errors').jqxWindow('open');
+	@endif
+		
+        
+
+
 @stop

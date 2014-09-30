@@ -1,0 +1,1 @@
+/opt/webpanel/panel/app/views/groups/index.blade.php

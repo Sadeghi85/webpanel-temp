@@ -14,9 +14,9 @@
 	</title>
     
     <link href="/assets/bootstrap/css/bootstrap.css" rel="stylesheet" media="screen">
-	<link href="{{-- /assets/bootstrap/css/bootstrap-theme.css --}}" rel="stylesheet" media="screen">
+	{{-- <link href="/assets/bootstrap/css/bootstrap-theme.css" rel="stylesheet" media="screen"> --}}
 	@if (Config::get('app.locale') == 'fa')
-	<link href="{{-- /assets/bootstrap/css/bootstrap-rtl.css --}}" rel="stylesheet" media="screen">
+	{{-- <link href="/assets/bootstrap/css/bootstrap-rtl.css" rel="stylesheet" media="screen"> --}}
 	@endif
 	<link href="/assets/_app/css/multi-select.css" rel="stylesheet" media="screen">
     <link href="/assets/jqwidgets/styles/jqx.base.css" rel="stylesheet" media="screen">
@@ -53,10 +53,17 @@
 <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
 <script src="/assets/jqwidgets/jqx-all.js"></script>
 
-@section('javascript')
-	<script type="text/javascript">
+
+<script type="text/javascript">
+	$(document).ready(function () {
+		// set jQWidgets Theme to "Bootstrap"
+		$.jqx.theme = "bootstrap";
 		
-	</script>
-@show
+		@section('javascript')
+		
+		@show
+	});
+</script>
+
 </body>
 </html>
