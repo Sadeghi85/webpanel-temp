@@ -9,19 +9,20 @@
 		<span class="icon-bar"></span>
 		<span class="icon-bar"></span>
 	  </button>
-	  <a class="navbar-brand" href="#">Web Panel</a>
+	  <a class="navbar-brand" >Web Panel</a>
 	</div>
 	<div class="navbar-collapse collapse">
 	  <ul class="nav navbar-nav">
-		<li><a href="#">Profile</a></li>
+		<li class="{{ Helpers::activateTabIfRouteIs('overviews.*') }}"><a href="{{ route('overviews.index') }}">Overview</a></li>
+		<li class="{{ Helpers::activateTabIfRouteIs('groups.*') }}"><a href="{{ route('groups.index') }}">Groups</a></li>
 	  
 	  </ul>
-	  <!--
+	  
 	  <ul class="nav navbar-nav navbar-right">
-		<li><a href="../navbar/">Default</a></li>
+		<li><a href="{{ route('auth.logout') }}">Logout</a></li>
 	   
 	  </ul>
-	  -->
+	  
 	</div><!--/.nav-collapse -->
   </div>
 </div>

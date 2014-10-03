@@ -14,4 +14,9 @@ class Helpers {
 		self::$_exceptionErrorMessage = $message;
 	}
 	
+	public static function activateTabIfRouteIs($routePattern, $class = 'active')
+	{
+		return (str_is($routePattern, Route::currentRouteName())) ? $class : '';
+	}
+	
 }

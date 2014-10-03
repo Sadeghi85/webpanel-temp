@@ -1,6 +1,6 @@
 <?php
 
-class OverviewsController extends \BaseController {
+class OverviewsController extends AuthorizedController {
 
 	/**
 	 * Display a listing of the resource.
@@ -10,7 +10,7 @@ class OverviewsController extends \BaseController {
 	 */
 	public function index()
 	{
-		//
+		return View::make('overviews.index');
 	}
 
 	/**

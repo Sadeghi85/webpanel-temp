@@ -13,25 +13,11 @@ class GroupsController extends RootController {
 	 */
 	public function index()
 	{
-		if (Request::ajax())
-		{
-			Input::merge(array('page' => abs(intval(Input::get('pagenum', 0)))+1));
-			
-			$data = array();
-			$rows = array();
-			$groups = Sentry::getGroupProvider()->createModel()->orderBy(Input::get('sortdatafield', 'id'), Input::get('sortorder', 'asc'))->paginate(Input::get('pagesize', 10));
-			
-			foreach ($groups as $group)
-			{
-				$rows[] = array('name' => $group->name, 'comment' => $group->comment);
-			}
-		
-			$data[] = array('totalrecords' => Sentry::getGroupProvider()->createModel()->count(), 'rows' => $rows);
-			return json_encode($data);
-		}
+		// Grab all the groups
+		$groups = Sentry::getGroupProvider()->createModel()->paginate();
 
 		// Show the page
-		return View::make('groups.index');
+		return View::make('app.groups.index', compact('groups'));
 	}
 
 	/**

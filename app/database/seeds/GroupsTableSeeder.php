@@ -14,6 +14,7 @@ class GroupsTableSeeder extends Seeder {
 				'permissions' => array(
 					'superuser' => 1,
 				),
+				'comment' => 'Super user',
 			));
 		}
 		catch (Cartalyst\Sentry\Groups\NameRequiredException $e)
