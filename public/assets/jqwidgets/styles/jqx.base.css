@@ -224,6 +224,7 @@ button.jqx-button, input[type=button].jqx-button,  input[type=submit].jqx-button
 /*applied to the Grid's element.*/
 .jqx-grid
 {
+    overflow: hidden;
     border-style: solid;
     border-width: 1px;
 }
@@ -239,14 +240,15 @@ button.jqx-button, input[type=button].jqx-button,  input[type=submit].jqx-button
     border: none;
     border-bottom: 1px solid transparent;
 }
-.jqx-grid-pager-number {
-    color: inherit;
+.jqx-grid-pager-number{
     padding: 2px 5px;
     text-decoration: none;
     margin: 1px;
     border: 1px solid transparent;
-    *color: expression(this.parentNode.currentStyle['color']);     
+    color: inherit !important;
+    *color: expression(this.parentNode.currentStyle['color']) !important;     
     outline: none;
+    font-weight: normal !important;
 }
 
 /*applied to the Grid's bottom-right area between the horizontal and vertical scrollbars.*/
@@ -4090,4 +4092,345 @@ ol li .jqx-listmenu-item-label:before
 }
 .jqx-bulletchart-labels
 {
+}
+/*jqxNotification*/
+.jqx-notification
+{
+    padding: 10px;
+    border-width: 1px;
+    border-style: solid;
+    box-sizing: border-box;
+    pointer-events: auto;
+}
+.jqx-notification-table
+{
+    width: 100%;
+    font-size: inherit; 
+    font-weight: inherit; 
+    font-style: inherit;
+    font-variant: inherit;
+    color:inherit;
+}
+.jqx-notification-container
+{
+    position: fixed;
+    height: auto;
+    width: auto;
+    pointer-events: none;
+}
+.jqx-notification-container-full-width
+{
+    width: 100%;
+}
+.jqx-notification-container-full-height
+{
+    height: 100%;
+}
+#jqxNotificationDefaultContainer-top-right, #jqxNotificationDefaultContainer-bottom-left
+{
+    direction: rtl;
+}
+.jqx-notification-icon, .jqx-notification-content
+{
+    vertical-align: middle;
+}
+.jqx-notification-content
+{
+}
+.jqx-notification-content-rtl
+{
+    direction: rtl;
+}
+.jqx-link, .jqx-inverse, .jqx-primary, .jqx-warning, .jqx-danger, .jqx-success, .jqx-info {
+    background: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+.jqx-notification-info, .jqx-info
+{
+  color: #ffffff  !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25)  !important;
+  background-color: #49afcd  !important;
+  *background-color: #2f96b4  !important;
+  background-repeat: repeat-x  !important;
+    background-image: linear-gradient(to bottom, #5bc0de, #2f96b4)  !important;
+    border-left-color: #2f96b4 !important;
+    border-right-color: #2f96b4 !important;
+    border-top-color: #2f96b4 !important;
+    border-bottom-color: #1f6377 !important;
+}
+.jqx-info:hover,
+.jqx-info:focus,
+.jqx-info:active,
+.jqx-info.active,
+.jqx-info.disabled,
+.jqx-info[disabled] {
+  color: #ffffff  !important;
+  background-color: #2f96b4  !important;
+  *background-color: #2a85a0  !important;
+}
+
+.jqx-info:active,
+.jqx-info.active {
+  background-color: #24748c \9  !important;
+}
+.jqx-notification-warning, .jqx-warning
+{
+  color: #ffffff  !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25)  !important;
+  background-color: #faa732  !important;
+  *background-color: #f89406  !important;
+  background-repeat: repeat-x  !important;
+    background-image: linear-gradient(to bottom, #fbb450, #f89406)  !important;
+    border-left-color: #f89406 !important;
+    border-right-color: #f89406 !important;
+    border-top-color: #f89406 !important;
+    border-bottom-color: #ad6704 !important;
+}
+.jqx-warning:hover,
+.jqx-warning:focus,
+.jqx-warning:active,
+.jqx-warning.active,
+.jqx-warning.disabled,
+.jqx-warning[disabled] {
+  color: #ffffff  !important;
+  background-color: #f89406  !important;
+  *background-color: #df8505  !important;
+}
+
+.jqx-warning:active,
+.jqx-warning.active {
+  background-color: #c67605 \9  !important;
+}
+.jqx-notification-success, .jqx-success
+{
+  color: #ffffff  !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25)  !important;
+  background-color: #5bb75b  !important;
+  *background-color: #51a351  !important;
+  background-repeat: repeat-x  !important;
+    background-image: linear-gradient(to bottom, #62c462, #51a351)  !important;
+    border-left-color: #51a351 !important;
+    border-right-color: #51a351 !important;
+    border-top-color: #51a351 !important;
+    border-bottom-color: #387038 !important;
+}
+.jqx-success:hover,
+.jqx-success:focus,
+.jqx-success:active,
+.jqx-success.active,
+.jqx-success.disabled,
+.jqx-success[disabled] {
+  color: #ffffff  !important;
+  background-color: #51a351  !important;
+  *background-color: #499249  !important;
+}
+.jqx-success:active,
+.jqx-success.active {
+  background-color: #408140 \9  !important;
+}
+.jqx-notification-error, .jqx-danger
+{
+  color: #ffffff  !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25)  !important;
+  background-color: #da4f49  !important;
+  *background-color: #bd362f  !important;
+  background-repeat: repeat-x  !important;
+    background-image: linear-gradient(to bottom, #ee5f5b, #bd362f)  !important;
+    border-left-color: #bd362f !important;
+    border-right-color: #bd362f !important;
+    border-top-color: #bd362f !important;
+    border-bottom-color: #802420 !important;
+}
+.jqx-danger:hover,
+.jqx-danger:focus,
+.jqx-danger:active,
+.jqx-danger.active,
+.jqx-danger.disabled,
+.jqx-danger[disabled] {
+  color: #ffffff  !important;
+  background-color: #bd362f  !important;
+  *background-color: #a9302a  !important;
+}
+
+.jqx-danger:active,
+.jqx-danger.active {
+  background-color: #942a25 \9  !important;
+}
+.jqx-notification-mail, .jqx-primary
+{
+  color: #ffffff  !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25)  !important;
+  background-color: #006dcc  !important;
+  *background-color: #0044cc  !important;
+  background-repeat: repeat-x  !important;
+    background-image: linear-gradient(to bottom, #0088cc, #0044cc)  !important;
+    border-left-color: #0044cc !important;
+    border-right-color: #0044cc !important;
+    border-top-color: #0044cc !important;
+    border-bottom-color: #002a80 !important;
+}
+.jqx-primary:hover,
+.jqx-primary:focus,
+.jqx-primary:active,
+.jqx-primary.active,
+.jqx-primary.disabled,
+.jqx-primary[disabled] {
+  color: #ffffff  !important;
+  background-color: #0044cc  !important;
+  *background-color: #003bb3  !important;
+}
+
+.jqx-primary:active,
+.jqx-primary.active {
+  background-color: #003399 \9  !important;
+}
+.jqx-notification-time, .jqx-inverse
+{
+  color: #ffffff  !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25)  !important;
+  background-color: #363636  !important;
+  *background-color: #222222  !important;
+  background-repeat: repeat-x  !important;
+    background-image: linear-gradient(to bottom, #444444, #222222)  !important;
+    border-left-color: #222222 !important;
+    border-right-color: #222222 !important;
+    border-top-color: #222222 !important;
+    border-bottom-color: #000000 !important;
+}
+.jqx-inverse:hover,
+.jqx-inverse:focus,
+.jqx-inverse:active,
+.jqx-inverse.active,
+.jqx-inverse.disabled,
+.jqx-inverse[disabled] {
+  color: #ffffff  !important;
+  background-color: #222222  !important;
+  *background-color: #151515  !important;
+}
+
+.jqx-inverse:active,
+.jqx-inverse.active {
+  background-color: #080808 \9  !important;
+}
+.jqx-link,
+.jqx-link:active,
+.jqx-link[disabled] {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-box-shadow: none !important;
+     -moz-box-shadow: none !important;
+          box-shadow: none !important;
+}
+
+.jqx-link {
+  color: #0088cc !important;
+  cursor: pointer !important;
+  border-color: transparent !important;
+  -webkit-border-radius: 0 !important;
+     -moz-border-radius: 0 !important;
+          border-radius: 0 !important;
+}
+
+.jqx-link:hover,
+.jqx-link:focus {
+  color: #005580 !important;
+  text-decoration: underline !important;
+  background-color: transparent !important;
+}
+
+.jqx-link[disabled]:hover,
+.jqx-link[disabled]:focus {
+  color: #333333 !important;
+  text-decoration: none !important;
+}
+.jqx-link:focus, .jqx-inverse:focus, .jqx-primary:focus, .jqx-warning:focus, .jqx-danger:focus, .jqx-success:focus, .jqx-info:focus,
+.jqx-link:hover, .jqx-inverse:hover, .jqx-primary:hover, .jqx-warning:hover, .jqx-danger:hover, .jqx-success:hover, .jqx-info:hover {
+  background-position: 0 -15px !important;
+  -webkit-transition: background-position 0.1s linear !important;
+     -moz-transition: background-position 0.1s linear !important;
+       -o-transition: background-position 0.1s linear !important;
+          transition: background-position 0.1s linear !important;
+}
+.jqx-link:active, .jqx-inverse:active, .jqx-primary:active, .jqx-warning:active, .jqx-danger:active, .jqx-success:active, .jqx-info:active {
+  background-image: none !important;
+  outline: 0 !important;
+  -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+     -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+.jqx-notification-icon
+{
+    background-repeat: no-repeat;
+}
+.jqx-notification-icon-ltr
+{
+    background-position: left center;
+}
+.jqx-notification-icon-rtl
+{
+    background-position: right center;
+}
+.jqx-notification-icon-info, .jqx-notification-icon-warning, .jqx-notification-icon-success, .jqx-notification-icon-error, .jqx-notification-icon-mail, .jqx-notification-icon-time
+{
+    width: 30px;
+    height: 25px;
+}
+.jqx-notification-icon-info
+{
+    background-image: url('images/info.png');
+}
+.jqx-notification-icon-warning
+{
+    background-image: url('images/warning.png');
+}
+.jqx-notification-icon-success
+{
+    background-image: url('images/success.png');
+}
+.jqx-notification-icon-error
+{
+    background-image: url('images/error.png');
+}
+.jqx-notification-icon-mail
+{
+    background-image: url('images/mail.png');
+}
+.jqx-notification-icon-time
+{
+    background-image: url('images/time.png');
+}
+.jqx-notification-close-button-info, .jqx-notification-close-button-success, .jqx-notification-close-button-mail, .jqx-notification-close-button-time, .jqx-notification-close-button-error
+{
+    background-image: url('images/close_white.png');
+}
+.jqx-notification-close-button-warning
+{
+    background-image: url('images/close_black.png');
+}
+.jqx-notification-close-button-container, .jqx-notification-close-button
+{
+    width: 16px;
+    height: 16px;
+}
+.jqx-notification-close-button-container
+{
+    vertical-align: top;
+}
+.jqx-notification-close-button
+{
+    position: relative;
+    top: -11px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+.jqx-notification-close-button-ltr
+{
+    right: -11px;
+    background-position: right top;
+}
+.jqx-notification-close-button-rtl
+{
+    left: -11px;
+    background-position: left top;
 }

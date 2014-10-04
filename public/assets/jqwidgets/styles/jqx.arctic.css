@@ -442,7 +442,7 @@
 
 
 input[type="text"].jqx-input-arctic, input[type="password"].jqx-input-arctic, input[type="text"].jqx-widget-content-arctic, input[type="textarea"].jqx-widget-content-arctic, textarea.jqx-input-arctic {
-    padding-left: 1px !important;
+    padding-left: 0px !important;
 }
 
 input[type="text"].jqx-input-arctic:-moz-placeholder, input[type="text"].jqx-widget-content-arctic:-moz-placeholder, input[type="textarea"].jqx-widget-content-arctic:-moz-placeholder, textarea.jqx-input-arctic:-moz-placeholder {

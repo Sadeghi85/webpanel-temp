@@ -35,6 +35,11 @@
 	-webkit-box-shadow: inset 0 3px 9px rgba(0,0,0,.075);
 	box-shadow: inset 0 3px 9px rgba(0,0,0,.075);
 	background-color: #eee;
+	}
+	
+	.jqx-grid-cell-sort {
+		background-color: #fff;
+	}
 	
 	@section('style') 
 	

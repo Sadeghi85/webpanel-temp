@@ -19,11 +19,22 @@ class GroupsController extends RootController {
 			
 			$data = array();
 			$rows = array();
-			$groups = Sentry::getGroupProvider()->createModel()->orderBy(Input::get('sortdatafield', 'id'), Input::get('sortorder', 'asc'))->paginate(Input::get('pagesize', 10));
+			
+			$sortOrder     = Input::get('sortorder', null);
+			$sortDataField = Input::get('sortdatafield', 'id');
+			if ( ! $sortOrder)
+			{
+				$sortOrder     = 'desc';
+				$sortDataField = 'id';
+			}
+			$pageSize = Input::get('pagesize', 10);
+			
+			
+			$groups = Sentry::getGroupProvider()->createModel()->orderBy($sortDataField, $sortOrder)->paginate($pageSize);
 			
 			foreach ($groups as $group)
 			{
-				$rows[] = array('name' => $group->name, 'comment' => $group->comment);
+				$rows[] = array('id' => $group->id, 'name' => $group->name, 'comment' => $group->comment);
 			}
 		
 			$data[] = array('totalrecords' => Sentry::getGroupProvider()->createModel()->count(), 'rows' => $rows);
