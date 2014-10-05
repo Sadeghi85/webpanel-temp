@@ -27,17 +27,18 @@ class GroupsController extends RootController {
 				$sortOrder     = 'desc';
 				$sortDataField = 'id';
 			}
-			$pageSize = Input::get('pagesize', 10);
+			$pageSize      = Input::get('pagesize', 10);
 			
 			
-			$groups = Sentry::getGroupProvider()->createModel()->orderBy($sortDataField, $sortOrder)->paginate($pageSize);
+			$groups        = Sentry::getGroupProvider()->createModel()->orderBy($sortDataField, $sortOrder)->paginate($pageSize);
+			$groupsCount   = Sentry::getGroupProvider()->createModel()->count();
 			
 			foreach ($groups as $group)
 			{
 				$rows[] = array('id' => $group->id, 'name' => $group->name, 'comment' => $group->comment);
 			}
 		
-			$data[] = array('totalrecords' => Sentry::getGroupProvider()->createModel()->count(), 'rows' => $rows);
+			$data[] = array('totalrecords' => $groupsCount, 'rows' => $rows);
 			return json_encode($data);
 		}
 
@@ -53,14 +54,14 @@ class GroupsController extends RootController {
 	public function create()
 	{
 		// Get all the available permissions
-		$allPermissions = Config::get('permissions');
-		$this->encodeAllPermissions($allPermissions, true);
+		// $allPermissions = Config::get('permissions');
+		// $this->encodeAllPermissions($allPermissions, true);
 
 		// Selected permissions
-		$selectedPermissions = Input::old('permissions', array());
+		// $selectedPermissions = Input::old('permissions', array());
 
 		// Show the page
-		return View::make('app.groups.create', compact('allPermissions', 'selectedPermissions'));
+		// return View::make('app.groups.create', compact('allPermissions', 'selectedPermissions'));
 	}
 
 	/**
@@ -70,13 +71,34 @@ class GroupsController extends RootController {
 	 */
 	public function store()
 	{
-		$groupInstance = new Group;
-		
-		if ($groupInstance->validationFails())
+		if (Request::ajax())
 		{
-			// Ooops.. something went wrong
-			return Redirect::back()->withInput()->withErrors($groupInstance->getValidator());
+			$groupInstance = new Group;
+			if ($groupInstance->validationFails())
+			{
+				// Ooops.. something went wrong
+				return Response::make(json_encode(array('errors' => $groupInstance->getValidator()->messages())), 403);
+				
+			}
+		
+			$inputs = Input::only('name', 'comment');
+			
+			if ($group = Sentry::getGroupProvider()->create($inputs))
+			{
+				return json_encode(array('errorCode' => 0, 'errorMessages' => array()));
+				//return Redirect::route('groups.index')->with('success', Lang::get('groups/messages.success.create'));
+			}
+			else
+			{
+				return json_encode(array());
+			}
 		}
+		else
+		{
+			return json_encode(array());
+		}
+	
+		
 
 		// We need to reverse the UI specific logic for our
 		// permissions here before we create the user.

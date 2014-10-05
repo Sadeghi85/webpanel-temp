@@ -20,19 +20,90 @@
 	</div>
 	
 	<div id='windowCreate' style="display: none;">
-		<div>We encountered the following errors</div>
+		<div>Create new group</div>
 		<div>
-			<ul style="padding-top: 20px">
-			
-				<li class="help-block">hgfhfh</li>
-			
-			</ul>
+			<div id="errorMessages"></div>
+			<form id="formCreate" method="POST" action="" accept-charset="UTF-8" class="form-signin" autocomplete="off">
+				<input type="text" name="name" value="{{ Input::old('name') }}" class="form-control" placeholder="Name" required autofocus>
+				<input type="text" name="comment" value="{{ Input::old('comment') }}" class="form-control" placeholder="Comment" autofocus>
+				<input class="btn btn-lg btn-primary btn-block" type="submit" value="Create">
+			</form>
 		</div>
+	</div>
+	
+	<div id="alert" title="Alert" style="display: none;">
+		
 	</div>
 
 @stop
 
 @section('javascript')
+	
+	
+	$("#formCreate").submit(function(event) {
+		/* stop form from submitting normally */
+		event.preventDefault();
+
+		
+		
+		
+		
+		/* get some values from elements on the page: */
+		var name = $(this).find('input[name="name"]').val();
+		var comment = $(this).find('input[name="comment"]').val();
+
+		$.ajax(
+		{
+			type: "POST",
+			cache: false,
+			dataType: "json",
+			data: {name: name, comment: comment},
+			url: "{{ URL::route('groups.store') }}",
+			
+			success: function(data, textStatus, xhr) {
+				
+				$(this).find('input[name="name"]').val("");
+				$(this).find('input[name="comment"]').val("");
+				
+				$('#jqxgrid').jqxGrid('updatebounddata');
+				
+				$('#windowCreate').jqxWindow('close');
+			},
+			
+			error: function(request, textStatus, errorThrown) {
+				
+				var message = "<ul>";
+				if (request.status == 403)
+				{
+					var response = request.responseJSON;
+					var errors = response.errors;
+					
+					$.each(errors, function(element, error) {
+						
+						message += "<li>" + error[0] + "</li>";
+					});
+				}
+				else
+				{
+					message = "<li>An unknown error occurred</li>";
+				}
+				message += "</ul>";
+				
+				$('#alert').append(message);
+				$( "#alert" ).dialog({
+					modal: true,
+					// buttons: {
+						// Ok: function() {
+						// $( this ).dialog( "close" );
+						// }
+					// }
+				});
+				
+			}
+		});
+
+	});
+	
 	
 	
 	var source =
@@ -103,7 +174,16 @@
 			$("#windowCreate").jqxWindow({ height:300, width: 600, autoOpen: false, isModal: true });
 			
 			$('#jqxbuttonCreate').on('click', function () {
-				$('#windowCreate').jqxWindow('open');
+				//$('#windowCreate').jqxWindow('open');
+				
+				$( "#alert" ).dialog({
+					modal: true,
+					buttons: {
+						Ok: function() {
+						$( this ).dialog( "close" );
+						}
+					}
+				});
 			});
 		},
 		ready: function () {
