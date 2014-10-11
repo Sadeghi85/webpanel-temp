@@ -1,0 +1,249 @@
+@extends('layouts.default')
+
+@section('title')
+	@lang('groups/messages.title') :: @parent
+@stop
+
+
+@section('style')
+<style type="text/css">
+
+
+.ui-widget { font-size: 75%; }
+.ui-widget label, .ui-widget input { display:block; }
+.ui-widget input.text { margin-bottom:12px; width:95%; padding: .4em; }
+.ui-widget fieldset { padding:0; border:0; margin-top:25px; }
+.ui-dialog .ui-state-error { padding: .3em; }
+.validateTips { border: 1px solid transparent; padding: 0.3em; }
+
+</style>
+@stop
+
+@section('content')
+
+
+
+	<div class="col-md-12" style="margin-bottom: 40px;">
+	
+		<div id="jqxgrid" style="min-width: 400px;"></div>
+	
+	</div>
+
+
+	<div id="dialogFormCreate" title="Create new group" style="display: none;">
+		<p class="validateTips"></p>
+		
+		<form id="formCreate" method="POST" action="" accept-charset="UTF-8" class="form-signin1" autocomplete="off">
+		<fieldset>
+		<label for="name">Name</label>
+		<input type="text" name="name" id="name" value="" class="text ui-widget-content ui-corner-all" required autofocus>
+		<label for="comment">Comment</label>
+		<input type="text" name="comment" id="comment" value="" class="text ui-widget-content ui-corner-all" required autofocus>
+		
+		<input type="hidden" name="dummy" id="dummy">
+		<!-- Allow form submission with keyboard without duplicating the dialog button -->
+		<input type="submit" tabindex="-1" style="position:absolute; top:-10000px;">
+		</fieldset>
+		</form>
+
+	</div>
+	
+	<div id="gridToolbar" style="height:100%;border:none;" class="ui-widget-header">
+		<input type="button" style="margin-left: 10px;position: relative;top: 15%;height: 70%;text-align: center;" value="Create" id="jqxbuttonCreate" />
+		<input type="button" style="margin-left: 10px;position: relative;top: 15%;height: 70%;text-align: center;" value="Edit" id="jqxbuttonEdit" disabled="disabled" />
+		<input type="button" style="margin-left: 10px;position: relative;top: 15%;height: 70%;text-align: center;" value="Remove" id="jqxbuttonRemove" disabled="disabled" />
+	</div>
+
+@stop
+
+@section('javascript')
+<script type="text/javascript">
+$(document).ready(function () {
+
+	var dialog, form,
+	name = $( "#name" ),
+	comment = $( "#comment" ),
+	allFields = $( [] ).add( name ).add( comment ),
+	tips = $( ".validateTips" );
+	
+	dialog = $( "#dialogFormCreate" ).dialog({
+		autoOpen: false,
+		height: 250,
+		width: 350,
+		modal: true,
+		buttons: {
+			"Create": createGroup
+		},
+		close: function() {
+			form[ 0 ].reset();
+		}
+	});
+
+	form = dialog.find( "form" ).on( "submit", function( event ) {
+		event.preventDefault();
+		createGroup();
+	});
+	
+	function updateTips( t ) {
+		tips
+		.text( t )
+		.addClass( "ui-state-highlight" );
+		setTimeout(function() {
+		tips.removeClass( "ui-state-highlight", 1500 );
+		}, 500 );
+	}
+	
+	function showError( o, n ) {
+		$('#'+o).addClass( "ui-state-error" );
+		updateTips( n );
+	}
+	
+	function createGroup () {
+		tips.text('');
+		allFields.removeClass( "ui-state-error" );
+	
+		$.ajax(
+		{
+			type: "POST",
+			cache: false,
+			dataType: "json",
+			data: {name: name.val(), comment: comment.val()},
+			url: "{{ URL::route('groups.store') }}",
+			
+			success: function(data, textStatus, xhr) {
+				
+				form[ 0 ].reset();
+				
+				$('#jqxgrid').jqxGrid('updatebounddata');
+				
+				dialog.dialog( "close" );
+			},
+			
+			error: function(request, textStatus, errorThrown) {
+				
+				//var message = "<ul>";
+				if (request.status == 403)
+				{
+					var response = request.responseJSON;
+					var errors = response.errors;
+					
+					$.each(errors, function(element, error) {
+						showError(element, error[0]);
+						//console.log(element);
+						//console.log(error[0]);
+						//message += "<li>" + error[0] + "</li>";
+					});
+				}
+				else
+				{
+					showError('dummy', 'An unknown error occurred');
+					//message = "<li>An unknown error occurred</li>";
+				}
+				//message += "</ul>";
+				
+			}
+		});
+	}
+	
+	function renderToolbar (toolbar) {
+		var container = $('#gridToolbar');
+		
+		var buttonCreate = $('#jqxbuttonCreate').button();
+		var buttonEdit = $('#jqxbuttonEdit').button();
+		var buttonRemove = $('#jqxbuttonRemove').button();
+		
+		toolbar.append(container);
+		
+		container.append(buttonCreate);
+		container.append(buttonEdit);
+		container.append(buttonRemove);
+		
+		//$("#jqxbuttonCreate").jqxButton();
+		//$("#jqxbuttonEdit").jqxButton({ disabled: true});
+		//$("#jqxbuttonRemove").jqxButton({ disabled: true});
+		
+		//$("#windowCreate").jqxWindow({ height:300, width: 600, autoOpen: false, isModal: true });
+		
+		$('#jqxbuttonCreate').on('click', function () {
+			//$('#windowCreate').jqxWindow('open');
+			dialog.dialog( "open" );
+			
+			
+			
+		});
+	}
+	
+	
+	var source =
+	{
+		datatype: "json",
+		datafields: [
+			{ name: 'name' },
+			{ name: 'comment' },
+		],
+		id: 'id',
+		cache: false,
+		url: '{{ route('groups.index') }}',
+		root: 'rows',
+		sort: function () {
+			// update the grid and send a request to the server.
+			$("#jqxgrid").jqxGrid('updatebounddata', 'sort');
+		},
+		beforeprocessing: function (data) {
+			source.totalrecords = data[0].totalrecords;
+		}
+	};
+
+	var dataAdapter = new $.jqx.dataAdapter(source, {
+		loadComplete: function (data) { },
+		loadError: function (xhr, status, error) { }    
+	});
+	
+	$("#jqxgrid").jqxGrid(
+	{
+		width: '100%',
+		pageable: true,
+		autoheight: true,
+		autorowheight: true,
+		editable: false,
+		columnsresize: true,
+		enablebrowserselection: true,
+		sortable: true,
+		sorttogglestates: 1,
+		virtualmode: true,
+		source: dataAdapter,
+		showtoolbar: true,
+		rendertoolbar: renderToolbar,
+		ready: function () {
+		},
+		rendergridrows: function (params) {
+			return params.data;
+		},
+		columns: [
+			{ text: 'Name', datafield: 'name', minwidth: 100, width: '20%' },
+			{ text: 'Comment', datafield: 'comment', minwidth: 100, resizable: false, width: 'auto' },
+		]
+	});
+	
+	$("#jqxgrid").on('bindingcomplete', function () {
+		$("#jqxgrid").jqxGrid('setcolumnproperty', 'name', 'width', '20%');
+		$("#jqxgrid").jqxGrid('setcolumnproperty', 'comment', 'width', 'auto');
+	});
+
+	$('#jqxgrid').on('rowselect', function (event) {
+		$('#jqxbuttonEdit').button( "enable" );
+		$('#jqxbuttonRemove').button( "enable" );
+	});
+	
+	$('#jqxgrid').on('pagechanged', function (event) {
+		$('#jqxbuttonEdit').button( "disable" );
+		$('#jqxbuttonRemove').button( "disable" );
+	});
+		
+	$(window).resize(function() {
+		$('#jqxgrid').jqxGrid('render');
+	});
+	
+});
+</script>
+@stop

@@ -13,34 +13,50 @@ class GroupsController extends RootController {
 	 */
 	public function index()
 	{
+
 		if (Request::ajax())
 		{
-			Input::merge(array('page' => abs(intval(Input::get('pagenum', 0)))+1));
-			
-			$data = array();
-			$rows = array();
-			
-			$sortOrder     = Input::get('sortorder', null);
-			$sortDataField = Input::get('sortdatafield', 'id');
-			if ( ! $sortOrder)
-			{
-				$sortOrder     = 'desc';
-				$sortDataField = 'id';
-			}
-			$pageSize      = Input::get('pagesize', 10);
+			// $sort = Input::get('sort', array(array('field' => 'id', 'dir' => 'asc')));
 			
 			
-			$groups        = Sentry::getGroupProvider()->createModel()->orderBy($sortDataField, $sortOrder)->paginate($pageSize);
-			$groupsCount   = Sentry::getGroupProvider()->createModel()->count();
-			
-			foreach ($groups as $group)
-			{
-				$rows[] = array('id' => $group->id, 'name' => $group->name, 'comment' => $group->comment);
-			}
+			// $skip = Input::get('skip', 0);
+			// $take = Input::get('take', 10);
 		
-			$data[] = array('totalrecords' => $groupsCount, 'rows' => $rows);
-			return json_encode($data);
+			// $groups        = Sentry::getGroupProvider()->createModel()->select('name', 'comment')->orderBy($sort[0]['field'], $sort[0]['dir'])->skip($skip)->take($take)->get();
+			
+			list($groups, $groupsCount) = Helpers::getGridData(Sentry::getGroupProvider()->createModel()->select('name', 'comment'));
+
+			return Response::json(array('data' => $groups, 'total' => $groupsCount));
 		}
+		
+		// if (Request::ajax())
+		// {
+			// Input::merge(array('page' => abs(intval(Input::get('pagenum', 0)))+1));
+			
+			// $data = array();
+			// $rows = array();
+			
+			// $sortOrder     = Input::get('sortorder', null);
+			// $sortDataField = Input::get('sortdatafield', 'id');
+			// if ( ! $sortOrder)
+			// {
+				// $sortOrder     = 'desc';
+				// $sortDataField = 'id';
+			// }
+			// $pageSize      = Input::get('pagesize', 10);
+			
+			
+			// $groups        = Sentry::getGroupProvider()->createModel()->orderBy($sortDataField, $sortOrder)->paginate($pageSize);
+			// $groupsCount   = Sentry::getGroupProvider()->createModel()->count();
+			
+			// foreach ($groups as $group)
+			// {
+				// $rows[] = array('id' => $group->id, 'name' => $group->name, 'comment' => $group->comment);
+			// }
+		
+			// $data[] = array('totalrecords' => $groupsCount, 'rows' => $rows);
+			// return json_encode($data);
+		// }
 
 		// Show the page
 		return View::make('groups.index');
@@ -85,7 +101,7 @@ class GroupsController extends RootController {
 			
 			if ($group = Sentry::getGroupProvider()->create($inputs))
 			{
-				return json_encode(array('errorCode' => 0, 'errorMessages' => array()));
+				return json_encode(array());
 				//return Redirect::route('groups.index')->with('success', Lang::get('groups/messages.success.create'));
 			}
 			else
