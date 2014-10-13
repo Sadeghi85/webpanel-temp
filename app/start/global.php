@@ -56,7 +56,7 @@ App::fatal(function($exception)
 	{
 		$message = Helpers::getExceptionErrorMessage();
 		//return Response::make(View::make('error/500'), 500);
-		return (Request::ajax() ? Response::make('', 500) : Response::view('errors.500', compact('message'), 500));
+		return (Request::ajax() ? Response::json(array(), 500) : Response::view('errors.500', compact('message'), 500));
 	}
 });
 
@@ -72,23 +72,23 @@ App::error(function(Exception $exception, $code)
 		{
 			case 403:
 				//return Response::view('error.error', compact('message'), 403);
-				return (Request::ajax() ? Response::make('', 403) : Response::view('errors.403', compact('message'), 403));
+				return (Request::ajax() ? Response::json(array(), 403) : Response::view('errors.403', compact('message'), 403));
 				
 			case 405:
 				//return Response::view('error.error', compact('message'), 405);
-				return (Request::ajax() ? Response::make('', 405) : Response::view('errors.404', compact('message'), 405));
+				return (Request::ajax() ? Response::json(array(), 405) : Response::view('errors.404', compact('message'), 405));
 
 			case 500:
 				//return Response::view('error.error', compact('message'), 500);
-				return (Request::ajax() ? Response::make('', 500) : Response::view('errors.500', compact('message'), 500));
+				return (Request::ajax() ? Response::json(array(), 500) : Response::view('errors.500', compact('message'), 500));
 				
 			case 503:
 				//return Response::view('error.error', compact('message'), 503);
-				return (Request::ajax() ? Response::make('', 503) : Response::view('errors.503', compact('message'), 503));
+				return (Request::ajax() ? Response::json(array(), 503) : Response::view('errors.503', compact('message'), 503));
 
 			default:
 				//return Response::view('error.error', compact('message'), 404);
-				return (Request::ajax() ? Response::make('', 404) : Response::view('errors.404', compact('message'), 404));
+				return (Request::ajax() ? Response::json(array(), 404) : Response::view('errors.404', compact('message'), 404));
 		}
 	}
 });
@@ -102,21 +102,21 @@ App::error(function(Illuminate\Session\TokenMismatchException $exception, $code)
 {
 	$message = Helpers::getExceptionErrorMessage();
     //return Response::make(View::make('error/token_mismatch'), 403);
-	return (Request::ajax() ? Response::make('', 403) : Response::view('errors.403', compact('message'), 403));
+	return (Request::ajax() ? Response::json(array(), 403) : Response::view('errors.403', compact('message'), 403));
 });
 
 App::error(function(Illuminate\Database\Eloquent\ModelNotFoundException $exception, $code)
 {
 	$message = Helpers::getExceptionErrorMessage();
     //return Response::view('error.error', compact('message'), 404);
-	return (Request::ajax() ? Response::make('', 404) : Response::view('errors.404', compact('message'), 404));
+	return (Request::ajax() ? Response::json(array(), 404) : Response::view('errors.404', compact('message'), 404));
 });
 
 App::missing(function($exception)
 {
     $message = Helpers::getExceptionErrorMessage();
     //return Response::view('error.error', compact('message'), 404);
-	return (Request::ajax() ? Response::make('', 404) : Response::view('errors.404', compact('message'), 404));
+	return (Request::ajax() ? Response::json(array(), 404) : Response::view('errors.404', compact('message'), 404));
 });
 
 /*
@@ -132,7 +132,7 @@ App::missing(function($exception)
 
 App::down(function()
 {
-	return Response::make("Be right back!", 503);
+	return (Request::ajax() ? Response::json(array(), 503) : Response::make("Be right back!", 503));
 });
 
 /*

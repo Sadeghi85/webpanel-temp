@@ -22,9 +22,9 @@
 	{{-- <link href="/assets/_app/css/multi-select.css" rel="stylesheet" media="screen"> --}}
 	
     <link href="/assets/kendoui/styles/kendo.common.min.css" rel="stylesheet" media="screen">
-    <link href="/assets/kendoui/styles/kendo.default.min.css" rel="stylesheet" media="screen">
+    <link href="/assets/kendoui/styles/kendo.silver.min.css" rel="stylesheet" media="screen">
 	<link href="/assets/kendoui/styles/kendo.dataviz.min.css" rel="stylesheet" media="screen">
-	<link href="/assets/kendoui/styles/kendo.dataviz.default.min.css" rel="stylesheet" media="screen">
+	<link href="/assets/kendoui/styles/kendo.dataviz.silver.min.css" rel="stylesheet" media="screen">
 	
 	<link href="/assets/_app/css/app.css" rel="stylesheet" media="screen">
 	

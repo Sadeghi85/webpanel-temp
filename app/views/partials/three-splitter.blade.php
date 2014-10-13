@@ -55,7 +55,7 @@ body
 		<div style="height:100%;">
 			<div id="horizontalSplitter">
 				<div><p>Top Side, Left Pane Content</p></div>
-				<div style="height:100%;">@yield('content')</div>
+				<div>@yield('content')</div>
 			</div>
 		</div>
 		
@@ -76,7 +76,7 @@ $(document).ready(function () {
 	$("#verticalSplitter").kendoSplitter({
 		orientation: "vertical",
 		panes: [
-			{ collapsible: false },
+			{ collapsible: false, scrollable: false },
 			{ collapsible: false, resizable: true, size: '20%', min: '100px' }
 		]
 	});
@@ -84,7 +84,7 @@ $(document).ready(function () {
 	$("#horizontalSplitter").kendoSplitter({
 		panes: [
 			{ collapsible: true, resizable: true, size: '15%' },
-			{ collapsible: false }
+			{ collapsible: false, scrollable: false }
 		]
 	});
 					

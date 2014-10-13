@@ -23,8 +23,9 @@ class GroupsController extends RootController {
 			// $take = Input::get('take', 10);
 		
 			// $groups        = Sentry::getGroupProvider()->createModel()->select('name', 'comment')->orderBy($sort[0]['field'], $sort[0]['dir'])->skip($skip)->take($take)->get();
+			Input::merge(array('sort' => Input::get('sort', array(array('field' => 'id', 'dir' => 'desc')))));
 			
-			list($groups, $groupsCount) = Helpers::getGridData(Sentry::getGroupProvider()->createModel()->select('name', 'comment'));
+			list($groups, $groupsCount) = Helpers::getGridData(Sentry::getGroupProvider()->createModel()->select('id', 'name', 'comment'));
 
 			return Response::json(array('data' => $groups, 'total' => $groupsCount));
 		}
