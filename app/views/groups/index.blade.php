@@ -1,4 +1,4 @@
-@extends('partials.three-splitter')
+@extends('layouts.splitter')
 
 @section('title')
 	@lang('groups/messages.title') :: @parent

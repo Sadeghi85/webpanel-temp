@@ -14,17 +14,14 @@
 	</title>
     
     <link href="/assets/bootstrap/css/bootstrap.css" rel="stylesheet" media="screen">
-	<link href="/assets/bootstrap/css/bootstrap-theme.css" rel="stylesheet" media="screen">
+	{{-- <link href="/assets/bootstrap/css/bootstrap-theme.css" rel="stylesheet" media="screen"> --}}
 	
-	<link href="/assets/jquery/jquery-ui/themes/smoothness/jquery-ui.min.css" rel="stylesheet" media="screen">
-	<link href="/assets/jquery/jquery-ui/themes/smoothness/theme.css" rel="stylesheet" media="screen">
-
 	{{-- <link href="/assets/_app/css/multi-select.css" rel="stylesheet" media="screen"> --}}
 	
     <link href="/assets/kendoui/styles/kendo.common.min.css" rel="stylesheet" media="screen">
-    <link href="/assets/kendoui/styles/kendo.silver.min.css" rel="stylesheet" media="screen">
+    <link href="/assets/kendoui/styles/kendo.metro.min.css" rel="stylesheet" media="screen">
 	<link href="/assets/kendoui/styles/kendo.dataviz.min.css" rel="stylesheet" media="screen">
-	<link href="/assets/kendoui/styles/kendo.dataviz.silver.min.css" rel="stylesheet" media="screen">
+	<link href="/assets/kendoui/styles/kendo.dataviz.metro.min.css" rel="stylesheet" media="screen">
 	
 	<link href="/assets/_app/css/app.css" rel="stylesheet" media="screen">
 	
@@ -46,23 +43,18 @@
 </head>
 <body>
 
-@section('navbar')
-	@include('partials.navbar')
-@show
-
 @section('container')
 
 @show
 
 <script src="/assets/jquery/jquery.min.js"></script>
-<script src="/assets/jquery/jquery-ui/jquery-ui.min.js"></script>
-
-<script src="/assets/kendoui/js/angular.min.js"></script>
-
-{{-- <script src="/assets/_app/js/jquery/jquery.multi-select.js"></script> --}}
-{{-- <script src="/assets/bootstrap/js/bootstrap.min.js"></script> --}}
 
 <script src="/assets/kendoui/js/kendo.all.min.js"></script>
+
+{{-- <script src="/assets/_app/js/jquery/jquery.multi-select.js"></script> --}}
+<script src="/assets/bootstrap/js/bootstrap.min.js"></script>
+
+
 
 
 <script type="text/javascript">
