@@ -1,25 +1,14 @@
 <?php
 
-use \Cartalyst\Sentry\Users\Eloquent\User as SentryUser;
+use Zizaco\Confide\ConfideUser;
+use Zizaco\Confide\ConfideUserInterface;
+use Zizaco\Entrust\HasRole;
 
-class User extends SentryUser {
-
-	// Override the SentryUser getPersistCode method
-    public function getPersistCode()
-    {
-        if ( ! $this->persist_code)
-        {
-            $this->persist_code = $this->getRandomString();
-
-            // Our code got hashed
-            $persistCode = $this->persist_code;
-
-            $this->save();
-
-            return $persistCode;            
-        }
-		
-        return $this->persist_code;
-    }
-
+class User extends Eloquent implements ConfideUserInterface
+{
+    use ConfideUser;
+	use HasRole;
+	
+	
+	
 }
