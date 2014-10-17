@@ -59,7 +59,7 @@
 
 <script type="text/javascript">
 	$(document).ready(function () {
-		
+		$("body").css("padding", "0");
 	});
 </script>
 

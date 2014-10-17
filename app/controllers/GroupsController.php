@@ -94,7 +94,8 @@ class GroupsController extends RootController {
 			if ($groupInstance->validationFails())
 			{
 				// Ooops.. something went wrong
-				return Response::make(json_encode(array('errors' => $groupInstance->getValidator()->messages())), 403);
+				Helpers::setExceptionErrorMessage($groupInstance->getValidator()->messages()->first());
+				App::abort(403);
 				
 			}
 		

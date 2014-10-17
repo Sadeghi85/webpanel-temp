@@ -1,26 +1,25 @@
 <?php
 
-use Illuminate\Auth\UserTrait;
-use Illuminate\Auth\UserInterface;
-use Illuminate\Auth\Reminders\RemindableTrait;
-use Illuminate\Auth\Reminders\RemindableInterface;
+use \Cartalyst\Sentry\Users\Eloquent\User as SentryUser;
 
-class User extends Eloquent implements UserInterface, RemindableInterface {
+class User extends SentryUser {
 
-	use UserTrait, RemindableTrait;
+	// Override the SentryUser getPersistCode method
+    public function getPersistCode()
+    {
+        if ( ! $this->persist_code)
+        {
+            $this->persist_code = $this->getRandomString();
 
-	/**
-	 * The database table used by the model.
-	 *
-	 * @var string
-	 */
-	protected $table = 'users';
+            // Our code got hashed
+            $persistCode = $this->persist_code;
 
-	/**
-	 * The attributes excluded from the model's JSON form.
-	 *
-	 * @var array
-	 */
-	protected $hidden = array('password', 'remember_token');
+            $this->save();
+
+            return $persistCode;            
+        }
+		
+        return $this->persist_code;
+    }
 
 }

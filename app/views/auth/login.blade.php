@@ -143,7 +143,7 @@ margin-top: 10px;
 </div>
 </div>
 
-<script src="/assets/_app/js/jquery/jquery.min.js"></script>
+<script src="/assets/jquery/jquery.min.js"></script>
 <script src="/assets/bootstrap/js/bootstrap.min.js"></script>
 <script src="/assets/jqwidgets/jqx-all.js"></script>
 

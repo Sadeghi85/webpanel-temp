@@ -12,13 +12,20 @@
 
 .toolbar {
 	float: left;
+	padding-left: 22.5px;
 }
 
-.k-splitter .k-pane {
-	overflow: auto !important;
+.k-grid-header-wrap {
+    width: 102%;
 }
 
+.k-grid-footer-wrap {
+    width: 102%;
+}
 
+.k-grid-content{
+    overflow-y: auto    
+}
 
 
 </style>
@@ -37,6 +44,10 @@
 			<button id="editButton">Edit</button>
 			<button id="removeButton">Remove</button>
 		</div>
+	</script>
+	
+	<script id="detail-template" type="text/x-kendo-template">
+		
 	</script>
 	
 	<div id="removeDialog"></div>
@@ -94,7 +105,7 @@ $(document).ready(function () {
 			serverSorting: true
 		},
 		toolbar: kendo.template($("#template").html()),
-		
+		detailTemplate: kendo.template($("#detail-template").html()),
 		filterable: true,
 		filterable: {
 			mode: "menu"
@@ -107,19 +118,24 @@ $(document).ready(function () {
 			refresh: true
 		},
 		resizable: true,
-		//height: "100%",
-		scrollable: false,
+		
+		height: "100%",
+		width: "100%",
+		scrollable: true,
 		selectable: "row",
+		reorderable: true,
 		columns: [{
 				field:"name",
 				title: "Name",
-				width: "20%",
+				width: "200px"
 				
 			},
 			{
 				field: "comment",
 				title: "Comment",
+				width: "auto"
 			}
+			//,{ hidden: false, menu:false, field: "id" },
 		]
 	}).data("kendoGrid");
 	
@@ -162,13 +178,9 @@ $(document).ready(function () {
 					var message;
 					if (request.status == 403) {
 						var response = request.responseJSON;
-						var errors = response.errors;
+						var error = response.error;
+						message = error.message;
 						
-						$.each(errors, function(element, error) {
-							//showError(element, error[0]);
-							message = error[0];
-							field = element;
-						});
 					}
 					else {
 						message = 'An unknown error occurred';
@@ -253,8 +265,12 @@ $(document).ready(function () {
 	grid.bind("dataBound", function(e) {
 		editButton.enable(false);
 		removeButton.enable(false);
+		resizeSplitter();
 	});
-	
+
+$( document ).ajaxError(function( event, jqxhr, settings, thrownError ) {
+console.log(jqxhr);
+});
 	
 });
 </script>
