@@ -1,8 +1,5 @@
 <?php
 
-use Cartalyst\Sentry\Users\UserNotFoundException;
-use Cartalyst\Sentry\Groups\GroupNotFoundException;
-
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -16,54 +13,61 @@ use Cartalyst\Sentry\Groups\GroupNotFoundException;
 
 Route::get('/', function()
 {
-	//return Redirect::route('overview.index');
-	return Redirect::to(Session::get('loginRedirect', route('overviews.index')));
+	return Redirect::route('overviews.index');
 });
 
-Route::group(array('before' => 'auth.sentry.root'), function()
-{
-	// Groups
-	Route::bind('groups', function($id, $route) {
-		# Disallow edit, update and delete root group
-		// if ($route->getName() != 'groups.show' and ($id == 1 or  in_array($id, Sentry::getUser()->getGroups()->lists('id'))))
-		// {
-			// App::abort(403);
-		// }
-		
-		return Sentry::getGroupProvider()->createModel()->findOrFail($id);
-	});
-	Route::resource('groups', 'GroupsController');
-	
-	// Users
-	// Route::bind('users', function($id, $route) {
-		# Disallow edit, update and delete root user
-		// if ($route->getName() != 'users.show' and ($id == 1 or $id == Sentry::getUser()->id))
-		// {
-			// App::abort(403);
-		// }
-		
-		// return Sentry::getUser()->findOrFail($id);
-	// });
-	// Route::resource('users', 'UsersController');
-});
-
-Route::group(array('before' => 'auth.sentry'), function()
+Route::group(array('before' => 'auth'), function()
 {
     // Overview
 	Route::resource('overviews', 'OverviewsController', array('only' => array('index')));
 	
-	// Account
-	// Route::bind('accounts', function($id, $route) {
-		// if (Sentry::getUser()->isSuperUser())
-		// {
-			// return Account::findOrFail($id);
-		// }
-		// else
-		// {
-			// return Sentry::getUser()->accounts()->findOrFail($id);
-		// }
-	// });
-	// Route::resource('accounts', 'AccountsController');
+	// Roles
+	Route::bind('roles', function($id, $route) {
+		$role = Role::findOrFail($id);
+	
+		// # Only Administrator role can edit or remove roles
+		if (($route->getName() == 'roles.destroy' or $route->getName() == 'roles.update') and ! Entrust::hasRole('Administrator')) {
+			App::abort(403);
+		}
+		
+		// # Disallow removing Administrator role
+		if ($route->getName() == 'roles.destroy' and $role->pluck('name') == 'Administrator') {
+			App::abort(403);
+		}
+		
+		return $role;
+	});
+	Route::resource('roles', 'RolesController');
+	
+	// Users
+	Route::bind('users', function($id, $route) {
+		$user = User::findOrFail($id);
+		$username = $user->pluck('username');
+		$loggedinUser = Auth::user();
+		$admin = User::where('username', '=', 'administrator')->first();
+		
+		if ( ! $loggedinUser->ability('Administrator', 'manage_user')) {
+			App::abort(403);
+		}
+		
+		// # Only administrator user can edit itself
+		if ($route->getName() == 'users.update' and $id == $admin->id and $loggedinUser->id != $admin->id) {
+			App::abort(403);
+		}
+		
+		// # Disallow removing administrator user or logged-in user
+		if ($route->getName() == 'users.destroy' and ($username == 'administrator' or $id == $loggedinUser->id)) {
+			App::abort(403);
+		}
+		
+		if ($loggedinUser->id != $admin->id and $user->can('manage_user')) {
+			App::abort(403);
+		}
+		
+		
+		return $user;
+	});
+	Route::resource('users', 'UsersController');
 
 	// Log
 	//Route::resource('logs', 'PanelLogsController', array('only' => array('index', 'show', 'destroy')));
