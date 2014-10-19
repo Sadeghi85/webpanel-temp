@@ -5,9 +5,9 @@
 	"license": "MIT",
 	"require": {
 		"laravel/framework": "4.2.*",
-		"cartalyst/sentry": "2.1.*",
-		"barryvdh/laravel-debugbar": "1.*",
+		"barryvdh/laravel-debugbar": "~1.0@dev",
 		"way/generators": "~2.0@dev",
+		"laravelbook/ardent": "~2.0@dev",
 		"zizaco/confide": "~4.0@dev",
 		"zizaco/entrust": "~1.0@dev"
 	},

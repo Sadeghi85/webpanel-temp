@@ -4,19 +4,15 @@ class UsersTableSeeder extends Seeder {
 
 	public function run()
 	{
-		DB::table('users')->delete();
-		
 		$user = new User;
-		$user->username = 'admin';
-		$user->email = 'root@localhost.localdomain';
-		$user->password = 'admin';
-		$user->password_confirmation = 'admin';
-		$user->confirmation_code = md5(uniqid(mt_rand(), true));
+		$user->username = 'administrator';
+		$user->email = 'administrator@localhost.localdomain';
+		$user->password = 'WebPanel';
+		$user->password_confirmation = 'WebPanel';
 
-		if( ! $user->save()) {
-			Log::info('Unable to create user '.$user->username, (array)$user->errors());
-		} else {
-			Log::info('Created user "'.$user->username.'" <'.$user->email.'>');
-		}
+		$user->save();
+		
+		// attaching role
+		$user->roles()->sync(array(Role::where('name', '=', 'Administrator')->first()->id));
 	}
 }

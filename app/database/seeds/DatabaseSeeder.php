@@ -10,9 +10,16 @@ class DatabaseSeeder extends Seeder {
 	public function run()
 	{
 		Eloquent::unguard();
+		
+		DB::table('users')->delete();
+		DB::table('roles')->delete();
+		DB::table('permissions')->delete();
+		DB::table('permission_role')->delete();
+		DB::table('assigned_roles')->delete();
 
-		//$this->call('GroupsTableSeeder');
-		//$this->call('UsersTableSeeder');
+		$this->call('PermissionsTableSeeder');
+		$this->call('RolesTableSeeder');
+		$this->call('UsersTableSeeder');
 
 	}
 

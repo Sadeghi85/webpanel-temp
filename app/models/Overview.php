@@ -1,5 +1,7 @@
 <?php
 
-class Overview extends \Eloquent {
+use LaravelBook\Ardent\Ardent;
+
+class Overview extends Ardent {
 	protected $fillable = [];
 }
