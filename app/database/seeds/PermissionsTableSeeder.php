@@ -6,7 +6,6 @@ class PermissionsTableSeeder extends Seeder {
 	{
 		$permissions = array(
 			new Permission(array('name' => 'manage_user' , 'display_name' => 'Manage User')),
-			new Permission(array('name' => 'manage_role' , 'display_name' => 'Manage Role')),
 			new Permission(array('name' => 'create_site' , 'display_name' => 'Create Site')),
 			new Permission(array('name' => 'edit_site'   , 'display_name' => 'Edit Site'  )),
 			new Permission(array('name' => 'remove_site' , 'display_name' => 'Remove Site')),

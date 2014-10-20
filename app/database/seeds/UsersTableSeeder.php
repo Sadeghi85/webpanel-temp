@@ -9,10 +9,7 @@ class UsersTableSeeder extends Seeder {
 		$user->email = 'administrator@localhost.localdomain';
 		$user->password = 'WebPanel';
 		$user->password_confirmation = 'WebPanel';
-
 		$user->save();
-		
-		// attaching role
 		$user->roles()->sync(array(Role::where('name', '=', 'Administrator')->first()->id));
 	}
 }

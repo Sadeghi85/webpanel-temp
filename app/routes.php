@@ -20,60 +20,41 @@ Route::group(array('before' => 'auth'), function()
 {
     // Overview
 	Route::resource('overviews', 'OverviewsController', array('only' => array('index')));
-	
-	// Roles
-	Route::bind('roles', function($id, $route) {
-		$role = Role::findOrFail($id);
-	
-		// # Only Administrator role can edit or remove roles
-		if (($route->getName() == 'roles.destroy' or $route->getName() == 'roles.update') and ! Entrust::hasRole('Administrator')) {
-			App::abort(403);
-		}
-		
-		// # Disallow removing Administrator role
-		if ($route->getName() == 'roles.destroy' and $role->pluck('name') == 'Administrator') {
-			App::abort(403);
-		}
-		
-		return $role;
-	});
-	Route::resource('roles', 'RolesController');
-	
+
 	// Users
 	Route::bind('users', function($id, $route) {
-		$user = User::findOrFail($id);
-		$username = $user->pluck('username');
-		$loggedinUser = Auth::user();
-		$admin = User::where('username', '=', 'administrator')->first();
+		$resourceUser  = User::findOrFail($id);
+		$administrator = User::where('username', '=', 'administrator')->first();
+		$loggedinUser  = Confide::user();
 		
+		# only users with "Administrator" role or "manage_user" permission can enter here
 		if ( ! $loggedinUser->ability('Administrator', 'manage_user')) {
 			App::abort(403);
 		}
 		
-		// # Only administrator user can edit itself
-		if ($route->getName() == 'users.update' and $id == $admin->id and $loggedinUser->id != $admin->id) {
+		# disallow removing "administrator" user or logged-in user
+		if ($route->getName() == 'users.destroy' and ($resourceUser->id == $administrator->id or $resourceUser->id == $loggedinUser->id)) {
 			App::abort(403);
 		}
 		
-		// # Disallow removing administrator user or logged-in user
-		if ($route->getName() == 'users.destroy' and ($username == 'administrator' or $id == $loggedinUser->id)) {
-			App::abort(403);
+		if ($loggedinUser->id != $administrator->id) {
+			# users with "Administrator" role or "manage_user" permission that aren't "administrator" user can't manage users of same type
+			if ($loggedinUser->id != $resourceUser->id and $resourceUser->ability('Administrator', 'manage_user')) {
+				App::abort(403);
+			}
+			
+			# only "administrator" user can edit itself
+			if ($resourceUser->id == $administrator->id) {
+				App::abort(403);
+			}
 		}
-		
-		if ($loggedinUser->id != $admin->id and $user->can('manage_user')) {
-			App::abort(403);
-		}
-		
-		
+
 		return $user;
 	});
-	Route::resource('users', 'UsersController');
+	Route::resource('users', 'UsersController', array('only' => array('index', 'update', 'destroy'));
 
 	// Log
 	//Route::resource('logs', 'PanelLogsController', array('only' => array('index', 'show', 'destroy')));
-
-	// Profile
-	//Route::resource('profile', 'ProfileController', array('only' => array('index')));
 	
 });
 
@@ -85,22 +66,9 @@ Route::group(array('before' => 'auth'), function()
 Route::group(array('prefix' => 'auth'), function()
 {
 	// Login
-	Route::get('login', array('as' => 'auth.login', 'uses' => 'AuthController@getLogin'));
-	Route::post('login', array('uses' => 'AuthController@postLogin'));
+	Route::get('login', array('as' => 'auth.login', 'uses' => 'AuthController@login'));
+	Route::post('login', array('uses' => 'AuthController@doLogin'));
 	
 	// Logout
-	Route::get('logout', array('as' => 'auth.logout', 'uses' => 'AuthController@getLogout'));
+	Route::get('logout', array('as' => 'auth.logout', 'uses' => 'AuthController@logout'));
 });
-//
-
-// Confide routes
-Route::get('users/create', 'UsersController@create');
-Route::post('users', 'UsersController@store');
-Route::get('users/login', 'UsersController@login');
-Route::post('users/login', 'UsersController@doLogin');
-Route::get('users/confirm/{code}', 'UsersController@confirm');
-Route::get('users/forgot_password', 'UsersController@forgotPassword');
-Route::post('users/forgot_password', 'UsersController@doForgotPassword');
-Route::get('users/reset_password/{token}', 'UsersController@resetPassword');
-Route::post('users/reset_password', 'UsersController@doResetPassword');
-Route::get('users/logout', 'UsersController@logout');
