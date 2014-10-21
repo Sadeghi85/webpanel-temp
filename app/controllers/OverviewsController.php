@@ -1,6 +1,6 @@
 <?php
 
-class OverviewsController extends AuthorizedController {
+class OverviewsController extends BaseController {
 
 	/**
 	 * Display a listing of the resource.

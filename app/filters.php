@@ -35,7 +35,7 @@ App::after(function($request, $response)
 
 Route::filter('auth', function()
 {
-	if (Auth::guest()) {
+	if ( ! Confide::user()) {
 		if (Request::ajax()) {
 			return Response::make('Unauthorized', 401);
 		} else {
@@ -47,7 +47,7 @@ Route::filter('auth', function()
 
 Route::filter('auth.admin', function()
 {
-	if (Auth::guest()) {
+	if ( ! Confide::user()) {
 		if (Request::ajax()) {
 			return Response::make('Unauthorized', 401);
 		} else {
