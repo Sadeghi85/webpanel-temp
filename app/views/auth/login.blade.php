@@ -68,6 +68,7 @@ $(document).ready(function () {
 		visible: false,
 		modal: true,
 		resizable: false,
+		draggable: false,
 		title: "Login"
 	}).data("kendoWindow");
 
@@ -95,10 +96,15 @@ $(document).ready(function () {
 				url: "{{ URL::route('auth.login') }}",
 				
 				success: function(data, textStatus, xhr) {
+					$("#loginButton").prop("disabled", false);
+					
 					window.location.replace(data.redirect);
 				},
 				
 				error: function(jqXHR, textStatus, errorThrown) {
+					$("#loginButton").prop("disabled", false);
+					
+	  
 					var message;
 					if (jqXHR.status == 403) {
 						var response = jqXHR.responseJSON;
@@ -111,7 +117,7 @@ $(document).ready(function () {
 					
 					$("#loginFormAlert").text(message);
 					$("#loginFormAlert").css({ display: "" });
-					$("#loginButton").prop("disabled", false);
+					
 				}
 			});
 		});

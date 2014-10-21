@@ -59,6 +59,13 @@
 
 <script type="text/javascript">
 	$(document).ready(function () {
+		function handleError(errorMsg, url, lineNumber) {
+			console.log("Error: '"+errorMsg.error+"' in '"+url+"' on line '"+lineNumber+"'");
+			return false;
+		}
+
+		window.onerror = handleError;
+		
 		$("body").css("padding", "0");
 	});
 </script>

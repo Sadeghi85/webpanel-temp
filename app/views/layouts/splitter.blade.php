@@ -46,27 +46,21 @@
 <script type="text/javascript">
 $(document).ready(function () {
 
-	$("#verticalSplitter").kendoSplitter({
+	var verticalSplitter = $("#verticalSplitter").kendoSplitter({
 		orientation: "vertical",
 		panes: [
 			{ collapsible: false, scrollable: false },
 			{ collapsible: true, resizable: true }
 		]
-	});
+	}).data("kendoSplitter");
 	
 	resizeSplitter = function() {
 		$("#verticalSplitter").height($(window).height() - $("#main-section-header").height());
-	
-		var verticalSplitter = $("#verticalSplitter").data("kendoSplitter");
-		
-		
-		//verticalSplitter.size("#topPane", $("#verticalSplitter").height() - "100px");
-		verticalSplitter.size("#topPane", ".");
+		verticalSplitter.size("#topPane", $("#verticalSplitter").height() - "100px");
 		verticalSplitter.size("#bottomPane", "100px");
-		
 	};
 	
-	$("#verticalSplitter").data("kendoSplitter").bind("contentLoad", resizeSplitter);
+	verticalSplitter.bind("contentLoad", resizeSplitter);
 	
 	$(window).resize(function() {
 		resizeSplitter();

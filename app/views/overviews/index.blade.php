@@ -1,4 +1,4 @@
-@extends('layouts.default')
+@extends('layouts.splitter')
 
 @section('title')
 	@lang('app.title')
@@ -12,8 +12,8 @@
 </style>
 @stop
 
-@section('container')
-<a href="{{ URL::route('auth.logout') }}">logout</a>
+@section('content')
+
 
 @stop
 
