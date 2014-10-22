@@ -71,7 +71,7 @@ $(document).ready(function () {
 			mode: "menu"
 		},
 		sortable: true,
-		columnMenu: true,
+		columnMenu: false,
 		pageable: true,
 		pageable: {
 			pageSizes: true,
@@ -93,7 +93,9 @@ $(document).ready(function () {
 			{
 				field: "permissions",
 				title: "Permissions",
-				width: "auto"
+				width: "auto",
+				sortable: false,
+				filterable: false
 			}
 			//,{ hidden: false, menu:false, field: "id" },
 		]

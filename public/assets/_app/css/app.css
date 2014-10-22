@@ -12,7 +12,7 @@ article, aside, canvas, details, footer, header, section {
 /* HTML5 display-role reset for older browsers */
 body {
   line-height: 1;
-  font-size: 12px;
+  font-size: 13px;
 }
 
 ol, ul {
@@ -21,7 +21,7 @@ ol, ul {
 
 html, body {
 height: 100%;
-font-family: 'Open Sans',arial,sans-serif;
+font-family: verdana,arial,sans-serif;
 }
 
 html,
@@ -50,7 +50,6 @@ body,
 	font-style: normal;
 	font-weight: normal;
 	font-variant: normal;
-	text-transform: none;
 	line-height: 1;
 
 	/* Better Font Rendering =========== */
@@ -93,7 +92,7 @@ body,
 /* Nav section */
 #nav-section{
   background-color: #35373d;
-  width: 220px;
+  width: 140px;
   float: left;
   height: 100%;
 }
@@ -107,11 +106,10 @@ body,
 
 #nav-section li a {
     color: #b8bbc2;
-    text-transform: uppercase;
     text-decoration: none;
-    margin-left: 1em;
-    font-size: 12px;
-    padding: 3em 1.2em;
+    margin: 0;
+    font-size: 14px;
+    padding: 2.5em 1.2em;
 }
 
 #nav-section li:hover {
@@ -176,7 +174,6 @@ body,
 #dash-logo,
 #main-section-header > h2{
     font-size: 18px;
-    text-transform: uppercase;
     line-height: 26px;
     padding-top: 30px;
     padding-bottom: 30px;
@@ -269,7 +266,6 @@ body,
     font-size: 9px;
     line-height: 9px;
     color: #8a8b8f;
-    text-transform: uppercase;
     display: inline-block;
 }
 
@@ -327,7 +323,6 @@ body,
 .section-header{
     font-size: 11px;
     color: #35373d;
-    text-transform: uppercase;
     padding-bottom: 1.091em;
     padding: 15px 0;
 }
@@ -364,7 +359,6 @@ body,
 .select-period {
     margin-right: 0.833em;
     margin-left: 2.500em;
-    text-transform: uppercase;
     font-weight: normal;
 }
 
@@ -466,12 +460,10 @@ body,
 .product-category {
     font-size: 9px;
     color: #8a8b8f;
-    text-transform: uppercase;
 }
 
 .product-details {
     padding: 0;
-    text-transform: uppercase;
     display: inline-block;
 }
 
@@ -505,7 +497,6 @@ body,
 #customers-label,
 #countryName {
     font-size: 36px;
-    text-transform: uppercase;
 }
 
 .k-detail-cell .k-tabstrip .k-content {

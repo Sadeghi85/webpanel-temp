@@ -65,7 +65,7 @@ $(document).ready(function () {
 	$(window).resize(function() {
 		resizeSplitter();
 	});
-
+	resizeSplitter();
 	
 
 

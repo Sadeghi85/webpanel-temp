@@ -66,7 +66,11 @@
 
 		window.onerror = handleError;
 		
+		$(window).resize(function() {
+			$("body").css("padding", "0");
+		});
 		$("body").css("padding", "0");
+		
 	});
 </script>
 
