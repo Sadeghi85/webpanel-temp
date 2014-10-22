@@ -10,6 +10,30 @@ class UsersController extends BaseController {
 	 */
 	public function index()
 	{
+		if (Request::ajax())
+		{
+			Input::merge(array('sort' => Input::get('sort', array(array('field' => 'id', 'dir' => 'asc')))));
+			
+			list($_users, $usersCount) = Helpers::getGridData(User::with('roles')->select('id', 'username', 'name'));
+			
+			$users = array();
+			foreach ($_users->toArray() as $user) {
+				$roles = '';
+				foreach ($user['roles'] as $role) {
+					$roles .= $role['name'].', ';
+				}
+				
+				$users[] = array(
+					'id' => $user['id'],
+					'username' => $user['username'],
+					'name' => $user['name'],
+					'roles' => trim(trim($roles), ','),
+				);
+			}
+
+			return Response::json(array('data' => $users, 'total' => $usersCount));
+		}
+		
 		return View::make('users.index');
 	}
 

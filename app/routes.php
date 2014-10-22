@@ -51,7 +51,7 @@ Route::group(array('before' => 'auth'), function()
 
 		return $user;
 	});
-	Route::resource('users', 'UsersController', array('only' => array('index', 'update', 'destroy')));
+	Route::resource('users', 'UsersController', array('only' => array('index', 'store', 'update', 'destroy')));
 	
 	Route::resource('roles', 'RolesController', array('only' => array('index')));
 
