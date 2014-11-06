@@ -22,7 +22,11 @@
 	
 	<div id="main-section" class="col-xs-12 column">
 		<div id="main-section-header" class="row">
-			<h2 id="team-efficiency" class="col-xs-3">PRODUCTS & ORDERS</h2>
+			<h2 id="team-efficiency" class="col-xs-3">
+			@section('header')
+				
+			@show
+			</h2>
 			<div style="clear:both;"></div>
 		</div>
 		

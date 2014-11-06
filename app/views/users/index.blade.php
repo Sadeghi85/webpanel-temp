@@ -22,7 +22,23 @@
 .k-grid-content {
     overflow-y: auto    
 }
+.forms {
+	list-style-type: none;
+	padding-left: 50px;
+	padding-top: 25px;
+}
+.k-textbox {
+	width: 300px;
+}
+.k-button {
+	margin-right: 10px;
+}
+
 </style>
+@stop
+
+@section('header')
+Users
 @stop
 
 @section('content')
@@ -41,7 +57,7 @@
 		<div class="box-col">
 		<form id="createForm" method="POST" action="" accept-charset="UTF-8" autocomplete="off">
 		<fieldset>
-        <ul class="forms" style="list-style-type: none;padding-left: 20px;padding-right: 20px;">
+        <ul class="forms" style="">
 			<li><label class="alert alert-danger" id="createFormAlert"></label></li>
 			
             <li><label for="username">Username</label></li>
@@ -57,7 +73,7 @@
 			<li><input type="text" name="full-name" id="full-name" value="" class="k-textbox" tabindex="4"></li>
 			<li>&nbsp;</li>
 			
-            <li><input type="submit" id="createButton" class="k-button" value="Create" tabindex="5"></li>
+            <li><input type="submit" id="createButton" class="k-button" value="Create" tabindex="5"> <button id="" class="k-button" >Cancel</button></li>
         </ul>
 		</fieldset>
 		</form>
@@ -153,7 +169,7 @@ $(document).ready(function () {
 		modal: true,
 		resizable: false,
 		draggable: false,
-		title: "Create"
+		title: "Create User"
 	}).data("kendoWindow");
 	
 	createDialog.bind("open", function() {
@@ -210,7 +226,7 @@ $(document).ready(function () {
 		$("#createFormAlert").text("");
 		$("#createFormAlert").css({ display: "none" });
 		
-		createDialog.center().open();
+		createDialog.open().maximize();
 	});
 	/* /Create Button */
 	
