@@ -24,6 +24,10 @@
 				<a href="{{ URL::route('roles.index') }}">
 					<span class="icon icon-faves"></span>Roles</a>
 			</li>
+			<li id="teamEfficiency" class="{{ Helpers::activateTabIfRouteIs('sites.*') }}">
+				<a href="{{ URL::route('sites.index') }}">
+					<span class="icon icon-faves"></span>Sites</a>
+			</li>
 			<li id="about">
 				<a href="{{ URL::route('auth.logout') }}">
 					<span class="icon icon-info"></span>Logout</a>
