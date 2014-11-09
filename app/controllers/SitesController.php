@@ -14,19 +14,26 @@ class SitesController extends BaseController {
 		{
 			Input::merge(array('sort' => Input::get('sort', array(array('field' => 'id', 'dir' => 'asc')))));
 			
-			list($_sites, $sitesCount) = Helpers::getGridData(Role::with('perms')->select('id', 'name'));
+			list($_sites, $sitesCount) = Helpers::getGridData(Site::with('aliases')->select('id', 'activated', 'tag'));
 			
 			$sites = array();
-			foreach ($_sites->toArray() as $role) {
-				$perms = '';
-				foreach ($role['perms'] as $perm) {
-					$perms .= $perm['name'].', ';
+			foreach ($_sites->toArray() as $site) {
+				$aliases = '';
+				$serverName = '';
+				foreach ($site['aliases'] as $alias) {
+					if ($alias['server_name']) {
+						$serverName = $alias['alias'].':'.$alias['port'];
+					} else {
+						$aliases .= $alias['alias'].':'.$alias['port'].', ';
+					}
 				}
 				
 				$sites[] = array(
-					'id' => $role['id'],
-					'name' => $role['name'],
-					'permissions' => trim(trim($perms), ','),
+					'id' => $site['id'],
+					'activated' => $site['activated'],
+					'tag' => $site['tag'],
+					'name' => $serverName,
+					'aliases' => trim(trim($aliases), ','),
 				);
 			}
 

@@ -54,7 +54,7 @@ Route::group(array('before' => 'auth'), function()
 	Route::resource('users', 'UsersController', array('only' => array('index', 'store', 'update', 'destroy')));
 	
 	Route::resource('roles', 'RolesController', array('only' => array('index')));
-	Route::resource('sites', 'SitesController', array('only' => array('index')));
+	Route::resource('sites', 'SitesController', array('only' => array('index', 'store', 'update', 'destroy')));
 
 	// Log
 	//Route::resource('logs', 'PanelLogsController', array('only' => array('index', 'show', 'destroy')));

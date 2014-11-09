@@ -51,7 +51,7 @@ class CreateSitesTable extends Migration {
 			$table->increments('id');
 			
 			$table->integer('site_id')->unsigned();
-			$table->string('alias')->unique();
+			$table->string('alias');
 			$table->integer('port')->unsigned();
 			$table->boolean('server_name')->default(false);
 			
@@ -60,7 +60,7 @@ class CreateSitesTable extends Migration {
 			$table->engine = 'InnoDB';
 			
 			$table->index('site_id');
-			
+			$table->unique(array('alias', 'port'));
 			
 			$table->foreign('site_id')->references('id')->on('sites')->onDelete('cascade');
 			
@@ -76,6 +76,8 @@ class CreateSitesTable extends Migration {
 	 */
 	public function down()
 	{
+		Schema::drop('site_aliases');
+		Schema::drop('site_user');
 		Schema::drop('sites');
 	}
 
