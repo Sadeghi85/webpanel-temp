@@ -99,6 +99,27 @@ Sites
 $(document).ready(function () {
 
 	var grid = $("#grid").kendoGrid({
+	
+		columns: [{
+				field:"tag",
+				title: "Tag",
+				width: "200px"
+				
+			},{
+				field:"activated",
+				title: "Activated",
+				width: "200px"
+				
+			},
+			{
+				field: "alias",
+				title: "Aliases",
+				width: "auto",
+				sortable: false,
+				//filterable: false
+			}
+			//,{ hidden: false, menu:false, field: "id" },
+		],
 		dataSource: {
 			type: "json",
 			transport: {
@@ -122,6 +143,10 @@ $(document).ready(function () {
 			mode: "menu"
 		},
 		sortable: true,
+		sortable: {
+			allowUnsort: false,
+			//mode: "multiple",
+		},
 		columnMenu: false,
 		pageable: true,
 		pageable: {
@@ -134,34 +159,9 @@ $(document).ready(function () {
 		width: "100%",
 		scrollable: true,
 		selectable: "row",
-		reorderable: true,
-		columns: [{
-				field:"tag",
-				title: "Tag",
-				width: "200px"
-				
-			},{
-				field:"activated",
-				title: "Activated",
-				width: "200px"
-				
-			},
-			{
-				field: "name",
-				title: "Name",
-				width: "200px",
-				sortable: false,
-				filterable: false
-			},
-			{
-				field: "aliases",
-				title: "Aliases",
-				width: "auto",
-				sortable: false,
-				filterable: false
-			}
-			//,{ hidden: false, menu:false, field: "id" },
-		]
+		reorderable: true
+		
+		
 	}).data("kendoGrid");
 	
 	

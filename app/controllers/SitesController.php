@@ -12,28 +12,25 @@ class SitesController extends BaseController {
 	{
 		if (Request::ajax())
 		{
-			Input::merge(array('sort' => Input::get('sort', array(array('field' => 'id', 'dir' => 'asc')))));
+			//Input::merge(array('sort' => Input::get('sort', array(array('field' => 'tag', 'dir' => 'asc')))));
 			
-			list($_sites, $sitesCount) = Helpers::getGridData(Site::with('aliases')->select('id', 'activated', 'tag'));
-			
+			list($_sites, $sitesCount) = Helpers::getGridData(
+										Site::with('aliases')->join('site_aliases', 'site_aliases.site_id', '=', 'sites.id')
+										->select(array('sites.id as id', 'sites.activated as activated', 'sites.tag as tag', 'site_aliases.alias as alias'))
+										);
+
 			$sites = array();
 			foreach ($_sites->toArray() as $site) {
 				$aliases = '';
-				$serverName = '';
 				foreach ($site['aliases'] as $alias) {
-					if ($alias['server_name']) {
-						$serverName = $alias['alias'].':'.$alias['port'];
-					} else {
-						$aliases .= $alias['alias'].':'.$alias['port'].', ';
-					}
+					$aliases .= $alias['alias'].':'.$alias['port'].', ';
 				}
 				
 				$sites[] = array(
 					'id' => $site['id'],
 					'activated' => $site['activated'],
 					'tag' => $site['tag'],
-					'name' => $serverName,
-					'aliases' => trim(trim($aliases), ','),
+					'alias' => trim(trim($aliases), ','),
 				);
 			}
 
