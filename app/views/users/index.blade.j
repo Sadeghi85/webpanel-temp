@@ -33,7 +33,7 @@
 .k-button {
 	margin-right: 10px;
 }
-#createSite {
+#createUser {
 	display:none;
 }
 </style>
@@ -45,7 +45,7 @@ Sites
 
 @section('content')
 @parent
-	<div id="createSite">
+	<div id="createUser">
 		<div class="box-col">
 			<form id="createForm" method="POST" action="" accept-charset="UTF-8" autocomplete="off">
 			<fieldset>
@@ -65,10 +65,7 @@ Sites
 				<li><input type="text" name="full-name" id="full-name" value="" class="k-textbox" tabindex="4"></li>
 				<li>&nbsp;</li>
 				
-				<li>
-					<input type="submit" id="formCreateButton" class="k-button" value="Create" tabindex="5">
-					<a id="formCancelButton" class="k-button" >Cancel</a>
-				</li>
+				<li><input type="submit" id="formCreateButton" class="k-button" value="Create" tabindex="5"> <button id="" class="k-button" >Cancel</button></li>
 			</ul>
 			</fieldset>
 			</form>
@@ -194,7 +191,7 @@ $(document).ready(function () {
 				grid.dataSource.read();
 				grid.refresh();
 				
-				kendo.fx($("#createSite")).zoom("out").play();
+				kendo.fx($("#createUser")).zoom("out").play();
 				kendo.fx($("#grid")).zoom("in").play();
 			},
 			
@@ -227,16 +224,7 @@ $(document).ready(function () {
 		$("#createFormAlert").text("");
 		$("#createFormAlert").css({ display: "none" });
 		
-		kendo.fx($("#createSite")).zoom("in").play();
-	});
-	
-	$("#formCancelButton").bind("click", function(e) {
-		kendo.fx($("#createSite")).zoom("out").play();
-		
-		$("#createFormAlert").text("");
-		$("#createFormAlert").css({ display: "none" });
-		
-		kendo.fx($("#grid")).zoom("in").play();
+		kendo.fx($("#createUser")).zoom("in").play();
 	});
 	/* /Create Button */
 	

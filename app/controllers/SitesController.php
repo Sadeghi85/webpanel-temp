@@ -12,29 +12,7 @@ class SitesController extends BaseController {
 	{
 		if (Request::ajax())
 		{
-			//Input::merge(array('sort' => Input::get('sort', array(array('field' => 'tag', 'dir' => 'asc')))));
-			
-			list($_sites, $sitesCount) = Helpers::getGridData(
-										Site::with('aliases')->join('site_aliases', 'site_aliases.site_id', '=', 'sites.id')
-										->select(array('sites.id as id', 'sites.activated as activated', 'sites.tag as tag', 'site_aliases.alias as alias'))
-										);
-
-			$sites = array();
-			foreach ($_sites->toArray() as $site) {
-				$aliases = '';
-				foreach ($site['aliases'] as $alias) {
-					$aliases .= $alias['alias'].':'.$alias['port'].', ';
-				}
-				
-				$sites[] = array(
-					'id' => $site['id'],
-					'activated' => $site['activated'],
-					'tag' => $site['tag'],
-					'alias' => trim(trim($aliases), ','),
-				);
-			}
-
-			return Response::json(array('data' => $sites, 'total' => $sitesCount));
+			return Response::json(Site::getIndexData());
 		}
 		
 		return View::make('sites.index');
