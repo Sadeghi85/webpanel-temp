@@ -184,32 +184,14 @@ Validator::extend('custom.domain', function($attribute, $value, $parameters)
 			return false;
 		}
 
-		if ( ! preg_match('#^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?)*$#', $input))
-		{
-			return false;
-		}
-	}
-
-	return true;
-});
-
-Validator::extend('custom.domain', function($attribute, $value, $parameters)
-{
-	$inputs = explode("\r\n", trim($value));
-	
-	foreach ($inputs as $input)
-	{
-		if (preg_match('#^\d+(?:\.\d+)*$#', $input))
-		{
-			return false;
-		}
+		//'^([a-z0-9][-a-z0-9]*\.)+[a-z]+$'
 		
-		if ( ! preg_match('#^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?)*$#', $input))
+		if ( ! preg_match('#^(?=.{1,255}$)[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z](?:(?:[0-9A-Za-z]|\b-){0,61}[0-9A-Za-z])?)+$#', $input))
 		{
 			return false;
 		}
 	}
-	
+
 	return true;
 });
 

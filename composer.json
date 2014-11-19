@@ -9,7 +9,8 @@
 		"way/generators": "~2.0@dev",
 		"laravelbook/ardent": "~2.0@dev",
 		"zizaco/confide": "~4.0@dev",
-		"zizaco/entrust": "~1.0@dev"
+		"zizaco/entrust": "~1.0@dev",
+		"felixkiss/uniquewith-validator": "~1.0@dev"
 	},
 	"autoload": {
 		"classmap": [

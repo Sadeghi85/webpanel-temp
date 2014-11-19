@@ -128,6 +128,7 @@ return array(
 		'Zizaco\Entrust\EntrustServiceProvider',
 		'Barryvdh\Debugbar\ServiceProvider',
 		'Way\Generators\GeneratorsServiceProvider',
+		'Felixkiss\UniqueWithValidator\UniqueWithValidatorServiceProvider',
 
 	),
 

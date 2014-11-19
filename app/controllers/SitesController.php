@@ -37,7 +37,19 @@ class SitesController extends BaseController {
 	 */
 	public function store()
 	{
-		//
+		$siteInstance = new Site;
+		
+		if ($siteInstance->validationFails()) {
+			Helpers::setExceptionErrorMessage($siteInstance->getValidationMessage());
+			App::abort(403);
+		}
+		
+		if ( ! Site::createSite()) {
+			Helpers::setExceptionErrorMessage("Unable to create this site.");
+			App::abort(500);
+		}
+		
+		//return Response::json(OS::getNextSiteTag());
 	}
 
 	/**

@@ -1,7 +1,7 @@
 <?php
 
 class Alias extends \Eloquent {
-	protected $fillable = [];
+	protected $fillable = array('alias', 'port');
 	protected $table = 'site_aliases';
 	
 	
