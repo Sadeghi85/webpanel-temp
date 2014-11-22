@@ -15,27 +15,37 @@
 }
 #createSite {
 	display:none;
+	padding-bottom: 10px;
+}
+label {
+	padding: 5px;
+}
+hr {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+.k-notification {
+	display: inline-block !important;
 }
 </style>
 @append
 
 @section('content')
-
+	<span id="alert"></span>
 	<div id="createSite">
-		<div class="box-col">
+		
+		<div>
 			<form id="createForm" method="POST" action="" accept-charset="UTF-8" autocomplete="off">
 			<fieldset>
 			<ul class="forms" style="">
-				<li><span style="font-size:18px;">Create</style><hr></li>
+				<span id="createFormHeader" style="font-size:18px;">Create</span><hr>
+				<span id="createFormAlert"></span>
 				
-				<li><label class="alert alert-danger" id="createFormAlert"></label></li>
-
 				<li><label for="server-name">Server Name</label></li>
 				<li><input type="text" name="server-name" id="server-name" value="" placeholder="domain.tld:80" class="k-textbox"></li>
-				<li>&nbsp;</li>
+				
 				<li><label for="aliases">Aliases</label></li>
 				<li><textarea name="aliases" id="aliases" value="" placeholder="domain.tld:80" class="k-textarea"></textarea></li>
-				<li>&nbsp;</li>
 				
 				<li>
 					<input type="submit" id="formCreateButton" class="k-button" value="Create">
@@ -45,6 +55,7 @@
 			</fieldset>
 			</form>
         </div>
+		
 	</div>
 	
 @append
@@ -53,7 +64,16 @@
 
 <script type="text/javascript">
 $(document).ready(function () {
-	$("#createFormAlert").css({ display: "none" });
+
+	var alert = $("#alert").kendoNotification({
+		appendTo: "#createFormAlert",
+		autoHideAfter: 0,
+		
+	}).data("kendoNotification");
+	  
+	
+
+	//$("#createFormAlert").css({ display: "none" });
 
 	/* Create Button */
 	$("#createForm").on("submit", function(event) {
@@ -61,8 +81,11 @@ $(document).ready(function () {
 	
 		$("#formCreateButton").prop("disabled", true);
 		
-		$("#createFormAlert").text("");
-		$("#createFormAlert").css({ display: "none" });
+		//$("#createFormAlert").text("");
+		//$("#createFormAlert").css({ display: "none" });
+		alert.hide();
+		
+		kendo.ui.progress($("#createSite"), true);
 		
 		$.ajax(
 		{
@@ -74,8 +97,9 @@ $(document).ready(function () {
 			
 			success: function(data, textStatus, xhr) {
 				$('#createForm')[0].reset();
-				$("#createFormAlert").text("");
-				$("#createFormAlert").css({ display: "none" });
+				//$("#createFormAlert").text("");
+				//$("#createFormAlert").css({ display: "none" });
+				alert.hide();
 				$("#formCreateButton").prop("disabled", false);
 				
 				var grid = kendo.widgetInstance($('#grid'));
@@ -83,6 +107,7 @@ $(document).ready(function () {
 				grid.dataSource.read();
 				grid.refresh();
 				
+				kendo.ui.progress($("#createSite"), false);
 				kendo.fx($("#createSite")).zoom("out").play();
 				kendo.fx($("#grid")).zoom("in").play();
 			},
@@ -100,12 +125,11 @@ $(document).ready(function () {
 					message = 'An unknown error occurred';
 				}
 				
-				$("#createFormAlert").text(message);
-				$("#createFormAlert").css({ display: "" });
-				
-				//grid.dataSource.read();
-				//grid.refresh();
-				//
+				kendo.ui.progress($("#createSite"), false);
+				//$("#createFormAlert").text(message);
+				//$("#createFormAlert").css({ display: "" });
+				alert.show(message, "error");
+
 			}
 		});
 	});
@@ -115,8 +139,9 @@ $(document).ready(function () {
 		kendo.fx($("#createSite")).zoom("out").play();
 		
 		$('#createForm')[0].reset();
-		$("#createFormAlert").text("");
-		$("#createFormAlert").css({ display: "none" });
+		//$("#createFormAlert").text("");
+		//$("#createFormAlert").css({ display: "none" });
+		alert.hide();
 		
 		kendo.fx($("#grid")).zoom("in").play();
 	});

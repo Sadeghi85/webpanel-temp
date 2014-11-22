@@ -22,11 +22,13 @@
 .k-grid-content {
     overflow-y: auto    
 }
-
 .k-button {
 	margin-right: 10px;
 }
+.k-grid {
+	padding-right: 7px;
 
+}
 </style>
 @stop
 
@@ -121,7 +123,7 @@ $(document).ready(function () {
 		},
 		resizable: true,
 		toolbar: kendo.template($("#template").html()),
-		height: "100%",
+		height: "99%",
 		width: "100%",
 		scrollable: true,
 		selectable: "row",
@@ -159,6 +161,8 @@ $(document).ready(function () {
 		});
 		removeDialogButtonYes.bind("click", function() {
 			$("#removeButton").prop("disabled", true);
+			
+			var grid = kendo.widgetInstance($('#grid'));
 			var selectedRow = grid.select();
 			selectedRow = grid.dataItem(selectedRow[0]);
 		
@@ -179,9 +183,7 @@ $(document).ready(function () {
 				
 				error: function(request, textStatus, errorThrown) {
 					$("#removeButton").prop("disabled", false);
-					grid.dataSource.read();
-					grid.refresh();
-					removeDialog.close();
+
 				}
 			});
 		});
@@ -190,7 +192,7 @@ $(document).ready(function () {
 	removeButton.bind("click", function(e) {
 		var selectedRow = grid.select();
 		selectedRow = grid.dataItem(selectedRow[0]);
-		removeDialog.content(removeDialogTemplate({ name: selectedRow.name }));
+		removeDialog.content(removeDialogTemplate({ name: selectedRow.tag }));
 		removeDialog.center().open();
 	});
 	/* /Remove Button */

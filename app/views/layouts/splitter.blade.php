@@ -2,15 +2,10 @@
 
 @section('style')
 @parent
-
 <style type="text/css">
-
-
 
 </style>
 @stop
-
-
 
 @section('container')
 <div class="container-fluid">
@@ -53,7 +48,7 @@ $(document).ready(function () {
 	var verticalSplitter = $("#verticalSplitter").kendoSplitter({
 		orientation: "vertical",
 		panes: [
-			{ collapsible: false, scrollable: false },
+			{ collapsible: false, scrollable: true },
 			{ collapsible: true, resizable: true }
 		]
 	}).data("kendoSplitter");

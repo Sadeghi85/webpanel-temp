@@ -49,7 +49,7 @@ class SitesController extends BaseController {
 			App::abort(500);
 		}
 		
-		//return Response::json(OS::getNextSiteTag());
+		return Response::json(array());
 	}
 
 	/**

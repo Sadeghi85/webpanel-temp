@@ -38,7 +38,8 @@ class Site extends \Eloquent {
 			
 			$this->validator = $v;
 			
-			if (key($fail = $v->failed()) == 'alias') {
+			$fail = $v->failed();
+			if (isset($fail['alias']['Unique_with'])) {
 				$this->validationMessage = sprintf('"%s" is already taken.', Input::get('server-name'));
 			} else {
 				$this->validationMessage = $v->messages()->first();
@@ -74,7 +75,8 @@ class Site extends \Eloquent {
 				if ($v->fails()) {
 					$this->validator = $v;
 					
-					if (key($fail = $v->failed()) == 'alias') {
+					$fail = $v->failed();
+					if (isset($fail['alias']['Unique_with'])) {
 						$this->validationMessage = sprintf('"%s" is already taken.', $alias);
 					} else {
 						$this->validationMessage = $v->messages()->first();
@@ -141,6 +143,8 @@ class Site extends \Eloquent {
 			
 		$_aliases = explode("\r\n", trim(Input::get('aliases')));
 		foreach ($_aliases as $_alias) {
+			if ( ! $_alias) { continue; }
+			
 			@list($_serverName, $_port) = explode(':', $_alias);
 			
 			$aliases[] = new Alias(array(
@@ -194,6 +198,7 @@ class Site extends \Eloquent {
 			);
 		}
 
+		$sitesCount = Site::count();
 		return array('data' => $sites, 'total' => $sitesCount);
 	}
 	
