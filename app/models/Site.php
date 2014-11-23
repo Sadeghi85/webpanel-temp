@@ -6,19 +6,22 @@ class Site extends \Eloquent {
 	protected $table = 'sites';
 	
 	private $validationRules = array(
+		'tag'   => 'unique:sites,tag',
 		'alias' => 'required|between:3,127|custom.domain|unique_with:site_aliases,port',
-		'port' => 'required|integer|between:80,49151',
+		'port'  => 'required|integer|between:80,49151',
 	);
 	
 	private $validator;
 	private $validationMessage;
 	
 	public function validationPasses() {
+		$siteTag = OS::getNextSiteTag();
 		@list($serverName, $port) = explode(':', Input::get('server-name'));
 	
 		Input::merge(array(
+			'tag'   => $siteTag,
 			'alias' => $serverName,
-			'port' => $port,
+			'port'  => $port,
 		));
 		
 		$v = Validator::make(Input::all(),

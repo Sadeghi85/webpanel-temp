@@ -17,7 +17,7 @@ class OS {
 	public static function createSite($siteTag, $serverName, $port) {
 		$panelCommandsPath = Config::get('panel.panel_commands_path');
 		
-		exec ("sudo $panelCommandsPath/domaindef.sh $siteTag $serverName $port", $output, $statusCode);
+		exec("sudo $panelCommandsPath/domaindef.sh $siteTag $serverName $port", $output, $statusCode);
 		
 		if ($statusCode == 0) {
 			return true;

@@ -45,8 +45,8 @@ class SitesController extends BaseController {
 		}
 		
 		if ( ! Site::createSite()) {
-			Helpers::setExceptionErrorMessage("Unable to create this site.");
-			App::abort(500);
+			Helpers::setExceptionErrorMessage('Unable to create this site.');
+			App::abort(403);
 		}
 		
 		return Response::json(array());
