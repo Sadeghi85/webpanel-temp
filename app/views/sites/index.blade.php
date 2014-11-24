@@ -161,10 +161,14 @@ $(document).ready(function () {
 		});
 		removeDialogButtonYes.bind("click", function() {
 			$("#removeButton").prop("disabled", true);
+			kendo.ui.progress($("#grid"), true);
+			removeDialog.close();
 			
 			var grid = kendo.widgetInstance($('#grid'));
 			var selectedRow = grid.select();
 			selectedRow = grid.dataItem(selectedRow[0]);
+			var url = "{{ URL::route('sites.destroy', ['id']) }}";
+			url = url.replace('id', selectedRow.id);
 		
 			$.ajax(
 			{
@@ -172,18 +176,20 @@ $(document).ready(function () {
 				cache: false,
 				dataType: "json",
 				data: {_method: "DELETE"},
-				url: "{{ URL::route('sites.destroy') }}/"+selectedRow.id,
+				url: url,
 				
 				success: function(data, textStatus, xhr) {
 					$("#removeButton").prop("disabled", false);
+					kendo.ui.progress($("#grid"), false);
 					grid.dataSource.read();
 					grid.refresh();
-					removeDialog.close();
 				},
 				
 				error: function(request, textStatus, errorThrown) {
 					$("#removeButton").prop("disabled", false);
-
+					kendo.ui.progress($("#grid"), false);
+					grid.dataSource.read();
+					grid.refresh();
 				}
 			});
 		});

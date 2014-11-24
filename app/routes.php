@@ -54,6 +54,37 @@ Route::group(array('before' => 'auth'), function()
 	Route::resource('users', 'UsersController', array('only' => array('index', 'store', 'update', 'destroy')));
 	
 	Route::resource('roles', 'RolesController', array('only' => array('index')));
+	
+	// Sites
+	Route::bind('sites', function($id, $route) {
+		if ($route->getName() == 'sites.destroy' and ! Confide::user()->ability('Administrator', 'remove_site')) {
+			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
+			App::abort(403);
+		}
+		
+		if ($route->getName() == 'sites.update' and ! Confide::user()->ability('Administrator', 'edit_site')) {
+			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
+			App::abort(403);
+		}
+		
+		if ($route->getName() == 'sites.store') {
+			if ( ! Confide::user()->ability('Administrator', 'create_site')) {
+				Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
+				App::abort(403);
+			}
+			
+			return;
+		}
+
+		$site = Site::find($id);
+		
+		if ( ! $site) {
+			Helpers::setExceptionErrorMessage('This site doesn\'t exist.');
+			App::abort(403);
+		}
+		
+		return $site;
+	});
 	Route::resource('sites', 'SitesController', array('only' => array('index', 'store', 'update', 'destroy')));
 
 	// Log

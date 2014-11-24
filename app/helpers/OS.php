@@ -14,6 +14,18 @@ class OS {
 		return $nextTag;
 	}
 	
+	public static function removeSite($siteTag, $serverName, $port) {
+		$panelCommandsPath = Config::get('panel.panel_commands_path');
+		
+		exec("sudo $panelCommandsPath/domaindel.sh $siteTag $serverName $port", $output, $statusCode);
+		
+		if ($statusCode == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	public static function createSite($siteTag, $serverName, $port) {
 		$panelCommandsPath = Config::get('panel.panel_commands_path');
 		

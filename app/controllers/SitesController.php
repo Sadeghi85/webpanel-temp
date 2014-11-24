@@ -95,9 +95,14 @@ class SitesController extends BaseController {
 	 * @param  int  $id
 	 * @return Response
 	 */
-	public function destroy($id)
+	public function destroy($site)
 	{
-		//
+		if ( ! Site::removeSite($site)) {
+			Helpers::setExceptionErrorMessage('Unable to remove this site.');
+			App::abort(403);
+		}
+		
+		return Response::json(array());
 	}
 
 }

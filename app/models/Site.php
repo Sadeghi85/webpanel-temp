@@ -131,6 +131,23 @@ class Site extends \Eloquent {
 		return $this->hasMany('Alias', 'site_id', 'id');
 	}
 	
+	public static function removeSite($site) {
+		$siteTag = $site->tag;
+		
+		$alias = $site->aliases()->where('server_name', '=', 1)->first();
+		$serverName = $alias->alias;
+		$port = $alias->port;
+		
+		if (OS::removeSite($siteTag, $serverName, $port)) {
+			
+			$site->delete();
+		
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	public static function createSite() {
 		$siteTag = OS::getNextSiteTag();
 		@list($serverName, $port) = explode(':', Input::get('server-name'));
