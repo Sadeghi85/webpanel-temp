@@ -138,6 +138,10 @@ class Site extends \Eloquent {
 		$serverName = $alias->alias;
 		$port = $alias->port;
 		
+		foreach ($site->aliases()->get() as $alias) {
+			OS::removeAlias($siteTag, $alias->alias, $alias->port);
+		}
+		
 		if (OS::removeSite($siteTag, $serverName, $port)) {
 			
 			$site->delete();
@@ -148,43 +152,41 @@ class Site extends \Eloquent {
 		}
 	}
 	
-	public static function createSite() {
+	public static function addSite() {
 		$siteTag = OS::getNextSiteTag();
 		@list($serverName, $port) = explode(':', Input::get('server-name'));
-		
-		$aliases = array(
-				new Alias(array(
-					'alias' => $serverName,
-					'port' => $port,
-					'server_name' => 1,
-					)
-				),
-			);
 			
-		$_aliases = explode("\r\n", trim(Input::get('aliases')));
-		foreach ($_aliases as $_alias) {
-			if ( ! $_alias) { continue; }
-			
-			@list($_serverName, $_port) = explode(':', $_alias);
-			
-			$aliases[] = new Alias(array(
-								'alias' => $_serverName,
-								'port' => $_port,
-								'server_name' => 0,
-								)
-							);
-		}
-		
-		if (OS::createSite($siteTag, $serverName, $port)) {
+		if (OS::addSite($siteTag, $serverName, $port)) {
 			
 			$site = new Site;
 			$site->tag = $siteTag;
 			$site->activated = 1;
 			
 			$site->save();
+			
+			$site->aliases()->save(new Alias(array(
+								'alias' => $serverName,
+								'port' => $port,
+								'server_name' => 1,
+								)
+							));
 
-			$site->aliases()->saveMany($aliases);
-		
+			$_aliases = explode("\r\n", trim(Input::get('aliases')));
+			foreach ($_aliases as $_alias) {
+				if ( ! $_alias) { continue; }
+				
+				@list($_serverName, $_port) = explode(':', $_alias);
+				
+				if (OS::addAlias($siteTag, $_serverName, $_port)) {
+					$site->aliases()->save(new Alias(array(
+									'alias' => $_serverName,
+									'port' => $_port,
+									'server_name' => 0,
+									)
+								));
+				}
+			}
+
 			return true;
 		} else {
 			return false;

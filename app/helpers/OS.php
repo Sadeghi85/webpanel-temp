@@ -14,6 +14,18 @@ class OS {
 		return $nextTag;
 	}
 	
+	public static function removeAlias($siteTag, $serverName, $port) {
+		$panelCommandsPath = Config::get('panel.panel_commands_path');
+		
+		exec("sudo $panelCommandsPath/aliasdel.sh $siteTag $serverName $port", $output, $statusCode);
+		
+		if ($statusCode == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	public static function removeSite($siteTag, $serverName, $port) {
 		$panelCommandsPath = Config::get('panel.panel_commands_path');
 		
@@ -26,7 +38,19 @@ class OS {
 		}
 	}
 	
-	public static function createSite($siteTag, $serverName, $port) {
+	public static function addAlias ($siteTag, $serverName, $port) {
+		$panelCommandsPath = Config::get('panel.panel_commands_path');
+		
+		exec("sudo $panelCommandsPath/aliasdef.sh $siteTag $serverName $port", $output, $statusCode);
+		
+		if ($statusCode == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public static function addSite($siteTag, $serverName, $port) {
 		$panelCommandsPath = Config::get('panel.panel_commands_path');
 		
 		exec("sudo $panelCommandsPath/domaindef.sh $siteTag $serverName $port", $output, $statusCode);
