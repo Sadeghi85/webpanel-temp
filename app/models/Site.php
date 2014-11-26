@@ -6,7 +6,7 @@ class Site extends \Eloquent {
 	protected $table = 'sites';
 	
 	private $validationRules = array(
-		'tag'   => 'unique:sites,tag',
+		'tag'   => 'required|unique:sites,tag',
 		'alias' => 'required|between:3,127|custom.domain|unique_with:site_aliases,port',
 		'port'  => 'required|integer|between:80,49151',
 	);

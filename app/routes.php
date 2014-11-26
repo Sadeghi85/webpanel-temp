@@ -23,32 +23,44 @@ Route::group(array('before' => 'auth'), function()
 
 	// Users
 	Route::bind('users', function($id, $route) {
-		$resourceUser  = User::findOrFail($id);
+		$resourceUser  = User::find($id);
+		if ( ! $resourceUser) {
+			Helpers::setExceptionErrorMessage('This user doesn\'t exist.');
+			App::abort(403);
+		}
 		$administrator = User::where('username', '=', 'administrator')->first();
 		$loggedinUser  = Confide::user();
 		
 		# only users with "Administrator" role or "manage_user" permission can enter here
 		if ( ! $loggedinUser->ability('Administrator', 'manage_user')) {
+			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
 			App::abort(403);
 		}
 		
 		# disallow removing "administrator" user or logged-in user
 		if ($route->getName() == 'users.destroy' and ($resourceUser->id == $administrator->id or $resourceUser->id == $loggedinUser->id)) {
+			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
 			App::abort(403);
 		}
 		
 		if ($loggedinUser->id != $administrator->id) {
 			# users with "Administrator" role or "manage_user" permission that aren't "administrator" user can't manage users of same type
 			if ($loggedinUser->id != $resourceUser->id and $resourceUser->ability('Administrator', 'manage_user')) {
+				Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
 				App::abort(403);
 			}
 			
 			# only "administrator" user can edit itself
 			if ($resourceUser->id == $administrator->id) {
+				Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
 				App::abort(403);
 			}
 		}
-
+		
+		if ($route->getName() == 'users.store') {
+			return;
+		}
+		
 		return $user;
 	});
 	Route::resource('users', 'UsersController', array('only' => array('index', 'store', 'update', 'destroy')));
