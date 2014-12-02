@@ -41,12 +41,13 @@ hr {
 				<span id="createFormHeader" style="font-size:18px;">Create</span><hr>
 				<span id="createFormAlert"></span>
 				
-				<li><label for="server-name">Server Name</label></li>
-				<li><input type="text" name="server-name" id="server-name" value="" placeholder="domain.tld:80" class="k-textbox"></li>
+				<li><label for="server_name">Server Name</label></li>
+				<li><input type="text" name="server_name" id="server_name" value="" placeholder="domain.tld:80" class="k-textbox"></li>
 				
 				<li><label for="aliases">Aliases</label></li>
 				<li><textarea name="aliases" id="aliases" value="" placeholder="domain.tld:80" class="k-textarea"></textarea></li>
 				
+				<li>&nbsp;</li>
 				<li>
 					<input type="submit" id="formCreateButton" class="k-button" value="Create">
 					<a id="formCancelButton" class="k-button" >Cancel</a>
@@ -92,7 +93,7 @@ $(document).ready(function () {
 			type: "POST",
 			cache: false,
 			dataType: "json",
-			data: {"aliases": $("#aliases").val(), "server-name": $("#server-name").val() },
+			data: {"aliases": $("#aliases").val(), "server_name": $("#server_name").val() },
 			url: "{{ URL::route('sites.store') }}",
 			
 			success: function(data, textStatus, xhr) {

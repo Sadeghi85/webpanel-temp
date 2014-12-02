@@ -108,6 +108,7 @@ class Helpers {
 			
 			return array($modelObject->groupBy('id')->get(), $total);
 		} catch (Exception $e) {
+			Helpers::setExceptionErrorMessage($e->getMessage());
 			App::abort(403);
 		}
 	}

@@ -15,7 +15,11 @@ class UsersController extends BaseController {
 			return Response::json(User::getIndexData());
 		}
 		
-		return View::make('users.index');
+		$roles = DB::table('roles')->lists('name', 'id');
+		$roles[0] = '';
+		ksort($roles);
+		
+		return View::make('users.index', compact('roles'));
 		
 		// if (Request::ajax())
 		// {

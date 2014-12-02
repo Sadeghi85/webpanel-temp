@@ -16,7 +16,7 @@ class Site extends \Eloquent {
 	
 	public function validationPasses() {
 		$siteTag = OS::getNextSiteTag();
-		@list($serverName, $port) = explode(':', Input::get('server-name'));
+		@list($serverName, $port) = explode(':', Input::get('server_name'));
 	
 		Input::merge(array(
 			'tag'   => $siteTag,
@@ -43,7 +43,7 @@ class Site extends \Eloquent {
 			
 			$fail = $v->failed();
 			if (isset($fail['alias']['Unique_with'])) {
-				$this->validationMessage = sprintf('"%s" is already taken.', Input::get('server-name'));
+				$this->validationMessage = sprintf('"%s" is already taken.', Input::get('server_name'));
 			} else {
 				$this->validationMessage = $v->messages()->first();
 			}
@@ -154,7 +154,7 @@ class Site extends \Eloquent {
 	
 	public static function addSite() {
 		$siteTag = OS::getNextSiteTag();
-		@list($serverName, $port) = explode(':', Input::get('server-name'));
+		@list($serverName, $port) = explode(':', Input::get('server_name'));
 			
 		if (OS::addSite($siteTag, $serverName, $port)) {
 			

@@ -24,6 +24,7 @@ class ConfideSetupUsersTable extends Migration
 			
             //$table->boolean('confirmed')->default(false);
 			$table->boolean('confirmed')->default(true);
+			$table->boolean('activated')->default(false);
 			
             $table->timestamps();
         });

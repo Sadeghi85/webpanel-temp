@@ -103,31 +103,65 @@ class User extends Eloquent implements ConfideUserInterface {
 	public static function getIndexData() {
 		//// Input::merge(array('sort' => Input::get('sort', array(array('field' => 'tag', 'dir' => 'asc')))));
 		
-		// @list($_sites, $sitesCount) = Helpers::getGridData(
-									// Site::with('aliases')->join('site_aliases', 'site_aliases.site_id', '=', 'sites.id')
-									// ->select(array('sites.id as id', 'sites.activated as activated', 'sites.tag as tag', 'site_aliases.alias as alias'))
-									// );
+		$sql= <<<EOT
+(
+	SELECT id, CONCAT(tag,' ',aliases) AS sites FROM
+	(
+		SELECT id, tag, GROUP_CONCAT(alias SEPARATOR ' ') AS aliases FROM
+		(
+			SELECT sites.id AS id, sites.tag AS tag, site_aliases.alias AS alias FROM sites
+			JOIN site_aliases
+			ON sites.id = site_aliases.site_id
+		) AS sites
+		GROUP BY tag
+	) AS sites
+) AS sites
 
-		// $sites = array();
-		// foreach ($_sites->toArray() as $site) {
-			// $aliases = array(0 => 'dummy');
-			// foreach ($site['aliases'] as $alias) {
-				// if ($alias['server_name']) {
-					// $aliases[0] = '*'.$alias['alias'].':'.$alias['port'];
-				// } else {
-					// $aliases[] = $alias['alias'].':'.$alias['port'];
-				// }
-			// }
+EOT;
+		@list($_users, $usersCount) = Helpers::getGridData(
+				User::with('sites.aliases')
+				->join('site_user', 'users.id', '=', 'site_user.user_id')
+				->join(DB::raw($sql), function($join)
+				{
+					$join->on('site_user.site_id', '=', 'sites.id');
+				})
+				
+				->select(array('users.id as id', 'users.username as username', 'users.name as name', 'sites.sites as sites'))
+			);
 			
-			// $sites[] = array(
-				// 'id' => $site['id'],
-				// 'activated' => $site['activated'],
-				// 'tag' => $site['tag'],
-				// 'alias' => implode(', ', $aliases),
-			// );
-		// }
+//Debugbar::info($_users->toArray());
+		$users = array();
+		$sites = array();
+		
+		foreach ($_users->toArray() as $_user) {
+			
+			foreach ($_user['sites'] as $_site) {
+				
+				
+				$aliases = array(0 => 'dummy');
+				
+				foreach ($_site['aliases'] as $_alias) {
+					if ($_alias['server_name']) {
+					$aliases[0] = '*'.$_alias['alias'].':'.$_alias['port'];
+					} else {
+						$aliases[] = $_alias['alias'].':'.$_alias['port'];
+					}
+				}
+				
+				$sites[] = sprintf('%s ( %s )', $_site['tag'], implode(', ', $aliases));
+			}
+			
+			$users[] = array(
+				'id' => $_user['id'],
+				'username' => $_user['username'],
+				'name' => $_user['name'],
+				//'activated' => $_user['activated'],
+				
+				'sites' => implode(', ', $sites),
+			);
+		}
 
-		// $sitesCount = Site::count();
-		// return array('data' => $sites, 'total' => $sitesCount);
+		$usersCount = User::count();
+		return array('data' => $users, 'total' => $usersCount);
 	}
 }

@@ -38,7 +38,6 @@ Sites
 
 @section('content')
 @parent
-
 	<div id="grid"></div>
 	<script id="template" type="text/x-kendo-template">
 		<div class="toolbar">
@@ -64,8 +63,6 @@ Sites
 <script type="text/javascript">
 $(document).ready(function () {
 
-	
-	
 	var grid = $("#grid").kendoGrid({
 	
 		columns: [{
@@ -129,9 +126,7 @@ $(document).ready(function () {
 		selectable: "row",
 		reorderable: true
 		
-		
 	}).data("kendoGrid");
-	
 	
 	var createButton = $("#createButton").kendoButton().data("kendoButton");
 	var removeButton = $("#removeButton").kendoButton({ enable: false }).data("kendoButton");
