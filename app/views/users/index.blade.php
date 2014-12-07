@@ -9,6 +9,9 @@
 @parent
 
 <style type="text/css">
+li {
+	list-style: none;
+}
 .toolbar {
 	float: left;
 	padding-left: 22.5px;
@@ -27,7 +30,6 @@
 }
 .k-grid {
 	padding-right: 7px;
-
 }
 </style>
 @stop
@@ -45,7 +47,7 @@ Users
 			<button id="removeButton">Remove</button>
 		</div>
 	</script>
-	<script id="detail-template" type="text/x-kendo-template"></script>
+	<!-- <script id="detail-template" type="text/x-kendo-template"></script> -->
 	
 	<div id="removeDialog"></div>
 	<script id="removeDialogTemplate" type="text/x-kendo-template">
@@ -62,7 +64,7 @@ Users
 
 <script type="text/javascript">
 $(document).ready(function () {
-
+	
 	var grid = $("#grid").kendoGrid({
 	
 		columns: [{
@@ -79,18 +81,18 @@ $(document).ready(function () {
 			{
 				field: "role",
 				title: "Role",
-				width: "200px",
-				sortable: false,
-				filterable: false
-			},
-			{
-				field: "sites",
-				title: "Sites",
 				width: "auto",
 				sortable: false,
-				encoded: false,
-				template: $("#sites-template").html()
-			}
+				//filterable: false
+			},
+			//{
+			//	field: "sites",
+			//	title: "Sites",
+			//	width: "auto",
+			//	sortable: false,
+			//	encoded: false,
+			//	template: $("#sites-template").html()
+			//}
 			//,{ hidden: false, menu:false, field: "id" },
 		],
 		dataSource: {
@@ -110,7 +112,47 @@ $(document).ready(function () {
 			serverSorting: true
 		},
 
-		detailTemplate: kendo.template($("#detail-template").html()),
+		detailInit: function(e) {
+			console.log(e);
+			var grid = kendo.widgetInstance($('#grid'));
+			var masterRow = e.masterRow;
+			masterRow = grid.dataItem(masterRow[0]);
+			var url = "{{ URL::route('users.sites', ['id']) }}";
+			url = url.replace('id', masterRow.id);
+			
+			e.detailRow.find(".grid").kendoGrid({
+					columns: [{
+						field:"tag",
+						title: "Tag",
+						width: "200px"
+						
+					},
+					{
+						field:"aliases",
+						title: "Aliases",
+						width: "auto"
+						
+					},
+				],
+				dataSource: {
+					type: "json",
+					transport: {
+						read: {
+								url: url,
+								dataType: "json"
+						}
+					},
+					schema: {
+						data: "data", total: "total"
+					},
+					pageSize: 10,
+					serverPaging: true,
+					serverFiltering: false,
+					serverSorting: false
+				},
+			});
+		},
+		detailTemplate: 'Sites: <div class="grid"></div>',
 		filterable: true,
 		filterable: {
 			mode: "menu"
@@ -212,6 +254,19 @@ $(document).ready(function () {
 	
 	grid.bind("dataBound", function(e) {
 		removeButton.enable(false);
+		
+		$(".sites").kendoDropDownList({
+			animation: {
+				close: {
+					effects: "fadeOut zoom:out",
+					duration: 200
+				},
+				open: {
+					effects: "fadeIn zoom:in",
+					duration: 200
+				}
+			}
+		});
 		//resizeSplitter();
 	});
 

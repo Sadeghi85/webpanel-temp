@@ -2,6 +2,16 @@
 
 class UsersController extends BaseController {
 
+	public function sites($userId)
+	{
+		if (Request::ajax()) {
+			
+			return Response::json(User::getSiteData($userId));
+		}
+		
+	}
+	
+	
     /**
 	 * Display a listing of the resource.
 	 * GET /overviews
@@ -20,32 +30,6 @@ class UsersController extends BaseController {
 		ksort($roles);
 		
 		return View::make('users.index', compact('roles'));
-		
-		// if (Request::ajax())
-		// {
-			// Input::merge(array('sort' => Input::get('sort', array(array('field' => 'id', 'dir' => 'asc')))));
-			
-			// list($_users, $usersCount) = Helpers::getGridData(User::with('roles')->select('id', 'username', 'name'));
-			
-			// $users = array();
-			// foreach ($_users->toArray() as $user) {
-				// $roles = '';
-				// foreach ($user['roles'] as $role) {
-					// $roles .= $role['name'].', ';
-				// }
-				
-				// $users[] = array(
-					// 'id' => $user['id'],
-					// 'username' => $user['username'],
-					// 'name' => $user['name'],
-					// 'roles' => trim(trim($roles), ','),
-				// );
-			// }
-
-			// return Response::json(array('data' => $users, 'total' => $usersCount));
-		// }
-		
-		// return View::make('users.index');
 	}
 
     /**
@@ -55,6 +39,20 @@ class UsersController extends BaseController {
      */
     public function store()
     {
+		$userInstance = new User;
+		
+		if ($userInstance->validationFails()) {
+			Helpers::setExceptionErrorMessage($userInstance->getValidationMessage());
+			App::abort(403);
+		}
+		
+		if ( ! User::addUser()) {
+			Helpers::setExceptionErrorMessage('Unable to create this user.');
+			App::abort(403);
+		}
+		
+		return Response::json(array());
+		
         // $repo = App::make('UserRepository');
         // $user = $repo->signup(Input::all());
 

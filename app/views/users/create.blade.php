@@ -128,8 +128,8 @@ $(document).ready(function () {
 			type: "POST",
 			cache: false,
 			dataType: "json",
-			data: {"aliases": $("#aliases").val(), "server-name": $("#server-name").val() },
-			url: "{{ URL::route('sites.store') }}",
+			data: {"username": $("#username").val(), "name": $("#name").val(), "password": $("#password").val(), "password_confirmation": $("#password_confirmation").val(), "activated": $("#activate").val(), "role": $("#role").val() },
+			url: "{{ URL::route('users.store') }}",
 			
 			success: function(data, textStatus, xhr) {
 				$('#createForm')[0].reset();

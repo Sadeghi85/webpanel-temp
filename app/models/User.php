@@ -9,14 +9,16 @@ class User extends Eloquent implements ConfideUserInterface {
     use ConfideUser;
 	use HasRole;
 	
-	protected $fillable = [];
-	protected $table = 'users';
+	protected $fillable = array('username', 'user', 'password', 'activated', 'email');
+	//protected $table = 'users';
 	
 	private $validationRules = array(
-		'username'   => 'required|between:3,127|unique:users,username',
+		'username'   => 'required|alpha_dash|between:3,127|unique:users,username',
 		'email'      => 'required|unique:users,email',
 		'password'   => 'required|between:3,127|confirmed',
 		'password_confirmation'   => 'required|between:3,127',
+		'activated' => 'required',
+		'role' => 'required'
 	);
 	
 	private $validator;
@@ -96,68 +98,126 @@ class User extends Eloquent implements ConfideUserInterface {
 
 	}
 	
-	public static function addUser($user) {
+	public static function addUser() {
+	
+		$user = new User;
 		
+		$user->username = input::get('username');
+		$user->name = input::get('name');
+		$user->email = input::get('email');
+		$user->password = input::get('password');
+		$user->password_confirmation = input::get('password_confirmation');
+		$user->activated = input::get('activated');
+		
+		$roleId = input::get('role');
+		$role = Role::find($roleId);
+		
+		if ($role) {
+			$user->save();
+			$user->attachRole($role);
+		} else {
+			return false;
+		}
+
+		return true;
+	}
+	
+	public static function getSiteData($userId) {
+		$_users = User::where('id', '=', $userId)->with('sites.aliases')->get();
+		
+		$sites = array();
+		$sitesCount = 0;
+		
+		foreach ($_users->toArray() as $_user) {
+			
+			$sitesCount = count($_user['sites']);
+			
+			foreach ($_user['sites'] as $site) {
+				$aliases = array(0 => 'dummy');
+				foreach ($site['aliases'] as $alias) {
+					if ($alias['server_name']) {
+						$aliases[0] = '*'.$alias['alias'].':'.$alias['port'];
+					} else {
+						$aliases[] = $alias['alias'].':'.$alias['port'];
+					}
+				}
+				
+				$sites[] = array(
+					'id' => $site['id'],
+					'tag' => $site['tag'],
+					'aliases' => implode(', ', $aliases),
+				
+				);
+			}
+		}
+		
+		return array('data' => $sites, 'total' => $sitesCount);
 	}
 	
 	public static function getIndexData() {
 		//// Input::merge(array('sort' => Input::get('sort', array(array('field' => 'tag', 'dir' => 'asc')))));
 		
-		$sql= <<<EOT
-(
-	SELECT id, CONCAT(tag,' ',aliases) AS sites FROM
-	(
-		SELECT id, tag, GROUP_CONCAT(alias SEPARATOR ' ') AS aliases FROM
-		(
-			SELECT sites.id AS id, sites.tag AS tag, site_aliases.alias AS alias FROM sites
-			JOIN site_aliases
-			ON sites.id = site_aliases.site_id
-		) AS sites
-		GROUP BY tag
-	) AS sites
-) AS sites
-
-EOT;
 		@list($_users, $usersCount) = Helpers::getGridData(
-				User::with('sites.aliases')
-				->join('site_user', 'users.id', '=', 'site_user.user_id')
-				->join(DB::raw($sql), function($join)
-				{
-					$join->on('site_user.site_id', '=', 'sites.id');
-				})
+			User::with('roles')
+			->join('assigned_roles', 'users.id', '=', 'assigned_roles.user_id')
+			->join('roles', 'roles.id', '=', 'assigned_roles.role_id')
+			->select(array('users.id as id', 'users.username as username', 'users.name as name', 'roles.name as role'))
+		);
+		
+		// $sql= <<<EOT
+// (
+	// SELECT id, CONCAT(tag,' ',aliases) AS sites FROM
+	// (
+		// SELECT id, tag, GROUP_CONCAT(alias SEPARATOR ' ') AS aliases FROM
+		// (
+			// SELECT sites.id AS id, sites.tag AS tag, site_aliases.alias AS alias FROM sites
+			// JOIN site_aliases
+			// ON sites.id = site_aliases.site_id
+		// ) AS sites
+		// GROUP BY tag
+	// ) AS sites
+// ) AS sites
+
+// EOT;
+		// @list($_users, $usersCount) = Helpers::getGridData(
+				// User::with('sites.aliases')
+				// ->join('site_user', 'users.id', '=', 'site_user.user_id')
+				// ->join(DB::raw($sql), function($join)
+				// {
+					// $join->on('site_user.site_id', '=', 'sites.id');
+				// })
 				
-				->select(array('users.id as id', 'users.username as username', 'users.name as name', 'sites.sites as sites'))
-			);
+				// ->select(array('users.id as id', 'users.username as username', 'users.name as name', 'sites.sites as sites'))
+			// );
 			
 //Debugbar::info($_users->toArray());
 		$users = array();
-		$sites = array();
 		
 		foreach ($_users->toArray() as $_user) {
+			$_roles = array();
 			
-			foreach ($_user['sites'] as $_site) {
+			foreach ($_user['roles'] as $_role) {
 				
 				
-				$aliases = array(0 => 'dummy');
+				$_roles[] = $_role['name'];
+
 				
-				foreach ($_site['aliases'] as $_alias) {
-					if ($_alias['server_name']) {
-					$aliases[0] = '*'.$_alias['alias'].':'.$_alias['port'];
-					} else {
-						$aliases[] = $_alias['alias'].':'.$_alias['port'];
-					}
-				}
-				
-				$sites[] = sprintf('%s ( %s )', $_site['tag'], implode(', ', $aliases));
+				//$obj = new StdClass;
+				//$obj->name = sprintf('%s ( %s )', $_site['tag'], implode(', ', $aliases));
+				//$sites[] = $obj;
 			}
+			
+			
 			
 			$users[] = array(
 				'id' => $_user['id'],
 				'username' => $_user['username'],
 				'name' => $_user['name'],
+				'role' => implode(', ', $_roles),
+				
 				//'activated' => $_user['activated'],
 				
-				'sites' => implode(', ', $sites),
+				//'sites' => sprintf('%s%s%s', '<li>', Form::select('sites', $sites, null, array('class' => 'sites')), '</li>'),
 			);
 		}
 
