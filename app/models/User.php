@@ -10,7 +10,7 @@ class User extends Eloquent implements ConfideUserInterface {
 	use HasRole;
 	
 	protected $fillable = array('username', 'user', 'password', 'activated', 'email');
-	//protected $table = 'users';
+	protected $table = 'users';
 	
 	private $validationRules = array(
 		'username'   => 'required|alpha_dash|between:3,127|unique:users,username',
@@ -18,19 +18,20 @@ class User extends Eloquent implements ConfideUserInterface {
 		'password'   => 'required|between:3,127|confirmed',
 		'password_confirmation'   => 'required|between:3,127',
 		'activated' => 'required',
-		'role' => 'required'
+		'role' => 'required|exists:roles,id'
 	);
 	
 	private $validator;
 	private $validationMessage;
 	
 	public function validationPasses() {
-		$username = Input::get('username');
+		$username = strtolower(Input::get('username'));
 	
 		Input::merge(array(
+			'username' => $username,
 			'email'   => $username.'@localhost.localdomain',
 		));
-		
+		Debugbar::info(Input::all());
 		$v = Validator::make(Input::all(),
 							$this->validationRules,
 							array(
@@ -41,6 +42,8 @@ class User extends Eloquent implements ConfideUserInterface {
 		$v->setAttributeNames(array(
 							'username' => '"Username"',
 							'password'  => '"Password"',
+							'password_confirmation'  => '"Password Confirmation"',
+							'role'  => '"Role"',
 							)
 		);
 		
@@ -95,30 +98,39 @@ class User extends Eloquent implements ConfideUserInterface {
 	
 	
 	public static function removeUser($user) {
-
+		if (OS::removeUser($user->username)) {
+			
+			$user->delete();
+		
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public static function addUser() {
-	
 		$user = new User;
-		
 		$user->username = input::get('username');
 		$user->name = input::get('name');
 		$user->email = input::get('email');
 		$user->password = input::get('password');
 		$user->password_confirmation = input::get('password_confirmation');
 		$user->activated = input::get('activated');
-		
-		$roleId = input::get('role');
-		$role = Role::find($roleId);
-		
-		if ($role) {
-			$user->save();
-			$user->attachRole($role);
+			
+		if (OS::addUser($user->username, $user->password)) {
+			$roleId = input::get('role');
+			$role = Role::find($roleId);
+			
+			if ($role) {
+				$user->save();
+				$user->attachRole($role);
+			} else {
+				return false;
+			}
 		} else {
 			return false;
 		}
-
+		
 		return true;
 	}
 	

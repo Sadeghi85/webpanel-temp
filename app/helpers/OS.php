@@ -14,6 +14,30 @@ class OS {
 		return $nextTag;
 	}
 	
+	public static function removeUser ($username) {
+		$panelCommandsPath = Config::get('panel.panel_commands_path');
+		
+		exec("sudo $panelCommandsPath/userdel.sh $username", $output, $statusCode);
+		
+		if ($statusCode == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public static function addUser ($username, $password) {
+		$panelCommandsPath = Config::get('panel.panel_commands_path');
+		
+		exec("sudo $panelCommandsPath/userdef.sh $username $password", $output, $statusCode);
+		
+		if ($statusCode == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	public static function removeAlias($siteTag, $serverName, $port) {
 		$panelCommandsPath = Config::get('panel.panel_commands_path');
 		

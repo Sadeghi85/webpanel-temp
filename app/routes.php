@@ -61,7 +61,7 @@ Route::group(array('before' => 'auth'), function()
 			return;
 		}
 		
-		return $user;
+		return $resourceUser;
 	});
 	Route::resource('users', 'UsersController', array('only' => array('index', 'store', 'update', 'destroy')));
 	Route::get('users/sites/{id}', array('as' => 'users.sites', 'uses' => 'UsersController@sites'));

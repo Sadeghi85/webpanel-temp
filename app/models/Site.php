@@ -157,7 +157,6 @@ class Site extends \Eloquent {
 		@list($serverName, $port) = explode(':', Input::get('server_name'));
 			
 		if (OS::addSite($siteTag, $serverName, $port)) {
-			
 			$site = new Site;
 			$site->tag = $siteTag;
 			$site->activated = 1;

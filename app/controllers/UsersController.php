@@ -81,5 +81,20 @@ class UsersController extends BaseController {
         // }
     }
 
-    
+    /**
+	 * Remove the specified resource from storage.
+	 * DELETE /overviews/{id}
+	 *
+	 * @param  int  $id
+	 * @return Response
+	 */
+	public function destroy($user)
+	{
+		if ( ! User::removeUser($user)) {
+			Helpers::setExceptionErrorMessage('Unable to remove this user.');
+			App::abort(403);
+		}
+		
+		return Response::json(array());
+	}
 }
