@@ -1,7 +1,7 @@
 @extends('layouts.splitter')
 
 @section('title')
-	@lang('app.title')
+	@parent
 @stop
 
 
@@ -12,8 +12,12 @@
 </style>
 @stop
 
-@section('content')
+@section('header')
+Overview
+@stop
 
+@section('content')
+@parent
 
 @stop
 
@@ -23,8 +27,8 @@
 <script type="text/javascript">
 $(document).ready(function () {
 
-
-
 });
 </script>
 @stop
+
+@include('overviews.disk')
