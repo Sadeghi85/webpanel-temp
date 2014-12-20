@@ -68,6 +68,7 @@ $(document).ready(function () {
 		columns: [{
 				field:"tag",
 				title: "Tag",
+				encoded: false,
 				width: "200px"
 				
 			},{
@@ -80,6 +81,7 @@ $(document).ready(function () {
 				field: "alias",
 				title: "Aliases",
 				width: "auto",
+				encoded: false,
 				sortable: false,
 				//filterable: false
 			}

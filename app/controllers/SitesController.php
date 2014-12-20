@@ -2,6 +2,14 @@
 
 class SitesController extends BaseController {
 
+	public function details($id)
+	{
+		$site = Site::findOrFail($id);
+		$tag = $site->tag;
+		
+		return View::make('sites.details', compact('id', 'tag'));
+	}
+	
 	/**
 	 * Display a listing of the resource.
 	 * GET /overviews
@@ -85,7 +93,7 @@ class SitesController extends BaseController {
 	 */
 	public function update($id)
 	{
-		//
+		return;
 	}
 
 	/**

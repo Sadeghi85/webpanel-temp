@@ -99,6 +99,7 @@ Route::group(array('before' => 'auth'), function()
 		return $site;
 	});
 	Route::resource('sites', 'SitesController', array('only' => array('index', 'store', 'update', 'destroy')));
+	Route::get('sites/details/{id}', array('as' => 'sites.details', 'uses' => 'SitesController@details'));
 
 	// Log
 	//Route::resource('logs', 'PanelLogsController', array('only' => array('index', 'show', 'destroy')));

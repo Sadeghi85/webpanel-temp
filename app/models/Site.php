@@ -205,7 +205,7 @@ class Site extends \Eloquent {
 			$aliases = array(0 => 'dummy');
 			foreach ($site['aliases'] as $alias) {
 				if ($alias['server_name']) {
-					$aliases[0] = '*'.$alias['alias'].':'.$alias['port'];
+					$aliases[0] = sprintf('<span style="color:red;">%s</span>', $alias['alias'].':'.$alias['port']);
 				} else {
 					$aliases[] = $alias['alias'].':'.$alias['port'];
 				}
@@ -214,7 +214,7 @@ class Site extends \Eloquent {
 			$sites[] = array(
 				'id' => $site['id'],
 				'activated' => $site['activated'],
-				'tag' => $site['tag'],
+				'tag' => sprintf('<a href="%s">%s</a>', route('sites.details', array('id' => $site['id'])), $site['tag']),
 				'alias' => implode(', ', $aliases),
 			);
 		}
