@@ -98,8 +98,11 @@ Route::group(array('before' => 'auth'), function()
 		
 		return $site;
 	});
-	Route::resource('sites', 'SitesController', array('only' => array('index', 'store', 'update', 'destroy')));
-	Route::get('sites/details/{id}', array('as' => 'sites.details', 'uses' => 'SitesController@details'));
+	Route::resource('sites', 'SitesController', array('only' => array('index', 'store', 'destroy')));
+	Route::get('sites/details/{id}', array('as' => 'sites.get-details', 'uses' => 'SitesController@getDetails'));
+	// update aliases
+	Route::get('sites/details-settings-aliases/{id}', array('as' => 'sites.get-details-settings-aliases', 'uses' => 'SitesController@getDetailsSettingsAliases'));
+	Route::put('sites/details-settings-aliases/{id}', array('as' => 'sites.put-details-settings-aliases', 'uses' => 'SitesController@putDetailsSettingsAliases'));
 
 	// Log
 	//Route::resource('logs', 'PanelLogsController', array('only' => array('index', 'show', 'destroy')));

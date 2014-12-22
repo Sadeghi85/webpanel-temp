@@ -2,7 +2,7 @@
 
 class SitesController extends BaseController {
 
-	public function details($id)
+	public function getDetails($id)
 	{
 		$site = Site::findOrFail($id);
 		$tag = $site->tag;
@@ -10,45 +10,54 @@ class SitesController extends BaseController {
 		return View::make('sites.details', compact('id', 'tag'));
 	}
 	
-	/**
-	 * Display a listing of the resource.
-	 * GET /overviews
-	 *
-	 * @return Response
-	 */
+	public function getDetailsSettingsAliases($id)
+	{
+		$site = Site::findOrFail($id);
+		$serverName = $site->aliases()->where('server_name', '=', 1)->first();
+		$serverName = sprintf('%s:%s', $serverName['alias'], $serverName['port']);
+		
+		$aliases = '';
+		$_aliases = $site->aliases()->where('server_name', '=', 0)->get();
+		foreach ($_aliases as $_alias) {
+			$aliases .= sprintf('%s:%s%s', $_alias['alias'], $_alias['port'], "\r\n");
+		}
+		
+		return View::make('sites.details-settings-aliases', compact('id', 'serverName', 'aliases'));
+	}
+	
+	// update aliases
+	public function putDetailsSettingsAliases($id)
+	{
+		$site = Site::findOrFail($id);
+		
+		if ($site->updateValidationFails()) {
+			Helpers::setExceptionErrorMessage($site->getValidationMessage());
+			App::abort(403);
+		}
+		
+		if ( ! Site::updateSite($site)) {
+			Helpers::setExceptionErrorMessage('Unable to update this site.');
+			App::abort(403);
+		}
+		
+		return Response::json(array());
+	}
+	
 	public function index()
 	{
-		if (Request::ajax())
-		{
+		if (Request::ajax()) {
 			return Response::json(Site::getIndexData());
 		}
 		
 		return View::make('sites.index');
 	}
 
-	/**
-	 * Show the form for creating a new resource.
-	 * GET /overviews/create
-	 *
-	 * @return Response
-	 */
-	public function create()
-	{
-		//
-	}
-
-	/**
-	 * Store a newly created resource in storage.
-	 * POST /overviews
-	 *
-	 * @return Response
-	 */
 	public function store()
 	{
-		$siteInstance = new Site;
+		$site = new Site;
 		
-		if ($siteInstance->validationFails()) {
-			Helpers::setExceptionErrorMessage($siteInstance->getValidationMessage());
+		if ($site->validationFails()) {
+			Helpers::setExceptionErrorMessage($site->getValidationMessage());
 			App::abort(403);
 		}
 		
@@ -60,49 +69,6 @@ class SitesController extends BaseController {
 		return Response::json(array());
 	}
 
-	/**
-	 * Display the specified resource.
-	 * GET /overviews/{id}
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function show($id)
-	{
-		//
-	}
-
-	/**
-	 * Show the form for editing the specified resource.
-	 * GET /overviews/{id}/edit
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function edit($id)
-	{
-		//
-	}
-
-	/**
-	 * Update the specified resource in storage.
-	 * PUT /overviews/{id}
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
-	public function update($id)
-	{
-		return;
-	}
-
-	/**
-	 * Remove the specified resource from storage.
-	 * DELETE /overviews/{id}
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
 	public function destroy($site)
 	{
 		if ( ! Site::removeSite($site)) {
@@ -112,5 +78,4 @@ class SitesController extends BaseController {
 		
 		return Response::json(array());
 	}
-
 }
