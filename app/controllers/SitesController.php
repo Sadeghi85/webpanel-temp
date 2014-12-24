@@ -2,17 +2,15 @@
 
 class SitesController extends BaseController {
 
-	public function getDetails($id)
+	public function getDetails($site)
 	{
-		$site = Site::findOrFail($id);
 		$tag = $site->tag;
 		
 		return View::make('sites.details', compact('id', 'tag'));
 	}
 	
-	public function getDetailsSettingsAliases($id)
+	public function getDetailsSettingsAliases($site)
 	{
-		$site = Site::findOrFail($id);
 		$serverName = $site->aliases()->where('server_name', '=', 1)->first();
 		$serverName = sprintf('%s:%s', $serverName['alias'], $serverName['port']);
 		
@@ -26,9 +24,12 @@ class SitesController extends BaseController {
 	}
 	
 	// update aliases
-	public function putDetailsSettingsAliases($id)
+	public function postDetailsSettingsAliases($site)
 	{
-		$site = Site::findOrFail($id);
+		if ( ! Confide::user()->ability('Administrator', 'edit_site')) {
+			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
+			App::abort(403);
+		}
 		
 		if ($site->updateValidationFails()) {
 			Helpers::setExceptionErrorMessage($site->getValidationMessage());
@@ -43,26 +44,34 @@ class SitesController extends BaseController {
 		return Response::json(array());
 	}
 	
+	public function getChangeState($site)
+	{
+		Site::changeState($site);
+		
+		return Redirect::route('sites.index', array('page' => Input::get('page', 1), 'pageSize' => Input::get('pageSize', 10)));
+	}
+	
 	public function index()
 	{
 		if (Request::ajax()) {
 			return Response::json(Site::getIndexData());
 		}
 		
-		return View::make('sites.index');
+		$page = Input::get('page', 1);
+		$pageSize = Input::get('pageSize', 10);
+		
+		return View::make('sites.index', compact('page', 'pageSize'));
 	}
 
 	public function store()
 	{
-		$site = new Site;
-		
-		if ($site->validationFails()) {
-			Helpers::setExceptionErrorMessage($site->getValidationMessage());
+		if ( ! Confide::user()->ability('Administrator', 'create_site')) {
+			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
 			App::abort(403);
 		}
 		
 		if ( ! Site::addSite()) {
-			Helpers::setExceptionErrorMessage('Unable to create this site.');
+			Helpers::setExceptionErrorMessage(Site::getValidationMessage());
 			App::abort(403);
 		}
 		
@@ -71,6 +80,11 @@ class SitesController extends BaseController {
 
 	public function destroy($site)
 	{
+		if ( ! Confide::user()->ability('Administrator', 'remove_site')) {
+			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
+			App::abort(403);
+		}
+		
 		if ( ! Site::removeSite($site)) {
 			Helpers::setExceptionErrorMessage('Unable to remove this site.');
 			App::abort(403);

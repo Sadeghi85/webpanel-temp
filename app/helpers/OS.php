@@ -14,6 +14,30 @@ class OS {
 		return $nextTag;
 	}
 	
+	public static function enableSite ($siteTag, $serverName, $port) {
+		$panelCommandsPath = Config::get('panel.panel_commands_path');
+		
+		exec("sudo $panelCommandsPath/domainen.sh $siteTag $serverName $port", $output, $statusCode);
+		
+		if ($statusCode == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public static function disableSite ($siteTag, $serverName, $port) {
+		$panelCommandsPath = Config::get('panel.panel_commands_path');
+		
+		exec("sudo $panelCommandsPath/domaindis.sh $siteTag $serverName $port", $output, $statusCode);
+		
+		if ($statusCode == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	public static function removeUser ($username) {
 		$panelCommandsPath = Config::get('panel.panel_commands_path');
 		

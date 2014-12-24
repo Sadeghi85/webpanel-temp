@@ -10,12 +10,11 @@
 <div id="" class="k-content">
 	
 		<div class="chart-wrapper">
-			<div id="chart-disk"></div>
+			<div id="chart-memory"></div>
 		</div>
 
 	
 </div>
-
 
 
 
@@ -43,7 +42,7 @@ $(document).ready(function () {
 	];
 
 	function createChart() {
-		var chart = $("#chart-disk").kendoChart({
+		var chart = $("#chart-memory").kendoChart({
 			title: {
 				text: "Break-up of Spain Electricity Production for 2008"
 			},
@@ -77,7 +76,7 @@ $(document).ready(function () {
 			//},
 		}).data("kendoChart");
 
-		
+
 	}
 	
 	createChart();

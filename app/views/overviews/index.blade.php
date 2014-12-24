@@ -19,6 +19,14 @@ Overview
 @section('content')
 @parent
 
+<div class="row">
+
+		<ul id="panelbarDisk"></ul>
+
+		<ul id="panelbarMemory"></ul>
+
+</div>
+
 @stop
 
 @section('javascript')
@@ -26,9 +34,26 @@ Overview
 
 <script type="text/javascript">
 $(document).ready(function () {
-
+	$("#panelbarDisk").kendoPanelBar({
+      dataSource: [
+          {
+              text: "Disk",
+			  expanded: true,
+              contentUrl: "{{ route('overviews.disk') }}"
+          },
+      ]
+  });
+  
+  $("#panelbarMemory").kendoPanelBar({
+      dataSource: [
+          {
+              text: "Memory",
+			  expanded: true,
+              contentUrl: "{{ route('overviews.memory') }}"
+          },
+      ]
+  });
 });
 </script>
 @stop
 
-@include('overviews.disk')

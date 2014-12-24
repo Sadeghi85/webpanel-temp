@@ -19,7 +19,17 @@ Route::get('/', function()
 Route::group(array('before' => 'auth'), function()
 {
     // Overview
-	Route::resource('overviews', 'OverviewsController', array('only' => array('index')));
+	Route::get('overviews', array('as' => 'overviews.index', function () {
+		return View::make('overviews.index');
+	}));
+	Route::get('overviews/disk', array('as' => 'overviews.disk', function () {
+		return View::make('overviews.disk');
+	}));
+	Route::get('overviews/memory', array('as' => 'overviews.memory', function () {
+		return View::make('overviews.memory');
+	}));
+	
+
 
 	// Users
 	Route::bind('users', function($id, $route) {
@@ -69,40 +79,22 @@ Route::group(array('before' => 'auth'), function()
 	Route::resource('roles', 'RolesController', array('only' => array('index')));
 	
 	// Sites
-	Route::bind('sites', function($id, $route) {
-		if ($route->getName() == 'sites.destroy' and ! Confide::user()->ability('Administrator', 'remove_site')) {
-			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
-			App::abort(403);
-		}
-		
-		if ($route->getName() == 'sites.update' and ! Confide::user()->ability('Administrator', 'edit_site')) {
-			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
-			App::abort(403);
-		}
-		
-		if ($route->getName() == 'sites.store') {
-			if ( ! Confide::user()->ability('Administrator', 'create_site')) {
-				Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
-				App::abort(403);
-			}
-			
-			return;
-		}
-
-		$site = Site::find($id);
-		
-		if ( ! $site) {
-			Helpers::setExceptionErrorMessage('This site doesn\'t exist.');
-			App::abort(403);
-		}
-		
-		return $site;
+	Route::model('site', 'Site', function() {
+		Helpers::setExceptionErrorMessage('This site doesn\'t exist.');
+		App::abort(403);
 	});
-	Route::resource('sites', 'SitesController', array('only' => array('index', 'store', 'destroy')));
-	Route::get('sites/details/{id}', array('as' => 'sites.get-details', 'uses' => 'SitesController@getDetails'));
+	Route::get('sites', array('as' => 'sites.index', 'uses' => 'SitesController@index'));
+	Route::post('sites/store', array('as' => 'sites.store', 'uses' => 'SitesController@store'));
+	Route::post('sites/destroy/{site}', array('as' => 'sites.destroy', 'uses' => 'SitesController@destroy'));
+	Route::get('sites/details/{site}', array('as' => 'sites.get-details', 'uses' => 'SitesController@getDetails'));
 	// update aliases
-	Route::get('sites/details-settings-aliases/{id}', array('as' => 'sites.get-details-settings-aliases', 'uses' => 'SitesController@getDetailsSettingsAliases'));
-	Route::put('sites/details-settings-aliases/{id}', array('as' => 'sites.put-details-settings-aliases', 'uses' => 'SitesController@putDetailsSettingsAliases'));
+	Route::get('sites/details-settings-aliases/{site}', array('as' => 'sites.get-details-settings-aliases', 'uses' => 'SitesController@getDetailsSettingsAliases'));
+	Route::post('sites/details-settings-aliases/{site}', array('as' => 'sites.post-details-settings-aliases', 'uses' => 'SitesController@postDetailsSettingsAliases'));
+	// change status
+	Route::get('sites/change-state/{site}', array('as' => 'sites.change-state', 'uses' => 'SitesController@getChangeState'));
+	
+	
+	
 
 	// Log
 	//Route::resource('logs', 'PanelLogsController', array('only' => array('index', 'show', 'destroy')));

@@ -41,11 +41,14 @@ hr {
 				<span id="createFormHeader" style="font-size:18px;">Create</span><hr>
 				<span id="createFormAlert"></span>
 				
+				<li><label for="port">Port</label></li>
+				<li><input type="text" name="port" id="port" value="" placeholder="80" class="k-textbox"></li>
+				
 				<li><label for="server_name">Server Name</label></li>
-				<li><input type="text" name="server_name" id="server_name" value="" placeholder="domain.tld:80" class="k-textbox"></li>
+				<li><input type="text" name="server_name" id="server_name" value="" placeholder="domain.tld" class="k-textbox"></li>
 				
 				<li><label for="aliases">Aliases</label></li>
-				<li><textarea name="aliases" id="aliases" value="" placeholder="domain.tld:80" class="k-textarea"></textarea></li>
+				<li><textarea name="aliases" id="aliases" value="" placeholder="domain.tld" class="k-textarea"></textarea></li>
 				
 				<li>&nbsp;</li>
 				<li>
@@ -93,7 +96,7 @@ $(document).ready(function () {
 			type: "POST",
 			cache: false,
 			dataType: "json",
-			data: {"aliases": $("#aliases").val(), "server_name": $("#server_name").val() },
+			data: {"aliases": $("#aliases").val(), "server_name": $("#server_name").val(), "port": $("#port").val() },
 			url: "{{ URL::route('sites.store') }}",
 			
 			success: function(data, textStatus, xhr) {

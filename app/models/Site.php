@@ -10,8 +10,8 @@ class Site extends \Eloquent {
 		// 'port'  => 'required|integer|between:80,49151',
 	// );
 	
-	private $validator;
-	private $validationMessage;
+	private static $validator;
+	private static $validationMessage;
 	
 	
 	public function updateValidationPasses() {
@@ -158,13 +158,7 @@ class Site extends \Eloquent {
 		return ( ! $this->validationPasses());
 	}
 	
-	public function getValidator() {
-		return $this->validator;
-	}
 	
-	public function getValidationMessage() {
-		return $this->validationMessage;
-	}
 	
 	// public function setValidationRules(array $newRules)	{
 		// $this->validationRules = array_replace($this->validationRules, $newRules);
@@ -251,10 +245,110 @@ class Site extends \Eloquent {
 		}
 	}
 	
-	public static function addSite() {
-		$siteTag = OS::getNextSiteTag();
-		@list($serverName, $port) = explode(':', Input::get('server_name'));
+	public static function getValidator() {
+		return self::$validator;
+	}
+	
+	public static function getValidationMessage() {
+		return self::$validationMessage;
+	}
+	
+	private static function validateAddSite() {
+		$tag = OS::getNextSiteTag();
+		
+		Input::merge(array(
+			'tag'   => $tag,
+			'aliases' => preg_replace('#[\r\n]+#', "\r\n", Input::get('aliases')),
+		));
+		
+		$validationRules = array(
+			'tag' => 'required|unique:sites,tag',
+			'alias' => 'required|between:3,127|custom.domain|unique_with:site_aliases,port',
+			'port'  => 'required|integer|between:80,49151',
+		);
+		
+		$serverName = Input::get('server_name');
+		$port = Input::get('port');
+	
+		Input::merge(array(
+			'alias' => $serverName,
+		));
+		
+		$v = Validator::make(Input::all(),
+							$validationRules,
+							array(
+									'custom.domain' => ':attribute is not valid.',
+									'unique_with' => 'This combination of :fields already exists.',
+							)
+						);
+		$v->setAttributeNames(array(
+							'tag'   => '"Server Tag"',
+							'alias' => '"Sever Name"',
+							'port'  => '"Port"',
+							)
+		);
+		
+		if ($v->fails()) {
+			self::$validator = $v;
 			
+			$fail = $v->failed();
+			if (isset($fail['alias']['Unique_with'])) {
+				self::$validationMessage = sprintf('"%s:%s" is already taken.', $serverName, $port);
+			} else {
+				self::$validationMessage = $v->messages()->first();
+			}
+			
+			return false;
+		} else {
+			$aliases = explode("\r\n", trim(Input::get('aliases')));
+			
+			foreach ($aliases as $alias) {
+				if ( ! $alias) { continue; }
+				
+				Input::merge(array(
+					'alias' => $alias,
+				));
+				
+				$v = Validator::make(Input::all(),
+							$validationRules,
+							array(
+									'custom.domain' => ':attribute is not valid.',
+									'unique_with' => 'This combination of :fields already exists.',
+							)
+						);
+				$v->setAttributeNames(array(
+									'alias' => '"Alias"',
+									)
+				);
+		
+				if ($v->fails()) {
+					self::$validator = $v;
+					
+					$fail = $v->failed();
+					if (isset($fail['alias']['Unique_with'])) {
+						self::$validationMessage = sprintf('"%s:%s" is already taken.', $alias, $port);
+					} else {
+						self::$validationMessage = $v->messages()->first();
+					}
+					
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
+	
+	public static function addSite() {
+	
+		if ( ! Site::validateAddSite()) {
+			return false;
+		}
+		
+		$siteTag = Input::get('tag');
+		$serverName = Input::get('server_name');
+		$port = Input::get('port');
+		
 		if (OS::addSite($siteTag, $serverName, $port)) {
 			$site = new Site;
 			$site->tag = $siteTag;
@@ -269,27 +363,42 @@ class Site extends \Eloquent {
 								)
 							));
 
-			$_aliases = explode("\r\n", trim(Input::get('aliases')));
+			$aliases = explode("\r\n", trim(Input::get('aliases')));
 			
-			foreach ($_aliases as $_alias) {
-				if ( ! $_alias) { continue; }
+			foreach ($aliases as $alias) {
+				if ( ! $alias) { continue; }
 				
-				@list($_serverName, $_port) = explode(':', $_alias);
-				
-				if (OS::addAlias($siteTag, $_serverName, $_port)) {
+				if (OS::addAlias($siteTag, $alias, $port)) {
 					$site->aliases()->save(new Alias(array(
-									'alias' => $_serverName,
-									'port' => $_port,
+									'alias' => $alias,
+									'port' => $port,
 									'server_name' => 0,
 									)
 								));
 				}
 			}
-
+			
 			return true;
 		} else {
+			self::$validationMessage = 'Unable to create this site.';
 			return false;
 		}
+	}
+	
+	public static function changeState($site) {
+		if ($site->activated) {
+			if (OS::disableSite($site->tag, $site->aliases()->where('server_name', '=', 1)->pluck('alias'), $site->aliases()->where('server_name', '=', 1)->pluck('port'))) {
+				$site->activated = 0;
+				$site->save();
+			} else { return false; }
+		} else {
+			if (OS::enableSite($site->tag, $site->aliases()->where('server_name', '=', 1)->pluck('alias'), $site->aliases()->where('server_name', '=', 1)->pluck('port'))) {
+				$site->activated = 1;
+				$site->save();
+			} else { return false; }
+		}
+		
+		return true;
 	}
 	
 	public static function getIndexData() {
@@ -313,8 +422,8 @@ class Site extends \Eloquent {
 			
 			$sites[] = array(
 				'id' => $site['id'],
-				'activated' => $site['activated'],
-				'tag' => sprintf('<a href="%s">%s</a>', route('sites.get-details', array('id' => $site['id'])), $site['tag']),
+				'activated' => sprintf('<a href="%s" class="activated">%s</a>', route('sites.change-state', array('site' => $site['id'])), $site['activated'] ? 'Yes' : 'No'),
+				'tag' => sprintf('<a href="%s">%s</a>', route('sites.get-details', array('site' => $site['id'])), $site['tag']),
 				'alias' => implode(', ', $aliases),
 			);
 		}

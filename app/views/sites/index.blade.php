@@ -20,7 +20,7 @@
     width: 102%;
 }
 .k-grid-content {
-    overflow-y: auto    
+    overflow-y: auto;
 }
 .k-button {
 	margin-right: 10px;
@@ -63,6 +63,8 @@ Sites
 <script type="text/javascript">
 $(document).ready(function () {
 
+	
+
 	var grid = $("#grid").kendoGrid({
 	
 		columns: [{
@@ -74,6 +76,7 @@ $(document).ready(function () {
 			},{
 				field:"activated",
 				title: "Activated",
+				encoded: false,
 				width: "200px"
 				
 			},
@@ -98,7 +101,8 @@ $(document).ready(function () {
 			schema: {
 				data: "data", total: "total"
 			},
-			pageSize: 10,
+			pageSize: {{  isset($pageSize) ? $pageSize : 10}},
+			page: {{  isset($page) ? $page : 1}},
 			serverPaging: true,
 			serverFiltering: true,
 			serverSorting: true
@@ -172,7 +176,7 @@ $(document).ready(function () {
 				type: "POST",
 				cache: false,
 				dataType: "json",
-				data: {_method: "DELETE"},
+				//data: {_method: "DELETE"},
 				url: url,
 				
 				success: function(data, textStatus, xhr) {
@@ -206,12 +210,19 @@ $(document).ready(function () {
 	
 	grid.bind("dataBound", function(e) {
 		removeButton.enable(false);
+		
+		$(".activated").on('click', function (event) {
+			event.preventDefault();
+			
+			window.location.assign(this.href+'?pageSize='+$('#grid').data().kendoGrid.dataSource.pageSize()+'&page='+$('#grid').data().kendoGrid.dataSource.page());
+		
+		});
 		//resizeSplitter();
 	});
 
-$( document ).ajaxError(function( event, jqxhr, settings, thrownError ) {
-console.log(jqxhr);
-});
+	$( document ).ajaxError(function( event, jqxhr, settings, thrownError ) {
+	console.log(jqxhr);
+	});
 	
 });
 </script>
