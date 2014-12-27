@@ -110,14 +110,10 @@ class OS {
 		}
 	}
 	
-	public static function updateSite($siteTag, $serverName, $port, $aliases) {
+	public static function updatePort($siteTag, $serverName, $oldPort, $newPort) {
 		$panelCommandsPath = Config::get('panel.panel_commands_path');
 		
-		foreach ($aliases as $alias) {
-			OS::removeAlias($siteTag, $alias->alias, $alias->port);
-		}
-		
-		exec("sudo $panelCommandsPath/reset_servername.sh $siteTag $serverName $port", $output, $statusCode);
+		exec("sudo $panelCommandsPath/reset_port.sh $siteTag $serverName $oldPort $newPort", $output, $statusCode);
 		
 		if ($statusCode == 0) {
 			return true;
@@ -125,4 +121,20 @@ class OS {
 			return false;
 		}
 	}
+	
+	// public static function updateSite($siteTag, $serverName, $port, $aliases) {
+		// $panelCommandsPath = Config::get('panel.panel_commands_path');
+		
+		// foreach ($aliases as $alias) {
+			// OS::removeAlias($siteTag, $alias->alias, $alias->port);
+		// }
+		
+		// exec("sudo $panelCommandsPath/reset_servername.sh $siteTag $serverName $port", $output, $statusCode);
+		
+		// if ($statusCode == 0) {
+			// return true;
+		// } else {
+			// return false;
+		// }
+	// }
 }

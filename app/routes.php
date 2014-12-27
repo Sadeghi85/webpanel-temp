@@ -87,9 +87,11 @@ Route::group(array('before' => 'auth'), function()
 	Route::post('sites/store', array('as' => 'sites.store', 'uses' => 'SitesController@store'));
 	Route::post('sites/destroy/{site}', array('as' => 'sites.destroy', 'uses' => 'SitesController@destroy'));
 	Route::get('sites/details/{site}', array('as' => 'sites.get-details', 'uses' => 'SitesController@getDetails'));
-	// update aliases
-	Route::get('sites/details-settings-aliases/{site}', array('as' => 'sites.get-details-settings-aliases', 'uses' => 'SitesController@getDetailsSettingsAliases'));
-	Route::post('sites/details-settings-aliases/{site}', array('as' => 'sites.post-details-settings-aliases', 'uses' => 'SitesController@postDetailsSettingsAliases'));
+	// update main settings
+	Route::get('sites/details-settings-main/{site}', array('as' => 'sites.get-details-settings-main', 'uses' => 'SitesController@getDetailsSettingsMain'));
+	Route::post('sites/details-settings-main-port/{site}', array('as' => 'sites.post-details-settings-main-port', 'uses' => 'SitesController@postDetailsSettingsMainPort'));
+	Route::post('sites/details-settings-main-servername/{site}', array('as' => 'sites.post-details-settings-main-servername', 'uses' => 'SitesController@postDetailsSettingsMainServerName'));
+	
 	// change status
 	Route::get('sites/change-state/{site}', array('as' => 'sites.change-state', 'uses' => 'SitesController@getChangeState'));
 	

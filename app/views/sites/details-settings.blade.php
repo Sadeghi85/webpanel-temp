@@ -39,7 +39,7 @@ label {
 <script type="text/javascript">
 $(document).ready(function () {
 
-	var aliasesURL = "{{ URL::route('sites.get-details-settings-aliases', ['id']) }}";
+	var aliasesURL = "{{ URL::route('sites.get-details-settings-main', ['id']) }}";
 	aliasesURL = aliasesURL.replace('id', {{ $id }});
 		
 	$("#settingsPanelbar").kendoPanelBar({

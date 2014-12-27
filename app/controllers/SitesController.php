@@ -2,48 +2,6 @@
 
 class SitesController extends BaseController {
 
-	public function getDetails($site)
-	{
-		$tag = $site->tag;
-		
-		return View::make('sites.details', compact('id', 'tag'));
-	}
-	
-	public function getDetailsSettingsAliases($site)
-	{
-		$serverName = $site->aliases()->where('server_name', '=', 1)->first();
-		$serverName = sprintf('%s:%s', $serverName['alias'], $serverName['port']);
-		
-		$aliases = '';
-		$_aliases = $site->aliases()->where('server_name', '=', 0)->get();
-		foreach ($_aliases as $_alias) {
-			$aliases .= sprintf('%s:%s%s', $_alias['alias'], $_alias['port'], "\r\n");
-		}
-		
-		return View::make('sites.details-settings-aliases', compact('id', 'serverName', 'aliases'));
-	}
-	
-	// update aliases
-	public function postDetailsSettingsAliases($site)
-	{
-		if ( ! Confide::user()->ability('Administrator', 'edit_site')) {
-			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
-			App::abort(403);
-		}
-		
-		if ($site->updateValidationFails()) {
-			Helpers::setExceptionErrorMessage($site->getValidationMessage());
-			App::abort(403);
-		}
-		
-		if ( ! Site::updateSite($site)) {
-			Helpers::setExceptionErrorMessage('Unable to update this site.');
-			App::abort(403);
-		}
-		
-		return Response::json(array());
-	}
-	
 	public function getChangeState($site)
 	{
 		Site::changeState($site);
@@ -71,6 +29,57 @@ class SitesController extends BaseController {
 		}
 		
 		if ( ! Site::addSite()) {
+			Helpers::setExceptionErrorMessage(Site::getValidationMessage());
+			App::abort(403);
+		}
+		
+		return Response::json(array());
+	}
+	
+	public function getDetails($site)
+	{
+		$id = $site->id;
+		$tag = $site->tag;
+		
+		return View::make('sites.details', compact('id', 'tag'));
+	}
+	
+	public function getDetailsSettingsMain($site)
+	{
+		$id = $site->id;
+		$port = $site->aliases()->where('server_name', '=', 1)->pluck('port');
+		$serverName = $site->aliases()->where('server_name', '=', 1)->pluck('alias');
+		
+		$aliases = implode("\r\n", $site->aliases()->where('server_name', '=', 0)->lists('alias'));
+		
+		return View::make('sites.details-settings-main', compact('id', 'port', 'serverName', 'aliases'));
+	}
+	
+	// update main settings: port
+	public function postDetailsSettingsMainServerName($site)
+	{	
+		if ( ! Confide::user()->ability('Administrator', 'edit_site')) {
+			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
+			App::abort(403);
+		}
+
+		if ( ! Site::updateServerName($site)) {
+			Helpers::setExceptionErrorMessage(Site::getValidationMessage());
+			App::abort(403);
+		}
+		
+		return Response::json(array());
+	}
+	
+	// update main settings: port
+	public function postDetailsSettingsMainPort($site)
+	{	
+		if ( ! Confide::user()->ability('Administrator', 'edit_site')) {
+			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
+			App::abort(403);
+		}
+
+		if ( ! Site::updatePort($site)) {
 			Helpers::setExceptionErrorMessage(Site::getValidationMessage());
 			App::abort(403);
 		}
