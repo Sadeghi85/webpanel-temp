@@ -55,7 +55,23 @@ class SitesController extends BaseController {
 		return View::make('sites.details-settings-main', compact('id', 'port', 'serverName', 'aliases'));
 	}
 	
-	// update main settings: port
+	// update main settings: aliases
+	public function postDetailsSettingsMainAliases($site)
+	{	
+		if ( ! Confide::user()->ability('Administrator', 'edit_site')) {
+			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
+			App::abort(403);
+		}
+
+		if ( ! Site::updateAliases($site)) {
+			Helpers::setExceptionErrorMessage(Site::getValidationMessage());
+			App::abort(403);
+		}
+		
+		return Response::json(array());
+	}
+	
+	// update main settings: server_name
 	public function postDetailsSettingsMainServerName($site)
 	{	
 		if ( ! Confide::user()->ability('Administrator', 'edit_site')) {

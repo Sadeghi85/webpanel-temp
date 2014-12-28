@@ -70,7 +70,7 @@ $(document).ready(function () {
 		
 	}).data("kendoNotification");
 	
-	
+	// port
 	$("#portForm").on("submit", function(event) {
 		event.preventDefault();
 
@@ -112,6 +112,89 @@ $(document).ready(function () {
 		});
 	});
 	
+	// server_name
+	$("#serverNameForm").on("submit", function(event) {
+		event.preventDefault();
+
+		alert.hide();
+		
+		kendo.ui.progress($("#mainSettingsContainer"), true);
+		
+		var url = "{{ URL::route('sites.post-details-settings-main-servername', ['id']) }}";
+		url = url.replace('id', {{ $id }});
+		
+		$.ajax(
+		{
+			type: "POST",
+			cache: false,
+			dataType: "json",
+			data: {"server_name": $("#server_name").val() },
+			url: url,
+			
+			success: function(data, textStatus, xhr) {
+				//$('#portForm')[0].reset();
+				//alert.hide();
+				kendo.ui.progress($("#mainSettingsContainer"), false);
+				alert.show('"Server Name" updated to "' + $("#server_name").val() + '".', "success")
+			},
+			
+			error: function(jqXHR, textStatus, errorThrown) {
+				var message;
+				if (jqXHR.status == 403) {
+					var response = jqXHR.responseJSON;
+					message = response.error.message;
+				}
+				else {
+					message = 'An unknown error occurred';
+				}
+				
+				kendo.ui.progress($("#mainSettingsContainer"), false);
+				alert.show(message, "error");
+			}
+		});
+	});
+	
+	// aliases
+	$("#aliasesForm").on("submit", function(event) {
+		event.preventDefault();
+
+		alert.hide();
+		
+		kendo.ui.progress($("#mainSettingsContainer"), true);
+		
+		var url = "{{ URL::route('sites.post-details-settings-main-aliases', ['id']) }}";
+		url = url.replace('id', {{ $id }});
+		
+		$.ajax(
+		{
+			type: "POST",
+			cache: false,
+			dataType: "json",
+			data: {"aliases": $("#aliases").val() },
+			url: url,
+			
+			success: function(data, textStatus, xhr) {
+				//$('#portForm')[0].reset();
+				//alert.hide();
+				kendo.ui.progress($("#mainSettingsContainer"), false);
+				alert.show('"Aliases" updated.', "success")
+			},
+			
+			error: function(jqXHR, textStatus, errorThrown) {
+				var message;
+				if (jqXHR.status == 403) {
+					var response = jqXHR.responseJSON;
+					message = response.error.message;
+				}
+				else {
+					message = 'An unknown error occurred';
+				}
+				
+				kendo.ui.progress($("#mainSettingsContainer"), false);
+				alert.show(message, "error");
+			}
+		});
+	});
 	
 	
 });

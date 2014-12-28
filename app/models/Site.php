@@ -13,152 +13,149 @@ class Site extends \Eloquent {
 	private static $validator;
 	private static $validationMessage;
 	
+	// public function updateValidationPasses() {
+		// Input::merge(array(
+			// 'tag'   => $this->tag,
+			// 'aliases' => preg_replace('#[\r\n]+#', "\r\n", Input::get('aliases')),
+		// ));
 	
-	public function updateValidationPasses() {
-		Input::merge(array(
-			'tag'   => $this->tag,
-			'aliases' => preg_replace('#[\r\n]+#', "\r\n", Input::get('aliases')),
-		));
-	
-		$validationRules = array(
-			'alias' => 'required|between:3,127|custom.domain',
-			'port'  => 'required|integer|between:80,49151',
-		);
+		// $validationRules = array(
+			// 'alias' => 'required|between:3,127|custom.domain',
+			// 'port'  => 'required|integer|between:80,49151',
+		// );
 		
-		$currentServerName = $this->aliases()->where('server_name', '=', 1)->first();
+		// $currentServerName = $this->aliases()->where('server_name', '=', 1)->first();
 		
-		@list($serverName, $port) = explode(':', Input::get('server_name'));
+		// @list($serverName, $port) = explode(':', Input::get('server_name'));
 		
-		if (sprintf('%s:%s', $serverName, $port) != sprintf('%s:%s', $currentServerName['alias'], $currentServerName['port'])) {
-			Input::merge(array(
-				'alias' => $serverName,
-				'port'  => $port,
-			));
+		// if (sprintf('%s:%s', $serverName, $port) != sprintf('%s:%s', $currentServerName['alias'], $currentServerName['port'])) {
+			// Input::merge(array(
+				// 'alias' => $serverName,
+				// 'port'  => $port,
+			// ));
 			
-			$v = Validator::make(Input::all(),
-								$validationRules,
-								array(
-										'custom.domain' => ':attribute is not valid.',
-								)
-							);
-			$v->setAttributeNames(array(
-								'alias' => '"Sever Name"',
-								'port'  => '"Port"',
-								)
-			);
+			// $v = Validator::make(Input::all(),
+								// $validationRules,
+								// array(
+										// 'custom.domain' => ':attribute is not valid.',
+								// )
+							// );
+			// $v->setAttributeNames(array(
+								// 'alias' => '"Sever Name"',
+								// 'port'  => '"Port"',
+								// )
+			// );
 		
-			if ($v->fails()) {
-				$this->validator = $v;
-				$this->validationMessage = $v->messages()->first();
-				return false;
-			}
+			// if ($v->fails()) {
+				// $this->validator = $v;
+				// $this->validationMessage = $v->messages()->first();
+				// return false;
+			// }
 		
-		}
+		// }
 		
 		
 	
-	}
+	// }
 	
-	public function updateValidationFails() {
-		return ( ! $this->updateValidationPasses());
-	}
+	// public function updateValidationFails() {
+		// return ( ! $this->updateValidationPasses());
+	// }
 	
 	
-	public function validationPasses() {
-		$tag = OS::getNextSiteTag();
+	// public function validationPasses() {
+		// $tag = OS::getNextSiteTag();
 		
-		Input::merge(array(
-			'tag'   => $tag,
-			'aliases' => preg_replace('#[\r\n]+#', "\r\n", Input::get('aliases')),
-		));
+		// Input::merge(array(
+			// 'tag'   => $tag,
+			// 'aliases' => preg_replace('#[\r\n]+#', "\r\n", Input::get('aliases')),
+		// ));
 		
-		$validationRules = array(
-			'alias' => 'required|between:3,127|custom.domain|unique_with:site_aliases,port',
-			'port'  => 'required|integer|between:80,49151',
-		);
+		// $validationRules = array(
+			// 'alias' => 'required|between:3,127|custom.domain|unique_with:site_aliases,port',
+			// 'port'  => 'required|integer|between:80,49151',
+		// );
 		
-		@list($serverName, $port) = explode(':', Input::get('server_name'));
+		// @list($serverName, $port) = explode(':', Input::get('server_name'));
 	
-		Input::merge(array(
+		// Input::merge(array(
 			
-			'alias' => $serverName,
-			'port'  => $port,
-		));
+			// 'alias' => $serverName,
+			// 'port'  => $port,
+		// ));
 		
-		$v = Validator::make(Input::all(),
-							$validationRules,
-							array(
-									'custom.domain' => ':attribute is not valid.',
-									'unique_with' => 'This combination of :fields already exists.',
-							)
-						);
-		$v->setAttributeNames(array(
-							'alias' => '"Sever Name"',
-							'port'  => '"Port"',
-							)
-		);
+		// $v = Validator::make(Input::all(),
+							// $validationRules,
+							// array(
+									// 'custom.domain' => ':attribute is not valid.',
+									// 'unique_with' => 'This combination of :fields already exists.',
+							// )
+						// );
+		// $v->setAttributeNames(array(
+							// 'alias' => '"Sever Name"',
+							// 'port'  => '"Port"',
+							// )
+		// );
 		
-		if ($v->fails()) {
+		// if ($v->fails()) {
 			
-			$this->validator = $v;
+			// $this->validator = $v;
 			
-			$fail = $v->failed();
-			if (isset($fail['alias']['Unique_with'])) {
-				$this->validationMessage = sprintf('"%s" is already taken.', Input::get('server_name'));
-			} else {
-				$this->validationMessage = $v->messages()->first();
-			}
+			// $fail = $v->failed();
+			// if (isset($fail['alias']['Unique_with'])) {
+				// $this->validationMessage = sprintf('"%s" is already taken.', Input::get('server_name'));
+			// } else {
+				// $this->validationMessage = $v->messages()->first();
+			// }
 			
-			return false;
-		} else {
-			$aliases = explode("\r\n", trim(Input::get('aliases')));
+			// return false;
+		// } else {
+			// $aliases = explode("\r\n", trim(Input::get('aliases')));
 			
-			foreach ($aliases as $alias) {
-				if ( ! $alias) { continue; }
+			// foreach ($aliases as $alias) {
+				// if ( ! $alias) { continue; }
 				
-				@list($serverName, $port) = explode(':', $alias);
+				// @list($serverName, $port) = explode(':', $alias);
 				
-				Input::merge(array(
-					'alias' => $serverName,
-					'port' => $port,
-				));
+				// Input::merge(array(
+					// 'alias' => $serverName,
+					// 'port' => $port,
+				// ));
 				
-				$v = Validator::make(Input::all(),
-							$validationRules,
-							array(
-									'custom.domain' => ':attribute is not valid.',
-									'unique_with' => 'This combination of :fields already exists.',
-							)
-						);
-				$v->setAttributeNames(array(
-									'alias' => '"Alias"',
-									'port'  => '"Port"',
-									)
-				);
+				// $v = Validator::make(Input::all(),
+							// $validationRules,
+							// array(
+									// 'custom.domain' => ':attribute is not valid.',
+									// 'unique_with' => 'This combination of :fields already exists.',
+							// )
+						// );
+				// $v->setAttributeNames(array(
+									// 'alias' => '"Alias"',
+									// 'port'  => '"Port"',
+									// )
+				// );
 		
-				if ($v->fails()) {
-					$this->validator = $v;
+				// if ($v->fails()) {
+					// $this->validator = $v;
 					
-					$fail = $v->failed();
-					if (isset($fail['alias']['Unique_with'])) {
-						$this->validationMessage = sprintf('"%s" is already taken.', $alias);
-					} else {
-						$this->validationMessage = $v->messages()->first();
-					}
+					// $fail = $v->failed();
+					// if (isset($fail['alias']['Unique_with'])) {
+						// $this->validationMessage = sprintf('"%s" is already taken.', $alias);
+					// } else {
+						// $this->validationMessage = $v->messages()->first();
+					// }
 					
-					return false;
-				}
-			}
-		}
+					// return false;
+				// }
+			// }
+		// }
 		
-		return true;
-	}
+		// return true;
+	// }
 	
-	public function validationFails() {
-		return ( ! $this->validationPasses());
-	}
-	
-	
+	// public function validationFails() {
+		// return ( ! $this->validationPasses());
+	// }
 	
 	// public function setValidationRules(array $newRules)	{
 		// $this->validationRules = array_replace($this->validationRules, $newRules);
@@ -173,7 +170,6 @@ class Site extends \Eloquent {
 		// Second argument is the name of pivot table.
 		// Third & forth arguments are the names of foreign keys.
 		return $this->belongsToMany('User', 'site_user', 'site_id', 'user_id')->withTimestamps();
-		
 	}
 	
 	/**
@@ -186,29 +182,6 @@ class Site extends \Eloquent {
 		return $this->hasMany('Alias', 'site_id', 'id');
 	}
 	
-	public static function removeSite($site) {
-		$siteTag = $site->tag;
-		
-		$alias = $site->aliases()->where('server_name', '=', 1)->first();
-		$serverName = $alias->alias;
-		$port = $alias->port;
-		
-		foreach ($site->aliases()->get() as $alias) {
-			OS::removeAlias($siteTag, $alias->alias, $alias->port);
-		}
-		
-		if (OS::removeSite($siteTag, $serverName, $port)) {
-			
-			$site->delete();
-		
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
-	
-	
 	public static function getValidator() {
 		return self::$validator;
 	}
@@ -217,190 +190,179 @@ class Site extends \Eloquent {
 		return self::$validationMessage;
 	}
 	
-	private static function validateAddSite() {
-		$tag = OS::getNextSiteTag();
+	// private static function validateUpdateSite($site) {
+		// Input::merge(array(
+			// 'aliases' => preg_replace('#[\r\n]+#', "\r\n", Input::get('aliases')),
+		// ));
 		
-		Input::merge(array(
-			'tag'   => $tag,
-			'aliases' => preg_replace('#[\r\n]+#', "\r\n", Input::get('aliases')),
-		));
+		// $validationRules = array(
+			// 'alias' => 'required|between:3,127|custom.domain|unique_with:site_aliases,port',
+			// 'port'  => 'required|integer|between:80,49151',
+		// );
 		
-		$validationRules = array(
-			'tag' => 'required|unique:sites,tag',
-			'alias' => 'required|between:3,127|custom.domain|unique_with:site_aliases,port',
-			'port'  => 'required|integer|between:80,49151',
-		);
-		
-		$serverName = Input::get('server_name');
-		$port = Input::get('port');
+		// $serverName = Input::get('server_name');
+		// $port = Input::get('port');
 	
-		Input::merge(array(
-			'alias' => $serverName,
-		));
+		// Input::merge(array(
+			// 'alias' => $serverName,
+		// ));
 		
-		$v = Validator::make(Input::all(),
-							$validationRules,
-							array(
-									'custom.domain' => ':attribute is not valid.',
-									'unique_with' => 'This combination of :fields already exists.',
-							)
-						);
-		$v->setAttributeNames(array(
-							'tag'   => '"Server Tag"',
-							'alias' => '"Sever Name"',
-							'port'  => '"Port"',
-							)
-		);
+		// $v = Validator::make(Input::all(),
+							// $validationRules,
+							// array(
+									// 'custom.domain' => ':attribute is not valid.',
+									// 'unique_with' => 'This combination of :fields already exists.',
+							// )
+						// );
+		// $v->setAttributeNames(array(
+							// 'tag'   => '"Server Tag"',
+							// 'alias' => '"Sever Name"',
+							// 'port'  => '"Port"',
+							// )
+		// );
+	
+	
+	// }
+	
+	// public static function updateSite($site) {
 		
-		if ($v->fails()) {
-			self::$validator = $v;
+		// if ( ! Site::validateUpdateSite($site)) {
+			// return false;
+		// }
+		
+		// $tag = $site->tag;
+		// $aliases = $site->aliases()->get();
+		// @list($serverName, $port) = explode(':', Input::get('server_name'));
+		
+		// if (OS::updateSite($tag, $serverName, $port, $aliases)) {
+			// Alias::where('site_id', '=', $site->id)->delete();
 			
-			$fail = $v->failed();
-			if (isset($fail['alias']['Unique_with'])) {
-				self::$validationMessage = sprintf('"%s:%s" is already taken.', $serverName, $port);
-			} else {
-				self::$validationMessage = $v->messages()->first();
-			}
-			
-			return false;
-		} else {
-			$aliases = explode("\r\n", trim(Input::get('aliases')));
-			
-			foreach ($aliases as $alias) {
-				if ( ! $alias) { continue; }
+			// $site->aliases()->save(new Alias(array(
+								// 'alias' => $serverName,
+								// 'port' => $port,
+								// 'server_name' => 1,
+								// )
+							// ));
+
+			// $_aliases = explode("\r\n", trim(Input::get('aliases')));
+			// foreach ($_aliases as $_alias) {
+				// if ( ! $_alias) { continue; }
 				
-				Input::merge(array(
-					'alias' => $alias,
-				));
+				// @list($_serverName, $_port) = explode(':', $_alias);
 				
-				$v = Validator::make(Input::all(),
-							$validationRules,
-							array(
-									'custom.domain' => ':attribute is not valid.',
-									'unique_with' => 'This combination of :fields already exists.',
-							)
-						);
-				$v->setAttributeNames(array(
-									'alias' => '"Alias"',
-									)
-				);
+				// if (OS::addAlias($tag, $_serverName, $_port)) {
+					// $site->aliases()->save(new Alias(array(
+									// 'alias' => $_serverName,
+									// 'port' => $_port,
+									// 'server_name' => 0,
+									// )
+								// ));
+				// }
+			// }
+
+			// return true;
+		// } else {
+			// return false;
+		// }
+	// }
+	
+	public static function updateAliases($site) {
+		$siteTag = $site->tag;
+		$serverName = $site->aliases()->where('server_name', '=', 1)->pluck('alias');
+		$_oldAliases = $site->aliases()->lists('alias');
+		$_newAliases = explode("\r\n", preg_replace('#[\r\n]+#', "\r\n", Input::get('aliases')));
+		$serverPort = $site->aliases()->where('server_name', '=', 1)->pluck('port');
 		
-				if ($v->fails()) {
-					self::$validator = $v;
-					
-					$fail = $v->failed();
-					if (isset($fail['alias']['Unique_with'])) {
-						self::$validationMessage = sprintf('"%s:%s" is already taken.', $alias, $port);
-					} else {
-						self::$validationMessage = $v->messages()->first();
-					}
-					
-					return false;
+		// aliases that should be removed
+		$oldAliases = array_diff(array_diff($_oldAliases, $_newAliases), array($serverName));
+		// aliases that should be added
+		$newAliases = array_diff($_newAliases, $_oldAliases);
+		
+		$validationRules = array('alias' => 'required|between:3,127|custom.domain|unique_with:site_aliases,port');
+		
+		foreach ($newAliases as $alias) {
+			if ( ! $alias) { continue; }
+			
+			Input::merge(array('alias' => $alias, 'port' => $serverPort));
+			
+			$v = Validator::make(Input::all(), $validationRules);
+			$v->setAttributeNames(array('alias' => '"Alias"'));
+
+			if ($v->fails()) {
+				self::$validator = $v;
+				
+				$fail = $v->failed();
+				if (isset($fail['alias']['UniqueWith'])) {
+					self::$validationMessage = sprintf('"%s:%s" is already taken.', $alias, $serverPort);
+				} elseif (isset($fail['alias']['Custom.domain'])) {
+					self::$validationMessage = sprintf('"%s:%s" is not valid.', $alias, $serverPort);
+				} else {
+					self::$validationMessage = $v->messages()->first();
 				}
+				
+				return false;
 			}
+		}
+		
+		///////////////////////
+		
+		foreach ($oldAliases as $alias) {
+			if ( ! $alias) { continue; }
+			
+			if (OS::removeAlias($siteTag, $alias, $serverPort)) {
+				$alias = Alias::where('site_id', '=', $site->id)->where('alias', '=', $alias)->first();
+				$alias->delete();
+			}
+			// should we terminate if error occurs here?
+		}
+		
+		foreach ($newAliases as $alias) {
+			if ( ! $alias) { continue; }
+			
+			if (OS::addAlias($siteTag, $alias, $serverPort)) {
+				$site->aliases()->save(new Alias(array(
+								'alias' => $alias,
+								'port' => $serverPort,
+								'server_name' => 0,
+								)
+							));
+			}
+			// should we terminate if error occurs here?
 		}
 		
 		return true;
-	}
-	
-	private static function validateUpdateSite($site) {
-		Input::merge(array(
-			'aliases' => preg_replace('#[\r\n]+#', "\r\n", Input::get('aliases')),
-		));
-		
-		$validationRules = array(
-			'alias' => 'required|between:3,127|custom.domain|unique_with:site_aliases,port',
-			'port'  => 'required|integer|between:80,49151',
-		);
-		
-		$serverName = Input::get('server_name');
-		$port = Input::get('port');
-	
-		Input::merge(array(
-			'alias' => $serverName,
-		));
-		
-		$v = Validator::make(Input::all(),
-							$validationRules,
-							array(
-									'custom.domain' => ':attribute is not valid.',
-									'unique_with' => 'This combination of :fields already exists.',
-							)
-						);
-		$v->setAttributeNames(array(
-							'tag'   => '"Server Tag"',
-							'alias' => '"Sever Name"',
-							'port'  => '"Port"',
-							)
-		);
-	
-	
-	}
-	
-	public static function updateSite($site) {
-		
-		if ( ! Site::validateUpdateSite($site)) {
-			return false;
-		}
-		
-		$tag = $site->tag;
-		$aliases = $site->aliases()->get();
-		@list($serverName, $port) = explode(':', Input::get('server_name'));
-		
-		if (OS::updateSite($tag, $serverName, $port, $aliases)) {
-			Alias::where('site_id', '=', $site->id)->delete();
-			
-			$site->aliases()->save(new Alias(array(
-								'alias' => $serverName,
-								'port' => $port,
-								'server_name' => 1,
-								)
-							));
-
-			$_aliases = explode("\r\n", trim(Input::get('aliases')));
-			foreach ($_aliases as $_alias) {
-				if ( ! $_alias) { continue; }
-				
-				@list($_serverName, $_port) = explode(':', $_alias);
-				
-				if (OS::addAlias($tag, $_serverName, $_port)) {
-					$site->aliases()->save(new Alias(array(
-									'alias' => $_serverName,
-									'port' => $_port,
-									'server_name' => 0,
-									)
-								));
-				}
-			}
-
-			return true;
-		} else {
-			return false;
-		}
 	}
 	
 	public static function updateServerName($site) {
 		$siteTag = $site->tag;
 		$oldServerName = $site->aliases()->where('server_name', '=', 1)->pluck('alias');
 		$newServerName = Input::get('server_name');
-		$port = $site->aliases()->where('server_name', '=', 1)->pluck('port');
+		$serverPort = $site->aliases()->where('server_name', '=', 1)->pluck('port');
 		
-		Input::merge(array('alias' => Input::get('server_name'), 'port' => $port));
+		Input::merge(array('alias' => Input::get('server_name'), 'port' => $serverPort));
 		
 		$validationRules = array('alias' => 'required|between:3,127|custom.domain|unique_with:site_aliases,port,'.$site->aliases()->where('server_name', '=', 1)->pluck('id'));
 
-		$v = Validator::make(Input::all(), $validationRules);
-		$v->setAttributeNames(array('server_name'  => '"Server Name"'));
+		$v = Validator::make(Input::all(), $validationRules, array('custom.domain' => ':attribute is not valid.'));
+		$v->setAttributeNames(array('alias'  => '"Server Name"'));
 		
 		if ($v->fails()) {
 			self::$validator = $v;
-			self::$validationMessage = $v->messages()->first();
+			
+			$fail = $v->failed();
+			
+			if (isset($fail['alias']['UniqueWith'])) {
+				self::$validationMessage = sprintf('"%s:%s" is already taken.', $newServerName, $serverPort);
+			} else {
+				self::$validationMessage = $v->messages()->first();
+			}
+			
 			return false;
 		}
 		
 		//////////////////////////
 		
-		if (OS::updateServerName($siteTag, $oldServerName, $newServerName, $port)) {
+		if (OS::updateServerName($siteTag, $oldServerName, $newServerName, $serverPort)) {
 			$serverName = Alias::where('site_id', '=', $site->id)->where('server_name', '=', 1)->first();
 			$serverName->alias = $newServerName;
 			$serverName->save();
@@ -456,6 +418,92 @@ class Site extends \Eloquent {
 		return true;
 	}
 	
+	private static function validateAddSite() {
+		$tag = OS::getNextSiteTag();
+		
+		Input::merge(array(
+			'tag'   => $tag,
+			'aliases' => preg_replace('#[\r\n]+#', "\r\n", Input::get('aliases')),
+		));
+		
+		$validationRules = array(
+			'tag' => 'required|unique:sites,tag',
+			'alias' => 'required|between:3,127|custom.domain|unique_with:site_aliases,port',
+			'port'  => 'required|integer|between:80,49151',
+		);
+		
+		$serverName = Input::get('server_name');
+		$serverPort = Input::get('port');
+	
+		Input::merge(array(
+			'alias' => $serverName,
+		));
+		
+		$v = Validator::make(Input::all(),
+							$validationRules,
+							array(
+									'custom.domain' => ':attribute is not valid.',
+									'unique_with' => 'This combination of :fields already exists.',
+							)
+						);
+		$v->setAttributeNames(array(
+							'tag'   => '"Server Tag"',
+							'alias' => '"Sever Name"',
+							'port'  => '"Port"',
+							)
+		);
+		
+		if ($v->fails()) {
+			self::$validator = $v;
+			
+			$fail = $v->failed();
+			if (isset($fail['alias']['Unique_with'])) {
+				self::$validationMessage = sprintf('"%s:%s" is already taken.', $serverName, $serverPort);
+			} else {
+				self::$validationMessage = $v->messages()->first();
+			}
+			
+			return false;
+		} else {
+			$aliases = explode("\r\n", trim(Input::get('aliases')));
+			
+			foreach ($aliases as $alias) {
+				if ( ! $alias) { continue; }
+				
+				Input::merge(array(
+					'alias' => $alias,
+				));
+				
+				$v = Validator::make(Input::all(),
+							$validationRules,
+							array(
+									'custom.domain' => ':attribute is not valid.',
+									'unique_with' => 'This combination of :fields already exists.',
+							)
+						);
+				$v->setAttributeNames(array(
+									'alias' => '"Alias"',
+									)
+				);
+		
+				if ($v->fails()) {
+					self::$validator = $v;
+					
+					$fail = $v->failed();
+					if (isset($fail['alias']['Unique_with'])) {
+						self::$validationMessage = sprintf('"%s:%s" is already taken.', $alias, $serverPort);
+					} else {
+						self::$validationMessage = $v->messages()->first();
+					}
+					
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
+	
 	public static function addSite() {
 	
 		if ( ! Site::validateAddSite()) {
@@ -464,9 +512,9 @@ class Site extends \Eloquent {
 		
 		$siteTag = Input::get('tag');
 		$serverName = Input::get('server_name');
-		$port = Input::get('port');
+		$serverPort = Input::get('port');
 		
-		if (OS::addSite($siteTag, $serverName, $port)) {
+		if (OS::addSite($siteTag, $serverName, $serverPort)) {
 			$site = new Site;
 			$site->tag = $siteTag;
 			$site->activated = 1;
@@ -475,7 +523,7 @@ class Site extends \Eloquent {
 			
 			$site->aliases()->save(new Alias(array(
 								'alias' => $serverName,
-								'port' => $port,
+								'port' => $serverPort,
 								'server_name' => 1,
 								)
 							));
@@ -485,10 +533,10 @@ class Site extends \Eloquent {
 			foreach ($aliases as $alias) {
 				if ( ! $alias) { continue; }
 				
-				if (OS::addAlias($siteTag, $alias, $port)) {
+				if (OS::addAlias($siteTag, $alias, $serverPort)) {
 					$site->aliases()->save(new Alias(array(
 									'alias' => $alias,
-									'port' => $port,
+									'port' => $serverPort,
 									'server_name' => 0,
 									)
 								));
@@ -503,19 +551,44 @@ class Site extends \Eloquent {
 	}
 	
 	public static function changeState($site) {
+		$siteTag = $site->tag;
+		$serverName = $site->aliases()->where('server_name', '=', 1)->pluck('alias');
+		$serverPort = $site->aliases()->where('server_name', '=', 1)->pluck('port');
+		
 		if ($site->activated) {
-			if (OS::disableSite($site->tag, $site->aliases()->where('server_name', '=', 1)->pluck('alias'), $site->aliases()->where('server_name', '=', 1)->pluck('port'))) {
+			if (OS::disableSite($siteTag, $serverName, $serverPort)) {
 				$site->activated = 0;
 				$site->save();
 			} else { return false; }
 		} else {
-			if (OS::enableSite($site->tag, $site->aliases()->where('server_name', '=', 1)->pluck('alias'), $site->aliases()->where('server_name', '=', 1)->pluck('port'))) {
+			if (OS::enableSite($siteTag, $serverName, $serverPort)) {
 				$site->activated = 1;
 				$site->save();
 			} else { return false; }
 		}
 		
 		return true;
+	}
+	
+	public static function removeSite($site) {
+		$siteTag = $site->tag;
+		
+		$alias = $site->aliases()->where('server_name', '=', 1)->first();
+		$serverName = $alias->alias;
+		$port = $alias->port;
+		
+		foreach ($site->aliases()->get() as $alias) {
+			OS::removeAlias($siteTag, $alias->alias, $alias->port);
+		}
+		
+		if (OS::removeSite($siteTag, $serverName, $port)) {
+			
+			$site->delete();
+		
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public static function getIndexData() {

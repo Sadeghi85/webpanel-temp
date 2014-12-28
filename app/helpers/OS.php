@@ -62,18 +62,6 @@ class OS {
 		}
 	}
 	
-	public static function removeAlias($siteTag, $serverName, $port) {
-		$panelCommandsPath = Config::get('panel.panel_commands_path');
-		
-		exec("sudo $panelCommandsPath/aliasdel.sh $siteTag $serverName $port", $output, $statusCode);
-		
-		if ($statusCode == 0) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
 	public static function removeSite($siteTag, $serverName, $port) {
 		$panelCommandsPath = Config::get('panel.panel_commands_path');
 		
@@ -86,10 +74,22 @@ class OS {
 		}
 	}
 	
-	public static function addAlias ($siteTag, $serverName, $port) {
+	public static function addAlias ($siteTag, $alias, $port) {
 		$panelCommandsPath = Config::get('panel.panel_commands_path');
 		
-		exec("sudo $panelCommandsPath/aliasdef.sh $siteTag $serverName $port", $output, $statusCode);
+		exec("sudo $panelCommandsPath/aliasdef.sh $siteTag $alias $port", $output, $statusCode);
+		
+		if ($statusCode == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public static function removeAlias($siteTag, $alias, $port) {
+		$panelCommandsPath = Config::get('panel.panel_commands_path');
+		
+		exec("sudo $panelCommandsPath/aliasdel.sh $siteTag $alias $port", $output, $statusCode);
 		
 		if ($statusCode == 0) {
 			return true;
@@ -114,6 +114,18 @@ class OS {
 		$panelCommandsPath = Config::get('panel.panel_commands_path');
 		
 		exec("sudo $panelCommandsPath/reset_port.sh $siteTag $serverName $oldPort $newPort", $output, $statusCode);
+		
+		if ($statusCode == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public static function updateServerName($siteTag, $oldServerName, $newServerName, $port) {
+		$panelCommandsPath = Config::get('panel.panel_commands_path');
+		
+		exec("sudo $panelCommandsPath/reset_servername.sh $siteTag $oldServerName $newServerName $port", $output, $statusCode);
 		
 		if ($statusCode == 0) {
 			return true;
