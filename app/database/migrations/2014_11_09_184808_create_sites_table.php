@@ -16,14 +16,15 @@ class CreateSitesTable extends Migration {
 		{
 			$table->increments('id');
 			
-			$table->string('tag')->unique();
-			$table->boolean('activated')->default(0);
+			#$table->string('tag')->unique();
+			#$table->integer('quota')->unsigned();
+			#$table->boolean('activated')->default(0);
 			
 			//$table->integer('quota')->default(0);
 			//$table->string('ftp_password')->nullable();
 			//$table->string('mysql_password')->nullable();
 			
-			$table->timestamps();
+			#$table->timestamps();
 		});
 		
 		Schema::create('site_user', function(Blueprint $table)
@@ -46,26 +47,36 @@ class CreateSitesTable extends Migration {
 			$table->timestamps();
 		});
 		
-		Schema::create('site_aliases', function(Blueprint $table)
+		Schema::create('site_settings', function(Blueprint $table)
 		{
 			$table->increments('id');
 			
 			$table->integer('site_id')->unsigned();
-			$table->string('alias');
-			$table->integer('port')->unsigned();
-			$table->boolean('server_name')->default(false);
+			$table->string('setting_name');
+			$table->string('setting_value');
 			
 			// We'll need to ensure that MySQL uses the InnoDB engine to
 			// support the indexes, other engines aren't affected.
 			$table->engine = 'InnoDB';
 			
 			$table->index('site_id');
-			$table->unique(array('alias', 'port'));
 			
 			$table->foreign('site_id')->references('id')->on('sites')->onDelete('cascade');
 			
 			$table->timestamps();
 		});
+		
+		Schema::create('site_templates', function(Blueprint $table)
+		{
+			$table->increments('id');
+			
+			$table->string('type');
+			$table->text('content');
+			
+			$table->engine = 'InnoDB';
+		});
+		
+		
 	}
 
 
@@ -76,7 +87,8 @@ class CreateSitesTable extends Migration {
 	 */
 	public function down()
 	{
-		Schema::drop('site_aliases');
+		Schema::drop('site_templates');
+		Schema::drop('site_settings');
 		Schema::drop('site_user');
 		Schema::drop('sites');
 	}

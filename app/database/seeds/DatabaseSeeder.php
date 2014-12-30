@@ -10,14 +10,12 @@ class DatabaseSeeder extends Seeder {
 	public function run()
 	{
 		Eloquent::unguard();
-		
 
-		
 		DB::table('permission_role')->delete();
 		DB::table('assigned_roles')->delete();
 		DB::table('site_user')->delete();
-		DB::table('site_aliases')->delete();
-		
+		DB::table('site_settings')->delete();
+		DB::table('site_templates')->delete();
 		DB::table('roles')->delete();
 		DB::table('permissions')->delete();
 		DB::table('users')->delete();
@@ -27,6 +25,7 @@ class DatabaseSeeder extends Seeder {
 		$this->call('RolesTableSeeder');
 		$this->call('UsersTableSeeder');
 		$this->call('SitesTableSeeder');
+		$this->call('SiteTemplatesTableSeeder');
 
 	}
 
