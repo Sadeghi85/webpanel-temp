@@ -4,7 +4,6 @@
 	@parent
 @stop
 
-
 @section('style')
 @parent
 
@@ -27,7 +26,6 @@
 }
 .k-grid {
 	padding-right: 7px;
-
 }
 </style>
 @stop
@@ -62,8 +60,6 @@ Sites
 
 <script type="text/javascript">
 $(document).ready(function () {
-
-	
 
 	var grid = $("#grid").kendoGrid({
 	

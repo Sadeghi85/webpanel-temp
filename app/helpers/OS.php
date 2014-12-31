@@ -2,16 +2,15 @@
 
 class OS {
 
-	public static function getNextSiteTag() {
-		$sitesPath = Config::get('panel.sites_path');
+	public static function getNextServerTag() {
+		$serverTagsDir = sprintf('%s/sites-available', Config::get('panel.web_base_dir'));
 		
-		$siteTags = shell_exec("sudo ls \"$sitesPath\" | grep -P ^web[0-9]{3}$ | sed -e\"s/web0*//\"");
+		$serverTags = shell_exec("sudo ls \"$serverTagsDir\" | grep -P ^web[0-9]{3}$ | sed -e\"s/web0*//\"");
+		$serverTags = explode("\n", $serverTags);
 		
-		$siteTags = explode("\n", $siteTags);
+		$nextServerTag = 'web'.str_pad(min(array_diff(range(1, 999), $serverTags)), 3, '0', STR_PAD_LEFT);
 		
-		$nextTag = 'web'.str_pad(min(array_diff(range(1, 999), $siteTags)), 3, '0', STR_PAD_LEFT);
-		
-		return $nextTag;
+		return $nextServerTag;
 	}
 	
 	public static function enableSite ($siteTag, $serverName, $port) {

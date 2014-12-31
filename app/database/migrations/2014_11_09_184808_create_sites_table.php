@@ -24,7 +24,7 @@ class CreateSitesTable extends Migration {
 			//$table->string('ftp_password')->nullable();
 			//$table->string('mysql_password')->nullable();
 			
-			#$table->timestamps();
+			$table->timestamps();
 		});
 		
 		Schema::create('site_user', function(Blueprint $table)

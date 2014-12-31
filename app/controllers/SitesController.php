@@ -1,13 +1,6 @@
 <?php
 
 class SitesController extends BaseController {
-
-	public function getChangeState($site)
-	{
-		Site::changeState($site);
-		
-		return Redirect::route('sites.index', array('page' => Input::get('page', 1), 'pageSize' => Input::get('pageSize', 10)));
-	}
 	
 	public function index()
 	{
@@ -34,6 +27,13 @@ class SitesController extends BaseController {
 		}
 		
 		return Response::json(array());
+	}
+
+	public function getChangeState($site)
+	{
+		Site::changeState($site);
+		
+		return Redirect::route('sites.index', array('page' => Input::get('page', 1), 'pageSize' => Input::get('pageSize', 10)));
 	}
 	
 	public function getDetails($site)

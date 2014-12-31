@@ -8,53 +8,63 @@ class SiteTemplatesTableSeeder extends Seeder {
 server {
 
 		listen {{ server_port }};
-		
-		server_name {{ server_name }};
-		
+
+		server_name {{ server_aliases }};
+
 		root {{ web_base_dir }}/sites-available/{{ server_tag }}/{{ web_root_dir }};
-		
+
 		access_log /var/log/nginx/{{ server_tag }}_access.log timed_combined buffer=16k;
 		error_log /var/log/nginx/{{ server_tag }}_error.log error;
 		log_not_found off;
 		log_subrequest off;
-		
+
 		## Deny not compatible request methods without 405 response.
 		if ($request_method !~ ^(?:GET|HEAD|POST|OPTIONS)$) {
 			return 403;
 		}
-		
+
 		## Deny crawlers.
 		if ($is_crawler) {
 			return 403;
 		}
-		
+
 		## Network Limits
 		limit_req                          zone=limit_req_perip burst=100;
 		limit_rate                                                    {{ limit_rate }}k;
 		limit_conn                                limit_conn_pervhost {{ limit_conn }};
-	
+
+		error_page 502 = @badgateway;
+		location @badgateway {
+			return 444;
+		}
+		
+		error_page 504 = @gatewaytimeout;
+		location @gatewaytimeout {
+			return 444;
+		}
+
 		error_page 429 = @toomany;
 		location @toomany {
 			return 403;
 		}
-		
+
 		# Block access to "hidden" files and directories whose names begin with a
 		# period. This includes directories used by version control systems such
 		# as Subversion or Git to store control files.
 		location ~ (?:^|/)\. {
 			return 403;
 		}
-		
+
 		location = /favicon.ico {
 			try_files $uri =404;
 			access_log off;
 		}
- 
+
 		location = /robots.txt {
 			try_files $uri =404;
 			access_log off;
 		}
-		
+
 		# Very rarely should these ever be accessed outside of your lan
 		location ~* \.(?:txt|log)$ {
 			allow 192.168.0.0/16;
@@ -69,9 +79,9 @@ server {
 
 		# Static files will be sent directly by Nginx
 		location ~* \.(?:htm|html|xml|css|js|ico|png|jpg|jpeg|gif|bmp|tif|tiff|svg|swf|flv|mp3|ogg|mid|midi|wav|m4a|wma|3gp|mp4|m4v|mpeg|mpg|mov|mkv|dat|webm|avi|asx|asf|wmv|otf|ttf|woff|eot|doc|docx|pdf|rtf|xls|xlsx|ppt|pptx|jar|7z|rar|zip|tar|tgz|bz2|gz|bz|bin|exe|dll|msi|msp|nrg|iso|img|mdf|chm|djvu|dmg|flac)$ {
-		
+
 			try_files $uri @backend;
-			
+
 			add_header  Access-Control-Allow-Origin *;
 			expires            7d;
 			sendfile          off;
@@ -81,49 +91,50 @@ server {
 			aio                on;
 			directio          512;
 		}
-		
+
 		location ~* \.php$ {
 			error_page 403 = @backend;
 			return 403;
 		}
-		
+
 		location / {
-			
+
 			try_files $uri @backend;
 		}
-		
+
 		location @backend {
-		
+
 			proxy_pass      http://http_backend;
 		}
 }
 NGINX;
-		
+
 		$apacheConfig = <<<'APACHE'
 <VirtualHost *:*>
 	DocumentRoot "{{ web_base_dir }}/sites-available/{{ server_tag }}/{{ web_root_dir }}"
-	
+
 	<Directory "{{ web_base_dir }}/sites-available/{{ server_tag }}/{{ web_root_dir }}">
 		Order allow,deny
 		Allow from all
-		
+
 		AllowOverride All
 	</Directory>
-	
+
 	<Location />
 		Options -Indexes -Includes -FollowSymLinks -ExecCGI +IncludesNoExec +SymLinksIfOwnerMatch
 	</Location>
-	
+
 	#ServerName {{ server_port }}.{{ server_name }}
-	ServerAlias {{ server_port_server_alias }}
-	
-	ModPagespeedDomain *{{ mod_page_speed_domain }}
-	
+	ServerAlias {{ server_port_server_aliases }}
+
+	#ModPagespeedDomain *domain.tld
+	{{ mod_page_speed_domains }}
+
 	ServerAdmin postmaster@{{ server_name }}
-	
+
 	ErrorLog /var/log/httpd/{{ server_tag }}_error.log
 	#CustomLog /var/log/httpd/{{ server_tag }}_access.log combined
-	
+
 	<IfModule mod_fastcgi.c>
 		<IfModule mod_actions.c>
 			<IfModule mod_alias.c>
@@ -155,7 +166,7 @@ listen = /var/run/php-fpm/{{ server_tag }}.sock
 ; Set listen(2) backlog. A value of '-1' means unlimited.
 ; Default Value: -1
 ;listen.backlog = -1
- 
+
 ; List of ipv4 addresses of FastCGI clients which are allowed to connect.
 ; Equivalent to the FCGI_WEB_SERVER_ADDRS environment variable in the original
 ; PHP FCGI (5.2.2+). Makes sense only with a tcp listening socket. Each address
@@ -166,7 +177,7 @@ listen.allowed_clients = 127.0.0.1
 
 ; Set permissions for unix socket, if one is used. In Linux, read/write
 ; permissions must be set in order to allow connections from a web server. Many
-; BSD-derived systems allow connections regardless of permissions. 
+; BSD-derived systems allow connections regardless of permissions.
 ; Default Values: user and group are set as the running user
 ;                 mode is set to 0660
 ;listen.owner = nobody
@@ -226,7 +237,7 @@ pm.min_spare_servers = {{ min_spare_servers }}
 ; Note: Used only when pm is set to 'dynamic'
 ; Note: Mandatory when pm is set to 'dynamic'
 pm.max_spare_servers = {{ max_spare_servers }}
- 
+
 ; The number of requests each child process should execute before respawning.
 ; This can be useful to work around memory leaks in 3rd party libraries. For
 ; endless request processing specify '0'. Equivalent to PHP_FCGI_MAX_REQUESTS.
@@ -260,9 +271,9 @@ pm.max_requests = {{ max_requests }}
 ; Note: The value must start with a leading slash (/). The value can be
 ;       anything, but it may not be a good idea to use the .php extension or it
 ;       may conflict with a real PHP file.
-; Default Value: not set 
+; Default Value: not set
 pm.status_path = /status
- 
+
 ; The ping URI to call the monitoring page of FPM. If this value is not set, no
 ; URI will be recognized as a ping page. This could be used to test from outside
 ; that FPM is alive and responding, or to
@@ -279,7 +290,7 @@ ping.path = /ping
 ; response is formatted as text/plain with a 200 response code.
 ; Default Value: pong
 ping.response = pong
- 
+
 ; The timeout for serving a single request after which the worker process will
 ; be killed. This option should be used when the 'max_execution_time' ini option
 ; does not stop script execution for some reason. A value of '0' means 'off'.
@@ -295,38 +306,38 @@ access.log = /var/log/php-fpm/$pool_access.log
 ; Available units: s(econds)(default), m(inutes), h(ours), or d(ays)
 ; Default Value: 0
 request_slowlog_timeout = {{ request_slowlog_timeout }}
- 
+
 ; The log file for slow requests
 ; Default Value: not set
 ; Note: slowlog is mandatory if request_slowlog_timeout is set
 slowlog = /var/log/php-fpm/$pool_slow.log
- 
+
 ; Set open file descriptor rlimit.
 ; Default Value: system defined value
 ;rlimit_files = 1024
- 
+
 ; Set max core size rlimit.
 ; Possible Values: 'unlimited' or an integer greater or equal to 0
 ; Default Value: system defined value
 ;rlimit_core = 0
- 
+
 ; Chroot to this directory at the start. This value must be defined as an
 ; absolute path. When this value is not set, chroot is not used.
-; Note: chrooting is a great security feature and should be used whenever 
+; Note: chrooting is a great security feature and should be used whenever
 ;       possible. However, all PHP paths will be relative to the chroot
 ;       (error_log, sessions.save_path, ...).
 ; Default Value: not set
-;chroot = 
- 
+;chroot =
+
 ; Chdir to this directory at the start. This value must be an absolute path.
 ; Default Value: current directory or / when chroot
 ;chdir = /var/www
- 
+
 ; Redirect worker stdout and stderr into main error log. If not set, stdout and
 ; stderr will be redirected to /dev/null according to FastCGI specs.
 ; Default Value: no
 catch_workers_output = yes
- 
+
 ; Limits the extensions of the main script FPM will allow to parse. This can
 ; prevent configuration mistakes on the web server side. You should only limit
 ; FPM to .php extensions to prevent malicious users to use other extensions to
@@ -347,7 +358,7 @@ catch_workers_output = yes
 ; overwrite the values previously defined in the php.ini. The directives are the
 ; same as the PHP SAPI:
 ;   php_value/php_flag             - you can set classic ini defines which can
-;                                    be overwritten from PHP call 'ini_set'. 
+;                                    be overwritten from PHP call 'ini_set'.
 ;   php_admin_value/php_admin_flag - these directives won't be overwritten by
 ;                                     PHP call 'ini_set'
 ; For php_*flag, valid values are on, off, 1, 0, true, false, yes or no.
@@ -993,6 +1004,6 @@ INDEX;
 		DB::insert('insert into site_templates (type, content) values (?, ?)', array('phpfpm', $phpfpmConfig));
 		DB::insert('insert into site_templates (type, content) values (?, ?)', array('webalizer', $webalizerConfig));
 		DB::insert('insert into site_templates (type, content) values (?, ?)', array('index', $indexConfig));
-		
+
 	}
 }
