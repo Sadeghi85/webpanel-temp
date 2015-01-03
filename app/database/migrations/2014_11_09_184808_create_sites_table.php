@@ -15,10 +15,10 @@ class CreateSitesTable extends Migration {
 		Schema::create('sites', function(Blueprint $table)
 		{
 			$table->increments('id');
-			
-			#$table->string('tag')->unique();
-			#$table->integer('quota')->unsigned();
-			#$table->boolean('activated')->default(0);
+
+			$table->string('tag');
+			$table->string('activated');
+			$table->string('aliases');
 			
 			//$table->integer('quota')->default(0);
 			//$table->string('ftp_password')->nullable();
@@ -53,7 +53,7 @@ class CreateSitesTable extends Migration {
 			
 			$table->integer('site_id')->unsigned();
 			$table->string('setting_name');
-			$table->string('setting_value');
+			$table->text('setting_value');
 			
 			// We'll need to ensure that MySQL uses the InnoDB engine to
 			// support the indexes, other engines aren't affected.
@@ -75,6 +75,7 @@ class CreateSitesTable extends Migration {
 			
 			$table->engine = 'InnoDB';
 		});
+
 		
 		
 	}

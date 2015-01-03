@@ -44,7 +44,7 @@ class Site extends \Eloquent {
 		$serverTag = OS::getNextServerTag();
 		$serverPort = Input::get('server_port');
 		$serverName = strtolower(Input::get('server_name'));
-		$serverAliases = explode("\r\n", preg_replace('#[\r\n]+#', "\r\n", sprintf("%s\r\n%s", $serverName, strtolower(Input::get('server_aliases')))));
+		$serverAliases = Helpers::sanitizeAliasesArray(sprintf("%s\r\n%s", $serverName, Input::get('server_aliases')));
 		$serverQuota = Input::get('server_quota');
 		
 		Input::merge(array(
@@ -84,12 +84,12 @@ class Site extends \Eloquent {
 			
 			// checking server_aliases and server_port for uniqueness
 			if (
-				($serverAliasExists = SiteSettings::where('setting_name', '=', 'server_alias')->where('setting_value', '=', $serverAlias)->lists('site_id'))
-				and
-				! SiteSettings::where('setting_name', '=', 'server_port')->where('setting_value', '=', $serverPort)->whereIn('site_id', $serverAliasExists)->first()
+				SiteSettings::where('setting_name', '=', 'server_port_server_aliases')->where(function ($query) use ($serverPort, $serverAlias) {
+					$query->where('setting_value', 'LIKE', sprintf('%s.%s %%', $serverPort, $serverAlias))->orWhere('setting_value', 'LIKE', sprintf('%% %s.%s %%', $serverPort, $serverAlias))->orWhere('setting_value', 'LIKE', sprintf('%% %s.%s', $serverPort, $serverAlias));
+				})->first()
 			) {
 				self::$validator = null;
-				self::$validationMessage = "Server Alias/Name ($serverAlias) is already taken.";
+				self::$validationMessage = "Server Alias/Name ($serverAlias:$serverPort) is already taken.";
 				return false;
 			}
 		}
@@ -108,6 +108,9 @@ class Site extends \Eloquent {
 		
 		
 		$site = new Site();
+		$site->tag = $serverSettings['server_tag'];
+		$site->activated = $serverSettings['activated'];
+		$site->aliases = $serverSettings['server_aliases'];
 		$site->save();
 		$siteId = $site->id;
 		
@@ -119,8 +122,36 @@ class Site extends \Eloquent {
 			$siteSetting->save();
 		}
 		
+		$serverTemplates = DB::table('site_templates')->lists('content', 'type');
 		
-		dd($serverSettings);
+		$allServerAliases  = DB::table('site_settings')->where('setting_name', '=', 'server_aliases')->get();
+		$hosts = array();
+		foreach ($allServerAliases as $serverAliases) {
+			$serverAliases = explode(' ', $serverAliases->setting_value);
+			$hosts = array_merge($hosts, $serverAliases);
+		}
+		$hosts = sprintf('# webpanel%s127.0.0.1 %s', "\r\n", implode(' ', array_unique(array_filter(array_map('trim', $hosts)))));
+		$serverSettings['hosts'] = $hosts;
+		
+		$allPorts   = DB::table('site_settings')->where('setting_name', '=', 'server_port')->groupBy('setting_value')->lists('setting_value');
+		$defaultServer = '';
+		
+		if ($allPorts) {
+			foreach ($allPorts as $port) {
+				$defaultServer .= sprintf('listen %s default_server;', $port);
+			}
+		}
+		$serverSettings['default_server'] = $defaultServer;
+		
+		if ( ! OS::addSite($serverSettings, $serverTemplates)) {
+			// do we want to rollback the db?
+			self::$validator = null;
+			self::$validationMessage = sprintf('Unable to create this site.<pre>%s</pre>', OS::$errorMessage);
+			return false;
+		}
+		
+		return true;
+		
 	
 	
 	}
@@ -149,31 +180,27 @@ class Site extends \Eloquent {
 	public static function getIndexData() {
 		//Input::merge(array('sort' => Input::get('sort', array(array('field' => 'tag', 'dir' => 'asc')))));
 		
-		@list($_sites, $sitesCount) = Helpers::getGridData(
-									Site::with('aliases')->join('site_aliases', 'site_aliases.site_id', '=', 'sites.id')
-									->select(array('sites.id as id', 'sites.activated as activated', 'sites.tag as tag', 'site_aliases.alias as alias'))
-									);
+		@list($_sites, $sitesCount) = Helpers::getGridData(Site::select(array('id', 'activated', 'tag', 'aliases')));
+		
+		//dd($_sites);
+		
+		// Helpers::getGridData(
+									// Site::with('aliases')->join('site_aliases', 'site_aliases.site_id', '=', 'sites.id')
+									// ->select(array('sites.id as id', 'sites.activated as activated', 'sites.tag as tag', 'site_aliases.alias as alias'))
+									// );
 
 		$sites = array();
 		foreach ($_sites->toArray() as $site) {
-			$aliases = array(0 => 'dummy');
-			foreach ($site['aliases'] as $alias) {
-				if ($alias['server_name']) {
-					$aliases[0] = sprintf('<span style="color:red;">%s</span>', $alias['alias'].':'.$alias['port']);
-				} else {
-					$aliases[] = $alias['alias'].':'.$alias['port'];
-				}
-			}
 			
 			$sites[] = array(
 				'id' => $site['id'],
-				'activated' => sprintf('<a href="%s" class="activated">%s</a>', route('sites.change-state', array('site' => $site['id'])), $site['activated'] ? 'Yes' : 'No'),
+				'activated' => sprintf('<a href="%s" class="activated">%s</a>', route('sites.change-state', array('site' => $site['id'])), $site['activated'] == 'yes' ? 'Yes' : 'No'),
 				'tag' => sprintf('<a href="%s">%s</a>', route('sites.get-details', array('site' => $site['id'])), $site['tag']),
-				'alias' => implode(', ', $aliases),
+				'alias' => $site['aliases'],
 			);
 		}
 
-		$sitesCount = Site::count();
+		//$sitesCount = Site::count();
 		return array('data' => $sites, 'total' => $sitesCount);
 	}
 }

@@ -14,6 +14,8 @@ return array(
 		'server_port' => '80',
 		'server_name' => '', // default domain
 		'server_quota' => '10',
+		'default_server' => 'listen 80 default_server;',
+		'hosts' => '# webpanel', // /etc/hosts
 		'server_aliases' => '', // nginx -> all domains
 		'server_port_server_aliases' => '', // apache -> all domains with port
 		'mod_page_speed_domains' => '', // line separated mod_page_speed settings for each domain

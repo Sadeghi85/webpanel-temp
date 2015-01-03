@@ -19,6 +19,16 @@ class Helpers {
 		return (str_is($routePattern, Route::currentRouteName())) ? $class : '';
 	}
 	
+	public static function sanitizeAliasesArray($aliases)
+	{
+		$aliases = preg_replace('#[\r\n]+#', "\r\n", $aliases);
+		$aliases = explode("\r\n", $aliases);
+		$aliases = array_map('strtolower', $aliases);
+		$aliases = array_filter($aliases);
+		$aliases = array_unique($aliases);
+		return $aliases;
+	}
+	
 	private static function _getGridFilter($operator, $value)
 	{
 		switch ($operator)
