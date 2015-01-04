@@ -1,10 +1,12 @@
 <?php
 
-class OS {
+class OS
+{
 
 	public static $errorMessage;
 	
-	public static function getNextServerTag() {
+	public static function getNextServerTag()
+	{
 		$serverTagsDir = sprintf('%s/sites-available', Config::get('panel.web_base_dir'));
 		
 		$serverTags = shell_exec("sudo ls \"$serverTagsDir\" | grep -P ^web[0-9]{3}$ | sed -e\"s/web0*//\"");
@@ -15,7 +17,8 @@ class OS {
 		return $nextServerTag;
 	}
 	
-	public static function addSite(array $serverSettings, array $serverTemplates) {
+	public static function addSite(array $serverSettings, array $serverTemplates)
+	{
 		
 		self::$errorMessage = '';
 		
@@ -25,59 +28,59 @@ class OS {
 		
 		// index
 		$serverTagDir = sprintf('%s/sites-available/%s', $serverSettings['web_base_dir'], $serverTag);
-		$serverTagEnabledDir = sprintf('%s/sites-enabled/%s.%s', $serverSettings['web_base_dir'], $serverPort, $serverName);
-		$serverTagForHumansDir = sprintf('%s/sites-available-for-humans/%s', $serverSettings['web_base_dir'], $serverTag);
+		$serverTagEnabledDir = sprintf('%s/sites-enabled/%s', $serverSettings['web_base_dir'], $serverTag);
+		$serverTagForHumansDir = sprintf('%s/sites-available-for-humans/%s.%s', $serverSettings['web_base_dir'], $serverPort, $serverName);
 		$serverTagEnabledForHumansDir = sprintf('%s/sites-enabled-for-humans/%s.%s', $serverSettings['web_base_dir'], $serverPort, $serverName);
 		
 		// php-fpm
 		$phpfpmDir = sprintf('/etc/php-fpm.d/settings/sites-available/%s', $serverTag);
-		$phpfpmEnabledDir = sprintf('/etc/php-fpm.d/settings/sites-enabled/%s.%s', $serverPort, $serverName);
-		$phpfpmForHumansDir = sprintf('/etc/php-fpm.d/settings/sites-available-for-humans/%s', $serverTag);
+		$phpfpmEnabledDir = sprintf('/etc/php-fpm.d/settings/sites-enabled/%s', $serverTag);
+		$phpfpmForHumansDir = sprintf('/etc/php-fpm.d/settings/sites-available-for-humans/%s.%s', $serverPort, $serverName);
 		$phpfpmEnabledForHumansDir = sprintf('/etc/php-fpm.d/settings/sites-enabled-for-humans/%s.%s', $serverPort, $serverName);
 		
 		// apache
 		$apacheDir = sprintf('/etc/httpd/settings/sites-available/%s', $serverTag);
-		$apacheEnabledDir = sprintf('/etc/httpd/settings/sites-enabled/%s.%s', $serverPort, $serverName);
-		$apacheForHumansDir = sprintf('/etc/httpd/settings/sites-available-for-humans/%s', $serverTag);
+		$apacheEnabledDir = sprintf('/etc/httpd/settings/sites-enabled/%s', $serverTag);
+		$apacheForHumansDir = sprintf('/etc/httpd/settings/sites-available-for-humans/%s.%s', $serverPort, $serverName);
 		$apacheEnabledForHumansDir = sprintf('/etc/httpd/settings/sites-enabled-for-humans/%s.%s', $serverPort, $serverName);
 		
 		// nginx
 		$nginxDir = sprintf('/etc/nginx/settings/sites-available/%s', $serverTag);
-		$nginxEnabledDir = sprintf('/etc/nginx/settings/sites-enabled/%s.%s', $serverPort, $serverName);
-		$nginxForHumansDir = sprintf('/etc/nginx/settings/sites-available-for-humans/%s', $serverTag);
+		$nginxEnabledDir = sprintf('/etc/nginx/settings/sites-enabled/%s', $serverTag);
+		$nginxForHumansDir = sprintf('/etc/nginx/settings/sites-available-for-humans/%s.%s', $serverPort, $serverName);
 		$nginxEnabledForHumansDir = sprintf('/etc/nginx/settings/sites-enabled-for-humans/%s.%s', $serverPort, $serverName);
 		
 		// webalizer
 		$webalizerDir = sprintf('/etc/webalizer.d/settings/sites-available/%s', $serverTag);
-		$webalizerEnabledDir = sprintf('/etc/webalizer.d/settings/sites-enabled/%s.%s', $serverPort, $serverName);
-		$webalizerForHumansDir = sprintf('/etc/webalizer.d/settings/sites-available-for-humans/%s', $serverTag);
+		$webalizerEnabledDir = sprintf('/etc/webalizer.d/settings/sites-enabled/%s', $serverTag);
+		$webalizerForHumansDir = sprintf('/etc/webalizer.d/settings/sites-available-for-humans/%s.%s', $serverPort, $serverName);
 		$webalizerEnabledForHumansDir = sprintf('/etc/webalizer.d/settings/sites-enabled-for-humans/%s.%s', $serverPort, $serverName);
 		
 		// check if server_tag directory already exists
-		exec(sprintf('sudo ls %s', $serverTagDir), $output, $statusCode);
+		exec(sprintf('sudo ls %s 2>&1', $serverTagDir), $output, $statusCode);
 		if ($statusCode == 0) {
 			self::$errorMessage .= implode("\r\n", $output)."\r\n";
 			return false;
 		}
 		
 		// creating session directory for this server_tag
-		exec(sprintf('sudo mkdir -p /var/lib/php/session/%s', $serverTag), $output, $statusCode);
+		exec(sprintf('sudo mkdir -p /var/lib/php/session/%s 2>&1', $serverTag), $output, $statusCode);
 		if ($statusCode != 0) {
 			self::$errorMessage .= implode("\r\n", $output)."\r\n";
 			return false;
 		}
 		
 		// creating web root directory for this server_tag
-		exec(sprintf('sudo mkdir -p %s/%s', $serverTagDir, $serverSettings['web_root_dir']), $output, $statusCode);
+		exec(sprintf('sudo mkdir -p %s/%s 2>&1', $serverTagDir, $serverSettings['web_root_dir']), $output, $statusCode);
 		if ($statusCode != 0) {
 			self::$errorMessage .= implode("\r\n", $output)."\r\n";
 			return false;
 		}
 		
 		// symlinks
-		exec(sprintf('sudo ln -fs "../sites-available/%s/" "%s"', $serverTag, $serverTagEnabledDir), $output, $statusCode); // sites-enabled
-		exec(sprintf('sudo ln -fs "../sites-available/%s/" "%s"', $serverTag, $serverTagForHumansDir), $output, $statusCode); // sites-available-for-humans
-		exec(sprintf('sudo ln -fs "../sites-available/%s/" "%s"', $serverTag, $serverTagEnabledForHumansDir), $output, $statusCode); // sites-enabled-for-humans
+		exec(sprintf('sudo ln -fs "../sites-available/%s/" "%s" 2>&1', $serverTag, $serverTagEnabledDir), $output, $statusCode); // sites-enabled
+		exec(sprintf('sudo ln -fs "../sites-available/%s/" "%s" 2>&1', $serverTag, $serverTagForHumansDir), $output, $statusCode); // sites-available-for-humans
+		exec(sprintf('sudo ln -fs "../sites-available/%s/" "%s" 2>&1', $serverTag, $serverTagEnabledForHumansDir), $output, $statusCode); // sites-enabled-for-humans
 		
 		// creating server_tag linux user
 		self::addUser($serverTag, $serverTagDir, 'apache', sprintf('%s.%s', $serverPort, $serverName));
@@ -87,7 +90,7 @@ class OS {
 		self::createFileFromContent(sprintf('%s/%s/index.php', $serverTagDir, $serverSettings['web_root_dir']), $indexPageContent);
 		
 		// creating php-fpm config
-		exec(sprintf('sudo mv %s.conf %s.conf.bak', $phpfpmDir, $phpfpmDir), $output, $statusCode);
+		exec(sprintf('sudo mv %s.conf %s.conf.bak 2>&1', $phpfpmDir, $phpfpmDir), $output, $statusCode);
 		
 		$phpfpmConfigContent = preg_replace('#\{\{\s+server_tag\s+\}\}#i', $serverTag, $serverTemplates['phpfpm']);
 		$phpfpmConfigContent = preg_replace('#\{\{\s+max_children\s+\}\}#i', $serverSettings['max_children'], $phpfpmConfigContent);
@@ -112,13 +115,13 @@ class OS {
 		self::createFileFromContent(sprintf('%s.conf', $phpfpmDir), $phpfpmConfigContent);
 		
 		// symlinks
-		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf"', $serverTag, $phpfpmEnabledDir), $output, $statusCode); // sites-enabled
-		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf"', $serverTag, $phpfpmForHumansDir), $output, $statusCode); // sites-available-for-humans
-		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf"', $serverTag, $phpfpmEnabledForHumansDir), $output, $statusCode); // sites-enabled-for-humans
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $phpfpmEnabledDir), $output, $statusCode); // sites-enabled
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $phpfpmForHumansDir), $output, $statusCode); // sites-available-for-humans
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $phpfpmEnabledForHumansDir), $output, $statusCode); // sites-enabled-for-humans
 		
 		
 		// creating apache config
-		exec(sprintf('sudo mv %s.conf %s.conf.bak', $apacheDir, $apacheDir), $output, $statusCode);
+		exec(sprintf('sudo mv %s.conf %s.conf.bak 2>&1', $apacheDir, $apacheDir), $output, $statusCode);
 		
 		$apacheConfigContent = preg_replace('#\{\{\s+server_tag\s+\}\}#i', $serverTag, $serverTemplates['apache']);
 		$apacheConfigContent = preg_replace('#\{\{\s+web_base_dir\s+\}\}#i', $serverSettings['web_base_dir'], $apacheConfigContent);
@@ -131,12 +134,12 @@ class OS {
 		self::createFileFromContent(sprintf('%s.conf', $apacheDir), $apacheConfigContent);
 		
 		// symlinks
-		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf"', $serverTag, $apacheEnabledDir), $output, $statusCode); // sites-enabled
-		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf"', $serverTag, $apacheForHumansDir), $output, $statusCode); // sites-available-for-humans
-		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf"', $serverTag, $apacheEnabledForHumansDir), $output, $statusCode); // sites-enabled-for-humans
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $apacheEnabledDir), $output, $statusCode); // sites-enabled
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $apacheForHumansDir), $output, $statusCode); // sites-available-for-humans
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $apacheEnabledForHumansDir), $output, $statusCode); // sites-enabled-for-humans
 		
 		// creating nginx config
-		exec(sprintf('sudo mv %s.conf %s.conf.bak', $nginxDir, $nginxDir), $output, $statusCode);
+		exec(sprintf('sudo mv %s.conf %s.conf.bak 2>&1', $nginxDir, $nginxDir), $output, $statusCode);
 		
 		$nginxConfigContent = preg_replace('#\{\{\s+server_tag\s+\}\}#i', $serverTag, $serverTemplates['nginx']);
 		$nginxConfigContent = preg_replace('#\{\{\s+web_base_dir\s+\}\}#i', $serverSettings['web_base_dir'], $nginxConfigContent);
@@ -149,38 +152,38 @@ class OS {
 		self::createFileFromContent(sprintf('%s.conf', $nginxDir), $nginxConfigContent);
 		
 		// symlinks
-		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf"', $serverTag, $nginxEnabledDir), $output, $statusCode); // sites-enabled
-		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf"', $serverTag, $nginxForHumansDir), $output, $statusCode); // sites-available-for-humans
-		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf"', $serverTag, $nginxEnabledForHumansDir), $output, $statusCode); // sites-enabled-for-humans
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $nginxEnabledDir), $output, $statusCode); // sites-enabled
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $nginxForHumansDir), $output, $statusCode); // sites-available-for-humans
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $nginxEnabledForHumansDir), $output, $statusCode); // sites-enabled-for-humans
 		
 		// creating nginx default config
-		exec('sudo mv /etc/nginx/nginx_default_server.conf /etc/nginx/nginx_default_server.conf.bak', $output, $statusCode);
+		exec('sudo mv /etc/nginx/nginx_default_server.conf /etc/nginx/nginx_default_server.conf.bak 2>&1', $output, $statusCode);
 		$nginxDefaultConfigContent = preg_replace('#\{\{\s+default_server\s+\}\}#i', $serverSettings['default_server'], $serverTemplates['nginxdefault']);
 		self::createFileFromContent('/etc/nginx/nginx_default_server.conf', $nginxDefaultConfigContent);
 		
 		// creating webalizer config
-		exec(sprintf('sudo mv %s.conf %s.conf.bak', $webalizerDir, $webalizerDir), $output, $statusCode);
+		exec(sprintf('sudo mv %s.conf %s.conf.bak 2>&1', $webalizerDir, $webalizerDir), $output, $statusCode);
 		
 		$webalizerConfigContent = preg_replace('#\{\{\s+server_tag\s+\}\}#i', $serverTag, $serverTemplates['webalizer']);
 		
 		self::createFileFromContent(sprintf('%s.conf', $webalizerDir), $webalizerConfigContent);
 		
 		// symlinks
-		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf"', $serverTag, $webalizerEnabledDir), $output, $statusCode); // sites-enabled
-		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf"', $serverTag, $webalizerForHumansDir), $output, $statusCode); // sites-available-for-humans
-		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf"', $serverTag, $webalizerEnabledForHumansDir), $output, $statusCode); // sites-enabled-for-humans
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $webalizerEnabledDir), $output, $statusCode); // sites-enabled
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $webalizerForHumansDir), $output, $statusCode); // sites-available-for-humans
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $webalizerEnabledForHumansDir), $output, $statusCode); // sites-enabled-for-humans
 		
 		// adding server aliases to the hosts file
-		// exec('sudo mv /etc/hosts /etc/hosts.bak', $output, $statusCode);
-		// exec('sudo cat /etc/hosts', $output, $statusCode);
+		// exec('sudo mv /etc/hosts /etc/hosts.bak 2>&1', $output, $statusCode);
+		// exec('sudo cat /etc/hosts 2>&1', $output, $statusCode);
 		// $hostsContent = preg_replace('!#\s*webpanel.*!is', '', implode("\r\n", $output));
 		// self::createFileFromContent('/etc/hosts', $hostsContent.$serverSettings['hosts']);
 		
 		// setting permissions
-		exec(sprintf('sudo chmod 777 /var/lib/php/session/%s', $serverTag), $output, $statusCode);
-		exec(sprintf('sudo chown -R "%s:apache" %s', $serverTag, $serverTagDir), $output, $statusCode);
-		exec(sprintf('sudo chmod -R 664 %s', $serverTagDir), $output, $statusCode);
-		exec(sprintf('sudo chmod -R +X %s', $serverTagDir), $output, $statusCode);
+		exec(sprintf('sudo chmod 777 /var/lib/php/session/%s 2>&1', $serverTag), $output, $statusCode);
+		exec(sprintf('sudo chown -R "%s:apache" %s 2>&1', $serverTag, $serverTagDir), $output, $statusCode);
+		exec(sprintf('sudo chmod -R 664 %s 2>&1', $serverTagDir), $output, $statusCode);
+		exec(sprintf('sudo chmod -R +X %s 2>&1', $serverTagDir), $output, $statusCode);
 		
 		// reloading servers
 		if ( ! self::reloadServers()) {
@@ -190,27 +193,28 @@ class OS {
 		return true;
 	}
 	
-	public static function reloadServers() {
-		exec('sudo service php-fpm start', $output, $statusCode);
-		exec('sudo service httpd start', $output, $statusCode);
-		exec('sudo service nginx start', $output, $statusCode);
-		exec('sudo service memcached start', $output, $statusCode);
+	public static function reloadServers()
+	{
+		exec('sudo service php-fpm start 2>&1', $output, $statusCode);
+		exec('sudo service httpd start 2>&1', $output, $statusCode);
+		exec('sudo service nginx start 2>&1', $output, $statusCode);
+		exec('sudo service memcached start 2>&1', $output, $statusCode);
 		
 		if ( ! self::testServers()) {
 			return false;
 		}
 		
-		exec('sudo service php-fpm reload', $output, $statusCode);
+		exec('sudo service php-fpm reload 2>&1', $output, $statusCode);
 		if ($statusCode != 0) {
 			self::$errorMessage .= implode("\r\n", $output)."\r\n";
 			return false;
 		}
-		exec('sudo service httpd reload', $output, $statusCode);
+		exec('sudo service httpd reload 2>&1', $output, $statusCode);
 		if ($statusCode != 0) {
 			self::$errorMessage .= implode("\r\n", $output)."\r\n";
 			return false;
 		}
-		exec('sudo service nginx reload', $output, $statusCode);
+		exec('sudo service nginx reload 2>&1', $output, $statusCode);
 		if ($statusCode != 0) {
 			self::$errorMessage .= implode("\r\n", $output)."\r\n";
 			return false;
@@ -219,23 +223,24 @@ class OS {
 		return true;
 	}
 	
-	public static function testServers() {
+	public static function testServers()
+	{
 		// testing php-fpm
-		exec('sudo /usr/sbin/php-fpm -t', $output, $statusCode);
+		exec('sudo /usr/sbin/php-fpm -t 2>&1', $output, $statusCode);
 		if ($statusCode != 0) {
 			self::$errorMessage .= implode("\r\n", $output)."\r\n";
 			return false;
 		}
 		
 		// testing apache
-		exec('sudo /usr/sbin/httpd -t', $output, $statusCode);
+		exec('sudo /usr/sbin/httpd -t 2>&1', $output, $statusCode);
 		if ($statusCode != 0) {
 			self::$errorMessage .= implode("\r\n", $output)."\r\n";
 			return false;
 		}
 		
 		// testing nginx
-		exec('sudo /usr/sbin/nginx -t', $output, $statusCode);
+		exec('sudo /usr/sbin/nginx -t 2>&1', $output, $statusCode);
 		if ($statusCode != 0) {
 			self::$errorMessage .= implode("\r\n", $output)."\r\n";
 			return false;
@@ -244,7 +249,8 @@ class OS {
 		return true;
 	}
 	
-	public static function createFileFromContent($path, $content, $append = false) {
+	public static function createFileFromContent($path, $content, $append = false)
+	{
 		$descriptorspec = array(
 		   0 => array('pipe', 'r'),  // stdin is a pipe that the child will read from
 		);
@@ -264,7 +270,8 @@ class OS {
 		}
 	}
 	
-	public static function addUser($user, $home = '', $group = '', $comment = '', $shell = '/sbin/nologin') {
+	public static function addUser($user, $home = '', $group = '', $comment = '', $shell = '/sbin/nologin')
+	{
 		$command = '';
 		if ($comment) { $command .= sprintf(' --comment "%s" ', $comment); }
 		if ($group) { $command .= sprintf(' -g %s ', $group); }
@@ -273,39 +280,123 @@ class OS {
 		$command .= sprintf(' "%s"', $user);
 	
 		// check if user exists
-		exec(sprintf('sudo id %s', $user), $output, $statusCode);
+		exec(sprintf('sudo id %s 2>&1', $user), $output, $statusCode);
 		if ($statusCode == 0) {
 			// user exists
-			exec(sprintf('sudo usermod %s', $command), $output, $statusCode);
+			exec(sprintf('sudo usermod %s 2>&1', $command), $output, $statusCode);
 		} else {
 			// user doesn't exist
-			exec(sprintf('sudo useradd %s', $command), $output, $statusCode);
-		}
-	
-	}
-	
-	public static function enableSite($siteTag, $serverName, $port) {
-		$panelCommandsPath = Config::get('panel.panel_commands_path');
-		
-		exec("sudo $panelCommandsPath/domainen.sh $siteTag $serverName $port", $output, $statusCode);
-		
-		if ($statusCode == 0) {
-			return true;
-		} else {
-			return false;
+			exec(sprintf('sudo useradd %s 2>&1', $command), $output, $statusCode);
 		}
 	}
 	
-	public static function disableSite($siteTag, $serverName, $port) {
-		$panelCommandsPath = Config::get('panel.panel_commands_path');
+	public static function removeSite($serverTag, $serverName, $serverPort)
+	{
+		// removing php-fpm config files
+		exec(sprintf('sudo rm -f /etc/php-fpm.d/settings/sites-available/%s.conf 2>&1', $serverTag), $output, $statusCode);
+		exec(sprintf('sudo rm -f /etc/php-fpm.d/settings/sites-enabled/%s.conf 2>&1', $serverTag), $output, $statusCode);
+		exec(sprintf('sudo rm -f /etc/php-fpm.d/settings/sites-available-for-humans/%s.%s.conf 2>&1', $serverPort, $serverName), $output, $statusCode);
+		exec(sprintf('sudo rm -f /etc/php-fpm.d/settings/sites-enabled-for-humans/%s.%s.conf 2>&1', $serverPort, $serverName), $output, $statusCode);
 		
-		exec("sudo $panelCommandsPath/domaindis.sh $siteTag $serverName $port", $output, $statusCode);
+		// removing apache config files
+		exec(sprintf('sudo rm -f /etc/httpd/settings/sites-available/%s.conf 2>&1', $serverTag), $output, $statusCode);
+		exec(sprintf('sudo rm -f /etc/httpd/settings/sites-enabled/%s.conf 2>&1', $serverTag), $output, $statusCode);
+		exec(sprintf('sudo rm -f /etc/httpd/settings/sites-available-for-humans/%s.%s.conf 2>&1', $serverPort, $serverName), $output, $statusCode);
+		exec(sprintf('sudo rm -f /etc/httpd/settings/sites-enabled-for-humans/%s.%s.conf 2>&1', $serverPort, $serverName), $output, $statusCode);
 		
-		if ($statusCode == 0) {
-			return true;
-		} else {
+		// removing nginx config files
+		exec(sprintf('sudo rm -f /etc/nginx/settings/sites-available/%s.conf 2>&1', $serverTag), $output, $statusCode);
+		exec(sprintf('sudo rm -f /etc/nginx/settings/sites-enabled/%s.conf 2>&1', $serverTag), $output, $statusCode);
+		exec(sprintf('sudo rm -f /etc/nginx/settings/sites-available-for-humans/%s.%s.conf 2>&1', $serverPort, $serverName), $output, $statusCode);
+		exec(sprintf('sudo rm -f /etc/nginx/settings/sites-enabled-for-humans/%s.%s.conf 2>&1', $serverPort, $serverName), $output, $statusCode);
+		
+		// removing webalizer config files
+		exec(sprintf('sudo rm -f /etc/webalizer.d/settings/sites-available/%s.conf 2>&1', $serverTag), $output, $statusCode);
+		exec(sprintf('sudo rm -f /etc/webalizer.d/settings/sites-enabled/%s.conf 2>&1', $serverTag), $output, $statusCode);
+		exec(sprintf('sudo rm -f /etc/webalizer.d/settings/sites-available-for-humans/%s.%s.conf 2>&1', $serverPort, $serverName), $output, $statusCode);
+		exec(sprintf('sudo rm -f /etc/webalizer.d/settings/sites-enabled-for-humans/%s.%s.conf 2>&1', $serverPort, $serverName), $output, $statusCode);
+		
+		// web
+		exec(sprintf('sudo rm -f %s/sites-enabled/%s 2>&1', Config::get('panel.web_base_dir'), $serverTag), $output, $statusCode);
+		exec(sprintf('sudo rm -f %s/sites-enabled-for-humans/%s.%s 2>&1', Config::get('panel.web_base_dir'), $serverPort, $serverName), $output, $statusCode);
+		
+		
+		// /etc/hosts
+		
+		// reloading servers
+		if ( ! self::reloadServers()) {
 			return false;
 		}
+		
+		// removing server_tag linux user
+		exec(sprintf('sudo userdel %s 2>&1', $serverTag), $output, $statusCode);
+		
+		// setting owner to nobody
+		exec(sprintf('sudo chown -R "nobody:apache" %s/sites-available/%s 2>&1', Config::get('panel.web_base_dir'), $serverTag), $output, $statusCode);
+		
+		return true;
+	}
+	
+	public static function enableSite($serverTag, $serverName, $serverPort)
+	{
+		// symlinks
+		// php-fpm
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" /etc/php-fpm.d/settings/sites-enabled/%s.conf 2>&1', $serverTag, $serverTag), $output, $statusCode);
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" /etc/php-fpm.d/settings/sites-enabled-for-humans/%s.%s.conf 2>&1', $serverTag, $serverPort, $serverName), $output, $statusCode);
+		
+		// apache
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" /etc/httpd/settings/sites-enabled/%s.conf 2>&1', $serverTag, $serverTag), $output, $statusCode);
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" /etc/httpd/settings/sites-enabled-for-humans/%s.%s.conf 2>&1', $serverTag, $serverPort, $serverName), $output, $statusCode);
+		
+		// nginx
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" /etc/nginx/settings/sites-enabled/%s.conf 2>&1', $serverTag, $serverTag), $output, $statusCode);
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" /etc/nginx/settings/sites-enabled-for-humans/%s.%s.conf 2>&1', $serverTag, $serverPort, $serverName), $output, $statusCode);
+		
+		// webalizer
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" /etc/webalizer.d/settings/sites-enabled/%s.conf 2>&1', $serverTag, $serverTag), $output, $statusCode);
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" /etc/webalizer.d/settings/sites-enabled-for-humans/%s.%s.conf 2>&1', $serverTag, $serverPort, $serverName), $output, $statusCode);
+		
+		// web
+		exec(sprintf('sudo ln -fs "../sites-available/%s" %s/sites-enabled/%s 2>&1', $serverTag, Config::get('panel.web_base_dir'), $serverTag), $output, $statusCode);
+		exec(sprintf('sudo ln -fs "../sites-available/%s" %s/sites-enabled-for-humans/%s.%s 2>&1', $serverTag, Config::get('panel.web_base_dir'), $serverPort, $serverName), $output, $statusCode);
+		
+		// reloading servers
+		if ( ! self::reloadServers()) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public static function disableSite($serverTag, $serverName, $serverPort)
+	{
+		// removing symlinks
+		// php-fpm
+		exec(sprintf('sudo rm -f /etc/php-fpm.d/settings/sites-enabled/%s.conf 2>&1', $serverTag), $output, $statusCode);
+		exec(sprintf('sudo rm -f /etc/php-fpm.d/settings/sites-enabled-for-humans/%s.%s.conf 2>&1', $serverPort, $serverName), $output, $statusCode);
+		
+		// apache
+		exec(sprintf('sudo rm -f /etc/httpd/settings/sites-enabled/%s.conf 2>&1', $serverTag), $output, $statusCode);
+		exec(sprintf('sudo rm -f /etc/httpd/settings/sites-enabled-for-humans/%s.%s.conf 2>&1', $serverPort, $serverName), $output, $statusCode);
+		
+		// nginx
+		exec(sprintf('sudo rm -f /etc/nginx/settings/sites-enabled/%s.conf 2>&1', $serverTag), $output, $statusCode);
+		exec(sprintf('sudo rm -f /etc/nginx/settings/sites-enabled-for-humans/%s.%s.conf 2>&1', $serverPort, $serverName), $output, $statusCode);
+		
+		// webalizer
+		exec(sprintf('sudo rm -f /etc/webalizer.d/settings/sites-enabled/%s.conf 2>&1', $serverTag), $output, $statusCode);
+		exec(sprintf('sudo rm -f /etc/webalizer.d/settings/sites-enabled-for-humans/%s.%s.conf 2>&1', $serverPort, $serverName), $output, $statusCode);
+		
+		// web
+		exec(sprintf('sudo rm -f %s/sites-enabled/%s 2>&1', Config::get('panel.web_base_dir'), $serverTag), $output, $statusCode);
+		exec(sprintf('sudo rm -f %s/sites-enabled-for-humans/%s.%s 2>&1', Config::get('panel.web_base_dir'), $serverPort, $serverName), $output, $statusCode);
+		
+		// reloading servers
+		if ( ! self::reloadServers()) {
+			return false;
+		}
+		
+		return true;
 	}
 	
 	// public static function removeUser ($username) {
@@ -332,91 +423,4 @@ class OS {
 		// }
 	// }
 	
-	// public static function removeSite($siteTag, $serverName, $port) {
-		// $panelCommandsPath = Config::get('panel.panel_commands_path');
-		
-		// exec("sudo $panelCommandsPath/domaindel.sh $siteTag $serverName $port", $output, $statusCode);
-		
-		// if ($statusCode == 0) {
-			// return true;
-		// } else {
-			// return false;
-		// }
-	// }
-	
-	// public static function addAlias ($siteTag, $alias, $port) {
-		// $panelCommandsPath = Config::get('panel.panel_commands_path');
-		
-		// exec("sudo $panelCommandsPath/aliasdef.sh $siteTag $alias $port", $output, $statusCode);
-		
-		// if ($statusCode == 0) {
-			// return true;
-		// } else {
-			// return false;
-		// }
-	// }
-	
-	// public static function removeAlias($siteTag, $alias, $port) {
-		// $panelCommandsPath = Config::get('panel.panel_commands_path');
-		
-		// exec("sudo $panelCommandsPath/aliasdel.sh $siteTag $alias $port", $output, $statusCode);
-		
-		// if ($statusCode == 0) {
-			// return true;
-		// } else {
-			// return false;
-		// }
-	// }
-	
-	// public static function addSite($siteTag, $serverName, $port) {
-		// $panelCommandsPath = Config::get('panel.panel_commands_path');
-		
-		// exec("sudo $panelCommandsPath/domaindef.sh $siteTag $serverName $port", $output, $statusCode);
-		
-		// if ($statusCode == 0) {
-			// return true;
-		// } else {
-			// return false;
-		// }
-	// }
-	
-	// public static function updatePort($siteTag, $serverName, $oldPort, $newPort) {
-		// $panelCommandsPath = Config::get('panel.panel_commands_path');
-		
-		// exec("sudo $panelCommandsPath/reset_port.sh $siteTag $serverName $oldPort $newPort", $output, $statusCode);
-		
-		// if ($statusCode == 0) {
-			// return true;
-		// } else {
-			// return false;
-		// }
-	// }
-	
-	// public static function updateServerName($siteTag, $oldServerName, $newServerName, $port) {
-		// $panelCommandsPath = Config::get('panel.panel_commands_path');
-		
-		// exec("sudo $panelCommandsPath/reset_servername.sh $siteTag $oldServerName $newServerName $port", $output, $statusCode);
-		
-		// if ($statusCode == 0) {
-			// return true;
-		// } else {
-			// return false;
-		// }
-	// }
-	
-	// public static function updateSite($siteTag, $serverName, $port, $aliases) {
-		// $panelCommandsPath = Config::get('panel.panel_commands_path');
-		
-		// foreach ($aliases as $alias) {
-			// OS::removeAlias($siteTag, $alias->alias, $alias->port);
-		// }
-		
-		// exec("sudo $panelCommandsPath/reset_servername.sh $siteTag $serverName $port", $output, $statusCode);
-		
-		// if ($statusCode == 0) {
-			// return true;
-		// } else {
-			// return false;
-		// }
-	// }
 }

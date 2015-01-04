@@ -1,12 +1,11 @@
 <?php
 
-class Site extends \Eloquent {
+class Site extends \Eloquent
+{
 	protected $fillable = [];
 	
 	protected $table = 'sites';
-	
-	
-	
+
 	private static $validator;
 	private static $validationMessage;
 	
@@ -15,7 +14,8 @@ class Site extends \Eloquent {
 	 *
 	 * @return Model
 	 */
-	public function users() {
+	public function users()
+	{
 		// Second argument is the name of pivot table.
 		// Third & forth arguments are the names of foreign keys.
 		return $this->belongsToMany('User', 'site_user', 'site_id', 'user_id')->withTimestamps();
@@ -26,21 +26,24 @@ class Site extends \Eloquent {
 	 *
 	 * @return Model
 	 */
-	public function settings() {
+	public function settings()
+	{
 		// Second & third arguments are the names of foreign key and local key.
 		return $this->hasMany('SiteSettings', 'site_id', 'id');
 	}
 	
-	public static function getValidator() {
+	public static function getValidator()
+	{
 		return self::$validator;
 	}
 	
-	public static function getValidationMessage() {
+	public static function getValidationMessage()
+	{
 		return self::$validationMessage;
 	}
 	
-	
-	public static function addSite() {
+	public static function addSite()
+	{
 		$serverTag = OS::getNextServerTag();
 		$serverPort = Input::get('server_port');
 		$serverName = strtolower(Input::get('server_name'));
@@ -97,7 +100,7 @@ class Site extends \Eloquent {
 		////////////////////
 		
 		$serverSettings = Config::get('panel.server_settings');
-		$serverSettings['activated'] = 'yes';
+		$serverSettings['activated'] = '1';
 		$serverSettings['server_tag'] = $serverTag;
 		$serverSettings['server_port'] = $serverPort;
 		$serverSettings['server_name'] = $serverName;
@@ -151,33 +154,52 @@ class Site extends \Eloquent {
 		}
 		
 		return true;
-		
-	
-	
+
 	}
 	
-	public static function removeSite($site) {
+	public static function updateMainSettings($site)
+	{
+		
+	}
+	
+	public static function removeSite($site)
+	{
 		$serverTag = $site->settings()->where('setting_name', '=', 'server_tag')->pluck('setting_value');
+		$serverName = $site->settings()->where('setting_name', '=', 'server_name')->pluck('setting_value');
+		$serverPort = $site->settings()->where('setting_name', '=', 'server_port')->pluck('setting_value');
 		
-		// $alias = $site->aliases()->where('server_name', '=', 1)->first();
-		// $serverName = $alias->alias;
-		// $port = $alias->port;
+		if ( ! OS::removeSite($serverTag, $serverName, $serverPort)) {
+			return false;
+		}
 		
-		// foreach ($site->aliases()->get() as $alias) {
-			// OS::removeAlias($siteTag, $alias->alias, $alias->port);
-		// }
+		$site->delete();
 		
-		// if (OS::removeSite($siteTag, $serverName, $port)) {
-			
-			// $site->delete();
-		
-			// return true;
-		// } else {
-			// return false;
-		// }
+		return true;
 	}
 	
-	public static function getIndexData() {
+	public static function changeState($site)
+	{
+		$serverTag = $site->settings()->where('setting_name', '=', 'server_tag')->pluck('setting_value');
+		$serverName = $site->settings()->where('setting_name', '=', 'server_name')->pluck('setting_value');
+		$serverPort = $site->settings()->where('setting_name', '=', 'server_port')->pluck('setting_value');
+		
+		if ($site->activated) {
+			if (OS::disableSite($serverTag, $serverName, $serverPort)) {
+				$site->activated = 0;
+				$site->save();
+			} else { return false; }
+		} else {
+			if (OS::enableSite($serverTag, $serverName, $serverPort)) {
+				$site->activated = 1;
+				$site->save();
+			} else { return false; }
+		}
+		
+		return true;
+	}
+	
+	public static function getIndexData()
+	{
 		//Input::merge(array('sort' => Input::get('sort', array(array('field' => 'tag', 'dir' => 'asc')))));
 		
 		@list($_sites, $sitesCount) = Helpers::getGridData(Site::select(array('id', 'activated', 'tag', 'aliases')));
@@ -194,7 +216,7 @@ class Site extends \Eloquent {
 			
 			$sites[] = array(
 				'id' => $site['id'],
-				'activated' => sprintf('<a href="%s" class="activated">%s</a>', route('sites.change-state', array('site' => $site['id'])), $site['activated'] == 'yes' ? 'Yes' : 'No'),
+				'activated' => sprintf('<a href="%s" class="activated">%s</a>', route('sites.change-state', array('site' => $site['id'])), $site['activated'] ? 'Yes' : 'No'),
 				'tag' => sprintf('<a href="%s">%s</a>', route('sites.get-details', array('site' => $site['id'])), $site['tag']),
 				'alias' => $site['aliases'],
 			);

@@ -28,9 +28,7 @@ label {
 <ul id="settingsPanelbar">
 	<li></li>
 	<li></li>
-	<li></li>
-	<li></li>
-	<li></li>
+
 </ul>
 @stop
 
@@ -39,8 +37,8 @@ label {
 <script type="text/javascript">
 $(document).ready(function () {
 
-	var aliasesURL = "{{ URL::route('sites.get-details-settings-main', ['id']) }}";
-	aliasesURL = aliasesURL.replace('id', {{ $id }});
+	var mainSettingsURL = "{{ URL::route('sites.get-details-settings-main', ['id']) }}";
+	mainSettingsURL = mainSettingsURL.replace('id', {{ $id }});
 		
 	$("#settingsPanelbar").kendoPanelBar({
 		animation: {
@@ -52,34 +50,16 @@ $(document).ready(function () {
 		
 		dataSource: [
 			{
-				text: "Aliases",
+				text: "Main Settings",
 				expanded: true,
-				contentUrl: aliasesURL
+				contentUrl: mainSettingsURL
 				
 			},
 			{
-				text: "<b>Item 2</b>",
-				encoded: false,                                 // Allows use of HTML for item text
-				content: "text"                                 // content within an item
-			},
-			{
-				text: "Item 3",
-				// content URL to load within an item
-				contentUrl: "http://demos.telerik.com/kendo-ui/content/web/panelbar/ajax/ajaxContent1.html"
-			},
-			{
-				text: "Item 4",
-				expanded: true,                                 // item is rendered expanded
-				items: [{                                       // Sub item collection.
-							text: "Sub Item 1"
-						},
-						{
-							text: "Sub Item 2"
-						}
-					]
-			},
-			{
-				text: "Item 5"
+				text: "Performance Settings",
+				expanded: false,
+				contentUrl: mainSettingsURL
+				
 			}
 		]
 	   

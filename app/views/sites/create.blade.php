@@ -41,13 +41,13 @@ hr {
 				<span id="createFormHeader" style="font-size:18px;">Create</span><hr>
 				<span id="createFormAlert"></span>
 				
-				<li><label for="port">Server Port</label></li>
+				<li><label for="server_port">Server Port</label></li>
 				<li><input type="text" name="server_port" id="server_port" value="" placeholder="80" class="k-textbox"></li>
 				
 				<li><label for="server_name">Server Name</label></li>
 				<li><input type="text" name="server_name" id="server_name" value="" placeholder="domain.tld" class="k-textbox"></li>
 				
-				<li><label for="aliases">Server Aliases</label></li>
+				<li><label for="server_aliases">Server Aliases</label></li>
 				<li><textarea name="server_aliases" id="server_aliases" value="" placeholder="domain.tld" class="k-textarea"></textarea></li>
 				
 				<li><label for="server_quota">Server Quota (MB)</label></li>

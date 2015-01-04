@@ -47,61 +47,78 @@ class SitesController extends BaseController {
 	public function getDetailsSettingsMain($site)
 	{
 		$id = $site->id;
-		$port = $site->aliases()->where('server_name', '=', 1)->pluck('port');
-		$serverName = $site->aliases()->where('server_name', '=', 1)->pluck('alias');
+		$serverTag = $site->settings()->where('setting_name', '=', 'server_tag')->pluck('setting_value');
+		$serverName = $site->settings()->where('setting_name', '=', 'server_name')->pluck('setting_value');
+		$serverPort = $site->settings()->where('setting_name', '=', 'server_port')->pluck('setting_value');
+		$serverQuota = $site->settings()->where('setting_name', '=', 'server_quota')->pluck('setting_value');
+		$serverAliases = str_replace(' ', "\r\n", str_replace($serverName, '', $site->settings()->where('setting_name', '=', 'server_aliases')->pluck('setting_value')));
+
+		return View::make('sites.details-settings-main', compact('id', 'serverTag', 'serverName', 'serverPort', 'serverAliases', 'serverQuota'));
+	}
+	
+	// update main settings
+	public function postDetailsSettingsMain($site)
+	{	
+		if ( ! Confide::user()->ability('Administrator', 'edit_site')) {
+			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
+			App::abort(403);
+		}
+
+		if ( ! Site::updateMainSettings($site)) {
+			Helpers::setExceptionErrorMessage(Site::getValidationMessage());
+			App::abort(403);
+		}
 		
-		$aliases = implode("\r\n", $site->aliases()->where('server_name', '=', 0)->lists('alias'));
-		
-		return View::make('sites.details-settings-main', compact('id', 'port', 'serverName', 'aliases'));
+		return Response::json(array());
 	}
 	
 	// update main settings: aliases
-	public function postDetailsSettingsMainAliases($site)
-	{	
-		if ( ! Confide::user()->ability('Administrator', 'edit_site')) {
-			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
-			App::abort(403);
-		}
+	// public function postDetailsSettingsMainAliases($site)
+	// {	
+		// if ( ! Confide::user()->ability('Administrator', 'edit_site')) {
+			// Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
+			// App::abort(403);
+		// }
 
-		if ( ! Site::updateAliases($site)) {
-			Helpers::setExceptionErrorMessage(Site::getValidationMessage());
-			App::abort(403);
-		}
+		// if ( ! Site::updateAliases($site)) {
+			// Helpers::setExceptionErrorMessage(Site::getValidationMessage());
+			// App::abort(403);
+		// }
 		
-		return Response::json(array());
-	}
+		// return Response::json(array());
+	// }
 	
 	// update main settings: server_name
-	public function postDetailsSettingsMainServerName($site)
-	{	
-		if ( ! Confide::user()->ability('Administrator', 'edit_site')) {
-			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
-			App::abort(403);
-		}
+	// public function postDetailsSettingsMainServerName($site)
+	// {	
+		// if ( ! Confide::user()->ability('Administrator', 'edit_site')) {
+			// Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
+			// App::abort(403);
+		// }
 
-		if ( ! Site::updateServerName($site)) {
-			Helpers::setExceptionErrorMessage(Site::getValidationMessage());
-			App::abort(403);
-		}
+		// if ( ! Site::updateServerName($site)) {
+			// Helpers::setExceptionErrorMessage(Site::getValidationMessage());
+			// App::abort(403);
+		// }
 		
-		return Response::json(array());
-	}
+		// return Response::json(array());
+	// }
 	
 	// update main settings: port
-	public function postDetailsSettingsMainPort($site)
-	{	
-		if ( ! Confide::user()->ability('Administrator', 'edit_site')) {
-			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
-			App::abort(403);
-		}
+	// public function postDetailsSettingsMainPort($site)
+	// {	
+		// if ( ! Confide::user()->ability('Administrator', 'edit_site')) {
+			// Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
+			// App::abort(403);
+		// }
 
-		if ( ! Site::updatePort($site)) {
-			Helpers::setExceptionErrorMessage(Site::getValidationMessage());
-			App::abort(403);
-		}
+		// if ( ! Site::updatePort($site)) {
+			// Helpers::setExceptionErrorMessage(Site::getValidationMessage());
+			// App::abort(403);
+		// }
 		
-		return Response::json(array());
-	}
+		// return Response::json(array());
+	// }
 
 	public function destroy($site)
 	{

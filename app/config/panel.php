@@ -9,7 +9,7 @@ return array(
 	'panel_commands_path' => '/opt/webpanel/cmd',
 	
 	'server_settings' => array(
-		'activated' => 'yes',
+		'activated' => '1',
 		'server_tag' => '',
 		'server_port' => '80',
 		'server_name' => '', // default domain

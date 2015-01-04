@@ -89,9 +89,11 @@ Route::group(array('before' => 'auth'), function()
 	Route::get('sites/details/{site}', array('as' => 'sites.get-details', 'uses' => 'SitesController@getDetails'));
 	// update main settings
 	Route::get('sites/details-settings-main/{site}', array('as' => 'sites.get-details-settings-main', 'uses' => 'SitesController@getDetailsSettingsMain'));
-	Route::post('sites/details-settings-main-port/{site}', array('as' => 'sites.post-details-settings-main-port', 'uses' => 'SitesController@postDetailsSettingsMainPort'));
-	Route::post('sites/details-settings-main-servername/{site}', array('as' => 'sites.post-details-settings-main-servername', 'uses' => 'SitesController@postDetailsSettingsMainServerName'));
-	Route::post('sites/details-settings-main-aliases/{site}', array('as' => 'sites.post-details-settings-main-aliases', 'uses' => 'SitesController@postDetailsSettingsMainAliases'));
+	Route::post('sites/details-settings-main/{site}', array('as' => 'sites.post-details-settings-main', 'uses' => 'SitesController@postDetailsSettingsMain'));
+	
+	// Route::post('sites/details-settings-main-port/{site}', array('as' => 'sites.post-details-settings-main-port', 'uses' => 'SitesController@postDetailsSettingsMainPort'));
+	// Route::post('sites/details-settings-main-servername/{site}', array('as' => 'sites.post-details-settings-main-servername', 'uses' => 'SitesController@postDetailsSettingsMainServerName'));
+	// Route::post('sites/details-settings-main-aliases/{site}', array('as' => 'sites.post-details-settings-main-aliases', 'uses' => 'SitesController@postDetailsSettingsMainAliases'));
 	
 	// change status
 	Route::get('sites/change-state/{site}', array('as' => 'sites.change-state', 'uses' => 'SitesController@getChangeState'));

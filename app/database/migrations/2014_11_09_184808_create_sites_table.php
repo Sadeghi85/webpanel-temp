@@ -17,7 +17,7 @@ class CreateSitesTable extends Migration {
 			$table->increments('id');
 
 			$table->string('tag');
-			$table->string('activated');
+			$table->boolean('activated');
 			$table->string('aliases');
 			
 			//$table->integer('quota')->default(0);
