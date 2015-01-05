@@ -44,27 +44,27 @@ class SitesController extends BaseController {
 		return View::make('sites.details', compact('id', 'tag'));
 	}
 	
-	public function getDetailsSettingsMain($site)
+	public function getDetailsSettings($site)
 	{
 		$id = $site->id;
-		$serverTag = $site->settings()->where('setting_name', '=', 'server_tag')->pluck('setting_value');
-		$serverName = $site->settings()->where('setting_name', '=', 'server_name')->pluck('setting_value');
-		$serverPort = $site->settings()->where('setting_name', '=', 'server_port')->pluck('setting_value');
-		$serverQuota = $site->settings()->where('setting_name', '=', 'server_quota')->pluck('setting_value');
-		$serverAliases = str_replace(' ', "\r\n", str_replace($serverName, '', $site->settings()->where('setting_name', '=', 'server_aliases')->pluck('setting_value')));
-
-		return View::make('sites.details-settings-main', compact('id', 'serverTag', 'serverName', 'serverPort', 'serverAliases', 'serverQuota'));
+		$serverSettings = array();
+		
+		$serverSettings = $site->settings()->lists('setting_value', 'setting_name');
+		
+		$serverSettings['server_aliases'] = str_replace(' ', "\r\n", str_replace($serverSettings['server_name'], '', $serverSettings['server_aliases']));
+		
+		return View::make('sites.details-settings', compact('id', 'serverSettings'));
 	}
 	
 	// update main settings
-	public function postDetailsSettingsMain($site)
+	public function postDetailsSettings($site)
 	{	
 		if ( ! Confide::user()->ability('Administrator', 'edit_site')) {
 			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
 			App::abort(403);
 		}
 
-		if ( ! Site::updateMainSettings($site)) {
+		if ( ! Site::updateSettings($site)) {
 			Helpers::setExceptionErrorMessage(Site::getValidationMessage());
 			App::abort(403);
 		}

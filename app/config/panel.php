@@ -22,6 +22,7 @@ return array(
 		
 		'web_base_dir' => $webBaseDir,
 		'web_root_dir' => $webRootDir,
+		
 		'limit_rate' => '25',
 		'limit_conn' => '100',
 		'max_children' => '2',

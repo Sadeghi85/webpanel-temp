@@ -17,6 +17,169 @@ class OS
 		return $nextServerTag;
 	}
 	
+	public static function updateSite(array $serverSettings, array $serverTemplates)
+	{
+		
+		self::$errorMessage = '';
+		
+		$serverTag    = $serverSettings['server_tag'];
+		$serverPort   = $serverSettings['server_port'];
+		$serverName   = $serverSettings['server_name'];
+		
+		// index
+		$serverTagDir = sprintf('%s/sites-available/%s', $serverSettings['web_base_dir'], $serverTag);
+		$serverTagEnabledDir = sprintf('%s/sites-enabled/%s', $serverSettings['web_base_dir'], $serverTag);
+		$serverTagForHumansDir = sprintf('%s/sites-available-for-humans/%s.%s', $serverSettings['web_base_dir'], $serverPort, $serverName);
+		$serverTagEnabledForHumansDir = sprintf('%s/sites-enabled-for-humans/%s.%s', $serverSettings['web_base_dir'], $serverPort, $serverName);
+		
+		// php-fpm
+		$phpfpmDir = sprintf('/etc/php-fpm.d/settings/sites-available/%s', $serverTag);
+		$phpfpmEnabledDir = sprintf('/etc/php-fpm.d/settings/sites-enabled/%s', $serverTag);
+		$phpfpmForHumansDir = sprintf('/etc/php-fpm.d/settings/sites-available-for-humans/%s.%s', $serverPort, $serverName);
+		$phpfpmEnabledForHumansDir = sprintf('/etc/php-fpm.d/settings/sites-enabled-for-humans/%s.%s', $serverPort, $serverName);
+		
+		// apache
+		$apacheDir = sprintf('/etc/httpd/settings/sites-available/%s', $serverTag);
+		$apacheEnabledDir = sprintf('/etc/httpd/settings/sites-enabled/%s', $serverTag);
+		$apacheForHumansDir = sprintf('/etc/httpd/settings/sites-available-for-humans/%s.%s', $serverPort, $serverName);
+		$apacheEnabledForHumansDir = sprintf('/etc/httpd/settings/sites-enabled-for-humans/%s.%s', $serverPort, $serverName);
+		
+		// nginx
+		$nginxDir = sprintf('/etc/nginx/settings/sites-available/%s', $serverTag);
+		$nginxEnabledDir = sprintf('/etc/nginx/settings/sites-enabled/%s', $serverTag);
+		$nginxForHumansDir = sprintf('/etc/nginx/settings/sites-available-for-humans/%s.%s', $serverPort, $serverName);
+		$nginxEnabledForHumansDir = sprintf('/etc/nginx/settings/sites-enabled-for-humans/%s.%s', $serverPort, $serverName);
+		
+		// webalizer
+		$webalizerDir = sprintf('/etc/webalizer.d/settings/sites-available/%s', $serverTag);
+		$webalizerEnabledDir = sprintf('/etc/webalizer.d/settings/sites-enabled/%s', $serverTag);
+		$webalizerForHumansDir = sprintf('/etc/webalizer.d/settings/sites-available-for-humans/%s.%s', $serverPort, $serverName);
+		$webalizerEnabledForHumansDir = sprintf('/etc/webalizer.d/settings/sites-enabled-for-humans/%s.%s', $serverPort, $serverName);
+		
+		// creating session directory for this server_tag
+		exec(sprintf('sudo mkdir -p /var/lib/php/session/%s 2>&1', $serverTag), $output, $statusCode);
+		
+		// symlinks
+		exec(sprintf('sudo ln -fs "../sites-available/%s/" "%s" 2>&1', $serverTag, $serverTagForHumansDir), $output, $statusCode); // sites-available-for-humans
+		if ($serverSettings['activated']) {
+			exec(sprintf('sudo ln -fs "../sites-available/%s/" "%s" 2>&1', $serverTag, $serverTagEnabledDir), $output, $statusCode); // sites-enabled
+			exec(sprintf('sudo ln -fs "../sites-available/%s/" "%s" 2>&1', $serverTag, $serverTagEnabledForHumansDir), $output, $statusCode); // sites-enabled-for-humans
+		}
+		
+		// creating server_tag linux user
+		self::addUser($serverTag, $serverTagDir, 'apache', sprintf('%s.%s', $serverPort, $serverName));
+		
+		// creating php-fpm config
+		exec(sprintf('sudo mv %s.conf %s.conf.bak 2>&1', $phpfpmDir, $phpfpmDir), $output, $statusCode);
+		
+		$phpfpmConfigContent = preg_replace('#\{\{\s+server_tag\s+\}\}#i', $serverTag, $serverTemplates['phpfpm']);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+max_children\s+\}\}#i', $serverSettings['max_children'], $phpfpmConfigContent);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+start_servers\s+\}\}#i', $serverSettings['start_servers'], $phpfpmConfigContent);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+min_spare_servers\s+\}\}#i', $serverSettings['min_spare_servers'], $phpfpmConfigContent);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+max_spare_servers\s+\}\}#i', $serverSettings['max_spare_servers'], $phpfpmConfigContent);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+max_requests\s+\}\}#i', $serverSettings['max_requests'], $phpfpmConfigContent);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+request_terminate_timeout\s+\}\}#i', $serverSettings['request_terminate_timeout'], $phpfpmConfigContent);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+request_slowlog_timeout\s+\}\}#i', $serverSettings['request_slowlog_timeout'], $phpfpmConfigContent);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+web_base_dir\s+\}\}#i', $serverSettings['web_base_dir'], $phpfpmConfigContent);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+post_max_size\s+\}\}#i', $serverSettings['post_max_size'], $phpfpmConfigContent);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+upload_max_filesize\s+\}\}#i', $serverSettings['upload_max_filesize'], $phpfpmConfigContent);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+max_file_uploads\s+\}\}#i', $serverSettings['max_file_uploads'], $phpfpmConfigContent);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+memory_limit\s+\}\}#i', $serverSettings['memory_limit'], $phpfpmConfigContent);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+max_execution_time\s+\}\}#i', $serverSettings['max_execution_time'], $phpfpmConfigContent);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+error_reporting\s+\}\}#i', $serverSettings['error_reporting'], $phpfpmConfigContent);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+max_input_time\s+\}\}#i', $serverSettings['max_input_time'], $phpfpmConfigContent);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+default_socket_timeout\s+\}\}#i', $serverSettings['default_socket_timeout'], $phpfpmConfigContent);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+date_timezone\s+\}\}#i', $serverSettings['date_timezone'], $phpfpmConfigContent);
+		$phpfpmConfigContent = preg_replace('#\{\{\s+output_buffering\s+\}\}#i', $serverSettings['output_buffering'], $phpfpmConfigContent);
+		
+		self::createFileFromContent(sprintf('%s.conf', $phpfpmDir), $phpfpmConfigContent);
+		
+		// symlinks
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $phpfpmForHumansDir), $output, $statusCode); // sites-available-for-humans
+		if ($serverSettings['activated']) {
+			exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $phpfpmEnabledDir), $output, $statusCode); // sites-enabled
+			exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $phpfpmEnabledForHumansDir), $output, $statusCode); // sites-enabled-for-humans
+		}
+		
+		// creating apache config
+		exec(sprintf('sudo mv %s.conf %s.conf.bak 2>&1', $apacheDir, $apacheDir), $output, $statusCode);
+		
+		$apacheConfigContent = preg_replace('#\{\{\s+server_tag\s+\}\}#i', $serverTag, $serverTemplates['apache']);
+		$apacheConfigContent = preg_replace('#\{\{\s+web_base_dir\s+\}\}#i', $serverSettings['web_base_dir'], $apacheConfigContent);
+		$apacheConfigContent = preg_replace('#\{\{\s+web_root_dir\s+\}\}#i', $serverSettings['web_root_dir'], $apacheConfigContent);
+		$apacheConfigContent = preg_replace('#\{\{\s+server_port\s+\}\}#i', $serverSettings['server_port'], $apacheConfigContent);
+		$apacheConfigContent = preg_replace('#\{\{\s+server_name\s+\}\}#i', $serverSettings['server_name'], $apacheConfigContent);
+		$apacheConfigContent = preg_replace('#\{\{\s+server_port_server_aliases\s+\}\}#i', $serverSettings['server_port_server_aliases'], $apacheConfigContent);
+		$apacheConfigContent = preg_replace('#\{\{\s+mod_page_speed_domains\s+\}\}#i', $serverSettings['mod_page_speed_domains'], $apacheConfigContent);
+		
+		self::createFileFromContent(sprintf('%s.conf', $apacheDir), $apacheConfigContent);
+		
+		// symlinks
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $apacheForHumansDir), $output, $statusCode); // sites-available-for-humans
+		if ($serverSettings['activated']) {
+			exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $apacheEnabledDir), $output, $statusCode); // sites-enabled
+			exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $apacheEnabledForHumansDir), $output, $statusCode); // sites-enabled-for-humans
+		}
+		
+		// creating nginx config
+		exec(sprintf('sudo mv %s.conf %s.conf.bak 2>&1', $nginxDir, $nginxDir), $output, $statusCode);
+		
+		$nginxConfigContent = preg_replace('#\{\{\s+server_tag\s+\}\}#i', $serverTag, $serverTemplates['nginx']);
+		$nginxConfigContent = preg_replace('#\{\{\s+web_base_dir\s+\}\}#i', $serverSettings['web_base_dir'], $nginxConfigContent);
+		$nginxConfigContent = preg_replace('#\{\{\s+web_root_dir\s+\}\}#i', $serverSettings['web_root_dir'], $nginxConfigContent);
+		$nginxConfigContent = preg_replace('#\{\{\s+server_port\s+\}\}#i', $serverSettings['server_port'], $nginxConfigContent);
+		$nginxConfigContent = preg_replace('#\{\{\s+server_aliases\s+\}\}#i', $serverSettings['server_aliases'], $nginxConfigContent);
+		$nginxConfigContent = preg_replace('#\{\{\s+limit_rate\s+\}\}#i', $serverSettings['limit_rate'], $nginxConfigContent);
+		$nginxConfigContent = preg_replace('#\{\{\s+limit_conn\s+\}\}#i', $serverSettings['limit_conn'], $nginxConfigContent);
+		
+		self::createFileFromContent(sprintf('%s.conf', $nginxDir), $nginxConfigContent);
+		
+		// symlinks
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $nginxForHumansDir), $output, $statusCode); // sites-available-for-humans
+		if ($serverSettings['activated']) {
+			exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $nginxEnabledDir), $output, $statusCode); // sites-enabled
+			exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $nginxEnabledForHumansDir), $output, $statusCode); // sites-enabled-for-humans
+		}
+		
+		// creating nginx default config
+		exec('sudo mv /etc/nginx/nginx_default_server.conf /etc/nginx/nginx_default_server.conf.bak 2>&1', $output, $statusCode);
+		$nginxDefaultConfigContent = preg_replace('#\{\{\s+default_server\s+\}\}#i', $serverSettings['default_server'], $serverTemplates['nginxdefault']);
+		self::createFileFromContent('/etc/nginx/nginx_default_server.conf', $nginxDefaultConfigContent);
+		
+		// creating webalizer config
+		exec(sprintf('sudo mv %s.conf %s.conf.bak 2>&1', $webalizerDir, $webalizerDir), $output, $statusCode);
+		
+		$webalizerConfigContent = preg_replace('#\{\{\s+server_tag\s+\}\}#i', $serverTag, $serverTemplates['webalizer']);
+		
+		self::createFileFromContent(sprintf('%s.conf', $webalizerDir), $webalizerConfigContent);
+		
+		// symlinks
+		exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $webalizerForHumansDir), $output, $statusCode); // sites-available-for-humans
+		if ($serverSettings['activated']) {
+			exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $webalizerEnabledDir), $output, $statusCode); // sites-enabled
+			exec(sprintf('sudo ln -fs "../sites-available/%s.conf" "%s.conf" 2>&1', $serverTag, $webalizerEnabledForHumansDir), $output, $statusCode); // sites-enabled-for-humans
+		}
+		
+		// adding server aliases to the hosts file
+		// exec('sudo mv /etc/hosts /etc/hosts.bak 2>&1', $output, $statusCode);
+		// exec('sudo cat /etc/hosts 2>&1', $output, $statusCode);
+		// $hostsContent = preg_replace('!#\s*webpanel.*!is', '', implode("\r\n", $output));
+		// self::createFileFromContent('/etc/hosts', $hostsContent.$serverSettings['hosts']);
+		
+		// setting permissions
+		exec(sprintf('sudo chmod 777 /var/lib/php/session/%s 2>&1', $serverTag), $output, $statusCode);
+		exec(sprintf('sudo chown -R "%s:apache" %s 2>&1', $serverTag, $serverTagDir), $output, $statusCode);
+		exec(sprintf('sudo chmod -R 664 %s 2>&1', $serverTagDir), $output, $statusCode);
+		exec(sprintf('sudo chmod -R +X %s 2>&1', $serverTagDir), $output, $statusCode);
+		
+		// reloading servers
+		if ( ! self::reloadServers()) {
+			return false;
+		}
+		
+		return true;
+	}
+	
 	public static function addSite(array $serverSettings, array $serverTemplates)
 	{
 		

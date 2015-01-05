@@ -29,9 +29,6 @@
 		
 		<div id="overviewContent">Content 1</div>
 		<div id="settingsContent">
-			@section('settings')
-				@include('sites.details-settings')
-			@show
 		</div>
 		<div id="logsContent">Content 3</div>
 	</div>
@@ -44,7 +41,10 @@
 <script type="text/javascript">
 $(document).ready(function () {
 
-	$("#tabstrip").kendoTabStrip({
+	var getSettingsURL = "{{ URL::route('sites.get-details-settings', ['id']) }}";
+	getSettingsURL = getSettingsURL.replace('id', {{ $id }});
+
+	var ts = $("#tabstrip").kendoTabStrip({
 		animation: {
 			close: {
 				duration: 500,
@@ -54,11 +54,20 @@ $(document).ready(function () {
 			   duration: 500,
 			   effects: "fadeIn"
 		   }
-		}
-	});
+		},
+		contentUrls: [
+            null,
+            getSettingsURL,
+			null,
+        ]
+	}).data('kendoTabStrip');
 	
-	var tabToActivate = $("#overview");
-    $("#tabstrip").kendoTabStrip().data("kendoTabStrip").activateTab(tabToActivate);
+	setTimeout(function () {
+            ts.reload($('#tabstrip #settings'));
+        })
+	
+	
+    ts.activateTab($('#overview'));
 	
 	
 	

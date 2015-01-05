@@ -88,8 +88,8 @@ Route::group(array('before' => 'auth'), function()
 	Route::post('sites/destroy/{site}', array('as' => 'sites.destroy', 'uses' => 'SitesController@destroy'));
 	Route::get('sites/details/{site}', array('as' => 'sites.get-details', 'uses' => 'SitesController@getDetails'));
 	// update main settings
-	Route::get('sites/details-settings-main/{site}', array('as' => 'sites.get-details-settings-main', 'uses' => 'SitesController@getDetailsSettingsMain'));
-	Route::post('sites/details-settings-main/{site}', array('as' => 'sites.post-details-settings-main', 'uses' => 'SitesController@postDetailsSettingsMain'));
+	Route::get('sites/details-settings/{site}', array('as' => 'sites.get-details-settings', 'uses' => 'SitesController@getDetailsSettings'));
+	Route::post('sites/details-settings/{site}', array('as' => 'sites.post-details-settings', 'uses' => 'SitesController@postDetailsSettings'));
 	
 	// Route::post('sites/details-settings-main-port/{site}', array('as' => 'sites.post-details-settings-main-port', 'uses' => 'SitesController@postDetailsSettingsMainPort'));
 	// Route::post('sites/details-settings-main-servername/{site}', array('as' => 'sites.post-details-settings-main-servername', 'uses' => 'SitesController@postDetailsSettingsMainServerName'));
