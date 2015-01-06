@@ -380,7 +380,7 @@ class Site extends \Eloquent
 				'id' => $site['id'],
 				'activated' => sprintf('<a href="%s" class="activated">%s</a>', route('sites.change-state', array('site' => $site['id'])), $site['activated'] ? 'Yes' : 'No'),
 				'tag' => sprintf('<a href="%s">%s</a>', route('sites.get-details', array('site' => $site['id'])), $site['tag']),
-				'alias' => $site['aliases'],
+				'aliases' => $site['aliases'],
 			);
 		}
 

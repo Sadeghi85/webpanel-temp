@@ -46,7 +46,11 @@ class UserRepository {
      */
     public function login($input)
     {
-        if (! isset($input['password'])) {
+		if ( ! (isset($input['username']) and DB::table('users')->where('username', '=', $input['username'])->pluck('activated'))) {
+			return false;
+		}
+	
+        if ( ! isset($input['password'])) {
             $input['password'] = null;
         }
 

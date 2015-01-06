@@ -55,9 +55,6 @@ hr {
 				<li><label for="role">Role</label></li>
 				<li>{{ Form::select('role', $roles, null, array('id' => 'role')) }}</li>
 				
-				<li><label for="activate">Activate</label></li>
-				<li>{{ Form::select('activate', array('No', 'Yes'), null, array('id' => 'activate')) }}</li>
-				
 				<li>&nbsp;</li>
 				<li>
 					<input type="submit" id="formCreateButton" class="k-button" value="Create">
@@ -128,7 +125,7 @@ $(document).ready(function () {
 			type: "POST",
 			cache: false,
 			dataType: "json",
-			data: {"username": $("#username").val(), "name": $("#name").val(), "password": $("#password").val(), "password_confirmation": $("#password_confirmation").val(), "activated": $("#activate").val(), "role": $("#role").val() },
+			data: {"username": $("#username").val(), "name": $("#name").val(), "password": $("#password").val(), "password_confirmation": $("#password_confirmation").val(), "role": $("#role").val() },
 			url: "{{ URL::route('users.store') }}",
 			
 			success: function(data, textStatus, xhr) {

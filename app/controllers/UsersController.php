@@ -39,10 +39,15 @@ class UsersController extends BaseController {
      */
     public function store()
     {
-		$userInstance = new User;
+		if ( ! Confide::user()->ability('Administrator', '')) {
+			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
+			App::abort(403);
+		}
 		
-		if ($userInstance->validationFails()) {
-			Helpers::setExceptionErrorMessage($userInstance->getValidationMessage());
+		$user = new User;
+		
+		if ($user->validationFails()) {
+			Helpers::setExceptionErrorMessage($user->getValidationMessage());
 			App::abort(403);
 		}
 		
@@ -81,15 +86,25 @@ class UsersController extends BaseController {
         // }
     }
 
-    /**
-	 * Remove the specified resource from storage.
-	 * DELETE /overviews/{id}
-	 *
-	 * @param  int  $id
-	 * @return Response
-	 */
+	public function getChangeState($user)
+	{
+		if ( ! Confide::user()->ability('Administrator', '')) {
+			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
+			App::abort(403);
+		}
+		
+		User::changeState($user);
+		
+		return Redirect::route('users.index', array('page' => Input::get('page', 1), 'pageSize' => Input::get('pageSize', 10)));
+	}
+	
 	public function destroy($user)
 	{
+		if ( ! Confide::user()->ability('Administrator', 'create_site')) {
+			Helpers::setExceptionErrorMessage('You don\'t have permission to access this resource.');
+			App::abort(403);
+		}
+		
 		if ( ! User::removeUser($user)) {
 			Helpers::setExceptionErrorMessage('Unable to remove this user.');
 			App::abort(403);

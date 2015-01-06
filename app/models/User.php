@@ -9,15 +9,15 @@ class User extends Eloquent implements ConfideUserInterface {
     use ConfideUser;
 	use HasRole;
 	
-	protected $fillable = array('username', 'user', 'password', 'activated', 'email');
+	//protected $fillable = [];
+	protected $guarded = array('id');
 	protected $table = 'users';
 	
 	private $validationRules = array(
 		'username'   => 'required|alpha_dash|between:3,127|unique:users,username',
 		'email'      => 'required|unique:users,email',
-		'password'   => 'required|between:3,127|confirmed',
-		'password_confirmation'   => 'required|between:3,127',
-		'activated' => 'required',
+		'password'   => 'required|between:4,64|confirmed',
+		'password_confirmation'   => 'required|between:4,64',
 		'role' => 'required|exists:roles,id'
 	);
 	
@@ -31,32 +31,20 @@ class User extends Eloquent implements ConfideUserInterface {
 			'username' => $username,
 			'email'   => $username.'@localhost.localdomain',
 		));
-		Debugbar::info(Input::all());
-		$v = Validator::make(Input::all(),
-							$this->validationRules,
-							array(
-									//'custom.domain' => ':attribute is not valid.',
-									//'unique_with' => 'This combination of :fields already exists.',
-							)
-						);
+		
+		$v = Validator::make(Input::all(), $this->validationRules, array());
 		$v->setAttributeNames(array(
-							'username' => '"Username"',
-							'password'  => '"Password"',
-							'password_confirmation'  => '"Password Confirmation"',
-							'role'  => '"Role"',
+							'username' => 'Username',
+							'password'  => 'Password',
+							'password_confirmation'  => 'Password Confirmation',
+							'role'  => 'Role',
 							)
 		);
 		
 		if ($v->fails()) {
 			
 			$this->validator = $v;
-			
-			// $fail = $v->failed();
-			// if (isset($fail['alias']['Unique_with'])) {
-				// $this->validationMessage = sprintf('"%s" is already taken.', Input::get('server-name'));
-			// } else {
-				$this->validationMessage = $v->messages()->first();
-			//}
+			$this->validationMessage = $v->messages()->first();
 			
 			return false;
 		}
@@ -96,18 +84,6 @@ class User extends Eloquent implements ConfideUserInterface {
         return $this->belongsToMany('Site', 'site_user', 'user_id', 'site_id')->withTimestamps();
     }
 	
-	
-	public static function removeUser($user) {
-		if (OS::removeUser($user->username)) {
-			
-			$user->delete();
-		
-			return true;
-		} else {
-			return false;
-		}
-	}
-	
 	public static function addUser() {
 		$user = new User;
 		$user->username = input::get('username');
@@ -115,18 +91,17 @@ class User extends Eloquent implements ConfideUserInterface {
 		$user->email = input::get('email');
 		$user->password = input::get('password');
 		$user->password_confirmation = input::get('password_confirmation');
-		$user->activated = input::get('activated');
+		$user->activated = 1;
 			
-		if (OS::addUser($user->username, $user->password)) {
+		if (OS::addUser(input::get('username'), Config::get('panel.web_base_dir'), 'apache', 'WebPanel user', '/sbin/nologin', 0, input::get('password'))) {
 			$roleId = input::get('role');
-			$role = Role::find($roleId);
-			
-			if ($role) {
-				$user->save();
-				$user->attachRole($role);
-			} else {
-				return false;
-			}
+			//$role = Role::find($roleId);
+
+			$user->save();
+			Debugbar::info($user);
+			$user->roles()->sync(array($roleId));
+			//$user->attachRole($role);
+
 		} else {
 			return false;
 		}
@@ -166,6 +141,36 @@ class User extends Eloquent implements ConfideUserInterface {
 		return array('data' => $sites, 'total' => $sitesCount);
 	}
 	
+	public static function removeUser($user) {
+		if (OS::removeUser($user->username)) {
+			
+			$user->delete();
+		
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public static function changeState($user)
+	{
+		$username = $user->username;
+
+		if ($user->activated) {
+			if (OS::disableUser($username)) {
+				$user->activated = 0;
+				$user->save();
+			} else { return false; }
+		} else {
+			if (OS::enableUser($username)) {
+				$user->activated = 1;
+				$user->save();
+			} else { return false; }
+		}
+		
+		return true;
+	}
+	
 	public static function getIndexData() {
 		//// Input::merge(array('sort' => Input::get('sort', array(array('field' => 'tag', 'dir' => 'asc')))));
 		
@@ -173,7 +178,7 @@ class User extends Eloquent implements ConfideUserInterface {
 			User::with('roles')
 			->join('assigned_roles', 'users.id', '=', 'assigned_roles.user_id')
 			->join('roles', 'roles.id', '=', 'assigned_roles.role_id')
-			->select(array('users.id as id', 'users.username as username', 'users.name as name', 'roles.name as role'))
+			->select(array('users.id as id', 'users.username as username', 'users.activated as activated', 'users.name as name', 'roles.name as role'))
 		);
 		
 		// $sql= <<<EOT
@@ -223,7 +228,8 @@ class User extends Eloquent implements ConfideUserInterface {
 			
 			$users[] = array(
 				'id' => $_user['id'],
-				'username' => $_user['username'],
+				'username' => sprintf('<a href="%s">%s</a>', route('users.get-details', array('user' => $_user['id'])), $_user['username']),
+				'activated' => sprintf('<a href="%s" class="activated">%s</a>', route('users.change-state', array('user' => $_user['id'])), $_user['activated'] ? 'Yes' : 'No'),
 				'name' => $_user['name'],
 				'role' => implode(', ', $_roles),
 				

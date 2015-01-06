@@ -433,17 +433,18 @@ class OS
 		}
 	}
 	
-	public static function addUser($user, $home = '', $group = '', $comment = '', $shell = '/sbin/nologin')
+	public static function addUser($username, $home = '', $group = '', $comment = '', $shell = '/sbin/nologin', $uid = null, $password = '')
 	{
 		$command = '';
 		if ($comment) { $command .= sprintf(' --comment "%s" ', $comment); }
 		if ($group) { $command .= sprintf(' -g %s ', $group); }
 		if ($home) { $command .= sprintf(' --home "%s" ', $home); }
 		if ($shell) { $command .= sprintf(' --shell "%s" ', $shell); }
-		$command .= sprintf(' "%s"', $user);
+		if ($uid) { $command .= sprintf(' -u %s -o ', $shell); }
+		$command .= sprintf(' "%s"', $username);
 	
-		// check if user exists
-		exec(sprintf('sudo id %s 2>&1', $user), $output, $statusCode);
+		// check if username exists
+		exec(sprintf('sudo id %s 2>&1', $username), $output, $statusCode);
 		if ($statusCode == 0) {
 			// user exists
 			exec(sprintf('sudo usermod %s 2>&1', $command), $output, $statusCode);
@@ -451,6 +452,13 @@ class OS
 			// user doesn't exist
 			exec(sprintf('sudo useradd %s 2>&1', $command), $output, $statusCode);
 		}
+		
+		if ($password) {
+			exec(sprintf('echo "%s":"%s" | sudo chpasswd 2>&1', $username, $password), $output, $statusCode);
+		}
+		
+		return true;
+		
 	}
 	
 	public static function removeSite($serverTag, $serverName, $serverPort)
@@ -562,17 +570,45 @@ class OS
 		return true;
 	}
 	
-	// public static function removeUser ($username) {
-		// $panelCommandsPath = Config::get('panel.panel_commands_path');
+	public static function enableUser ($username) {
+	
+		exec(sprintf('sudo usermod --unlock --expiredate 2025-01-01 %s 2>&1', $username), $output, $statusCode);
 		
-		// exec("sudo $panelCommandsPath/userdel.sh $username", $output, $statusCode);
+		// 0: root
+		exec(sprintf('sudo sed -i -r -e"s/^(%s:[^:]+):[0-9]+:/\1:0:/" "/etc/passwd" 2>&1', $username), $output, $statusCode);		
+
+		return true;
+
+	}
+	
+	public static function disableUser ($username) {
 		
-		// if ($statusCode == 0) {
-			// return true;
-		// } else {
-			// return false;
-		// }
-	// }
+		// 99: nobody
+		exec(sprintf('sudo sed -i -r -e"s/^(%s:[^:]+):[0-9]+:/\1:99:/" "/etc/passwd" 2>&1', $username), $output, $statusCode);
+		
+		exec(sprintf('sudo usermod --lock --expiredate 1970-01-01 %s 2>&1', $username), $output, $statusCode);
+		
+		if ($statusCode == 0) {
+			return true;
+		} else {
+			return false;
+		}
+
+	}
+	
+	public static function removeUser ($username) {
+	
+		// 99: nobody
+		exec(sprintf('sudo sed -i -r -e"s/^(%s:[^:]+):[0-9]+:/\1:99:/" "/etc/passwd" 2>&1', $username), $output, $statusCode);
+		
+		exec(sprintf('sudo userdel %s 2>&1', $username), $output, $statusCode);
+		
+		if ($statusCode == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 	
 	// public static function addUser ($username, $password) {
 		// $panelCommandsPath = Config::get('panel.panel_commands_path');

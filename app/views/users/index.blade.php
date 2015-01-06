@@ -47,7 +47,7 @@ Users
 			<button id="removeButton">Remove</button>
 		</div>
 	</script>
-	<!-- <script id="detail-template" type="text/x-kendo-template"></script> -->
+	<script id="detail-template" type="text/x-kendo-template"></script>
 	
 	<div id="removeDialog"></div>
 	<script id="removeDialogTemplate" type="text/x-kendo-template">
@@ -69,7 +69,14 @@ $(document).ready(function () {
 	
 		columns: [{
 				field:"username",
+				encoded: false,
 				title: "Username",
+				width: "200px"
+				
+			},{
+				field:"activated",
+				encoded: false,
+				title: "Activated",
 				width: "200px"
 				
 			},{
@@ -112,47 +119,48 @@ $(document).ready(function () {
 			serverSorting: true
 		},
 
-		detailInit: function(e) {
-			console.log(e);
-			var grid = kendo.widgetInstance($('#grid'));
-			var masterRow = e.masterRow;
-			masterRow = grid.dataItem(masterRow[0]);
-			var url = "{{ URL::route('users.sites', ['id']) }}";
-			url = url.replace('id', masterRow.id);
+		// detailInit: function(e) {
+			// console.log(e);
+			// var grid = kendo.widgetInstance($('#grid'));
+			// var masterRow = e.masterRow;
+			// masterRow = grid.dataItem(masterRow[0]);
+			// var url = "{{-- URL::route('users.sites', ['id']) --}}";
+			// url = url.replace('id', masterRow.id);
 			
-			e.detailRow.find(".grid").kendoGrid({
-					columns: [{
-						field:"tag",
-						title: "Tag",
-						width: "200px"
+			// e.detailRow.find(".grid").kendoGrid({
+					// columns: [{
+						// field:"tag",
+						// title: "Tag",
+						// width: "200px"
 						
-					},
-					{
-						field:"aliases",
-						title: "Aliases",
-						width: "auto"
+					// },
+					// {
+						// field:"aliases",
+						// title: "Aliases",
+						// width: "auto"
 						
-					},
-				],
-				dataSource: {
-					type: "json",
-					transport: {
-						read: {
-								url: url,
-								dataType: "json"
-						}
-					},
-					schema: {
-						data: "data", total: "total"
-					},
-					pageSize: 10,
-					serverPaging: true,
-					serverFiltering: false,
-					serverSorting: false
-				},
-			});
-		},
-		detailTemplate: 'Sites: <div class="grid"></div>',
+					// },
+				// ],
+				// dataSource: {
+					// type: "json",
+					// transport: {
+						// read: {
+								// url: url,
+								// dataType: "json"
+						// }
+					// },
+					// schema: {
+						// data: "data", total: "total"
+					// },
+					// pageSize: 10,
+					// serverPaging: true,
+					// serverFiltering: false,
+					// serverSorting: false
+				// },
+			// });
+		// },
+		//detailTemplate: 'Sites: <div class="grid"></div>',
+		detailTemplate: kendo.template($("#detail-template").html()),
 		filterable: true,
 		filterable: {
 			mode: "menu"
@@ -220,7 +228,7 @@ $(document).ready(function () {
 				type: "POST",
 				cache: false,
 				dataType: "json",
-				data: {_method: "DELETE"},
+				data: {},
 				url: url,
 				
 				success: function(data, textStatus, xhr) {
@@ -255,18 +263,26 @@ $(document).ready(function () {
 	grid.bind("dataBound", function(e) {
 		removeButton.enable(false);
 		
-		$(".sites").kendoDropDownList({
-			animation: {
-				close: {
-					effects: "fadeOut zoom:out",
-					duration: 200
-				},
-				open: {
-					effects: "fadeIn zoom:in",
-					duration: 200
-				}
-			}
+		$(".activated").on('click', function (event) {
+			event.preventDefault();
+			
+			window.location.assign(this.href+'?pageSize='+$('#grid').data().kendoGrid.dataSource.pageSize()+'&page='+$('#grid').data().kendoGrid.dataSource.page());
+		
 		});
+		
+		// $(".sites").kendoDropDownList({
+			// animation: {
+				// close: {
+					// effects: "fadeOut zoom:out",
+					// duration: 200
+				// },
+				// open: {
+					// effects: "fadeIn zoom:in",
+					// duration: 200
+				// }
+			// }
+		// });
+		
 		//resizeSplitter();
 	});
 

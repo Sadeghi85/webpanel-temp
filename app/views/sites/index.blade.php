@@ -77,7 +77,7 @@ $(document).ready(function () {
 				
 			},
 			{
-				field: "alias",
+				field: "aliases",
 				title: "Aliases",
 				width: "auto",
 				encoded: false,
